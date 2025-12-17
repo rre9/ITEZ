@@ -6,9 +6,12 @@ using ITHelpDesk.Services.Abstractions;
 using ITHelpDesk.Services.Authorization;
 using ITHelpDesk.Validators;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +51,38 @@ builder.Services.AddScoped<IDepartmentProvider, DepartmentProvider>();
 builder.Services.AddScoped<ITicketQueryService, TicketQueryService>();
 builder.Services.AddScoped<IAuthorizationHandler, TicketAccessHandler>();
 
+// Data Protection API for encrypting sensitive data
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "DataProtectionKeys")))
+    .SetApplicationName("ITHelpDesk")
+    .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+
+// Rate Limiting to prevent brute force attacks
+builder.Services.AddRateLimiter(options =>
+{
+    // Global rate limiter
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Login endpoint - stricter limits
+    options.AddPolicy("login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5, // 5 attempts per window
+                Window = TimeSpan.FromMinutes(15) // 15 minute window
+            }));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -70,6 +105,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Rate Limiting must be after UseRouting
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

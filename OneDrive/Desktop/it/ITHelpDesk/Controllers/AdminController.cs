@@ -274,15 +274,87 @@ public class AdminController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await _userManager.DeleteAsync(user);
-        if (result.Succeeded)
+        try
         {
-            TempData["Toast"] = $"✅ User {user.FullName} ({user.Email}) has been deleted.";
+            // حذف السجلات المرتبطة أولاً
+            var logsToDelete = await _context.TicketLogs
+                .Where(l => l.PerformedById == user.Id)
+                .ToListAsync();
+            
+            if (logsToDelete.Any())
+            {
+                _context.TicketLogs.RemoveRange(logsToDelete);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Deleted {Count} ticket logs associated with user {UserId}.", logsToDelete.Count, user.Id);
+            }
+
+            // حذف التذاكر التي أنشأها المستخدم (إذا كان لديه تذاكر)
+            var ticketsCreatedByUser = await _context.Tickets
+                .Where(t => t.CreatedById == user.Id)
+                .ToListAsync();
+            
+            if (ticketsCreatedByUser.Any())
+            {
+                // حذف المرفقات المرتبطة
+                var ticketIds = ticketsCreatedByUser.Select(t => t.Id).ToList();
+                var attachmentsToDelete = await _context.TicketAttachments
+                    .Where(a => ticketIds.Contains(a.TicketId))
+                    .ToListAsync();
+                
+                if (attachmentsToDelete.Any())
+                {
+                    _context.TicketAttachments.RemoveRange(attachmentsToDelete);
+                }
+
+                // حذف السجلات المرتبطة بالتذاكر
+                var logsToDeleteForTickets = await _context.TicketLogs
+                    .Where(l => ticketIds.Contains(l.TicketId))
+                    .ToListAsync();
+                
+                if (logsToDeleteForTickets.Any())
+                {
+                    _context.TicketLogs.RemoveRange(logsToDeleteForTickets);
+                }
+
+                // حذف التذاكر
+                _context.Tickets.RemoveRange(ticketsCreatedByUser);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Deleted {Count} tickets created by user {UserId}.", ticketsCreatedByUser.Count, user.Id);
+            }
+
+            // تحديث التذاكر المعينة للمستخدم (إزالة التعيين)
+            var ticketsAssignedToUser = await _context.Tickets
+                .Where(t => t.AssignedToId == user.Id)
+                .ToListAsync();
+            
+            if (ticketsAssignedToUser.Any())
+            {
+                foreach (var ticket in ticketsAssignedToUser)
+                {
+                    ticket.AssignedToId = null;
+                }
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Unassigned {Count} tickets from user {UserId}.", ticketsAssignedToUser.Count, user.Id);
+            }
+
+            // الآن يمكن حذف المستخدم بأمان
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User {UserId} ({Email}) deleted successfully.", user.Id, user.Email);
+                TempData["Toast"] = $"✅ User {user.FullName} ({user.Email}) has been deleted.";
+            }
+            else
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("Failed to delete user {UserId}: {Errors}", user.Id, errors);
+                TempData["Toast"] = $"⚠️ Failed to delete user: {errors}";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            TempData["Toast"] = $"⚠️ Failed to delete user: {errors}";
+            _logger.LogError(ex, "Error deleting user {UserId}.", user.Id);
+            TempData["Toast"] = $"⚠️ An error occurred while deleting the user. Please try again.";
         }
 
         return RedirectToAction(nameof(Index));
@@ -319,6 +391,54 @@ public class AdminController : Controller
             TempData["Toast"] = "⚠️ Failed to delete tickets. Please try again.";
         }
         
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(string id, string newPassword)
+    {
+        if (string.IsNullOrWhiteSpace(newPassword))
+        {
+            TempData["Toast"] = "⚠️ Password cannot be empty.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (newPassword.Length < 6)
+        {
+            TempData["Toast"] = "⚠️ Password must be at least 6 characters long.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        // Remove old password
+        var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+        if (!removePasswordResult.Succeeded)
+        {
+            var errors = string.Join(", ", removePasswordResult.Errors.Select(e => e.Description));
+            TempData["Toast"] = $"⚠️ Failed to change password: {errors}";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Add new password
+        var addPasswordResult = await _userManager.AddPasswordAsync(user, newPassword);
+        if (addPasswordResult.Succeeded)
+        {
+            _logger.LogInformation("Admin {AdminId} changed password for user {UserId} ({Email}).", 
+                User.FindFirstValue(ClaimTypes.NameIdentifier), user.Id, user.Email);
+            TempData["Toast"] = $"✅ Password changed successfully for {user.FullName}.";
+        }
+        else
+        {
+            var errors = string.Join(", ", addPasswordResult.Errors.Select(e => e.Description));
+            TempData["Toast"] = $"⚠️ Failed to set new password: {errors}";
+        }
+
         return RedirectToAction(nameof(Index));
     }
 }
