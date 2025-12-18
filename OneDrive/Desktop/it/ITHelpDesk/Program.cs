@@ -11,9 +11,20 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Authentication;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Kestrel to enforce TLS 1.2 and TLS 1.3 only
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        // Enforce TLS 1.2 and TLS 1.3 only (disable older versions)
+        httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+    });
+});
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
