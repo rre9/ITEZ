@@ -1,0 +1,174 @@
+@model AdminUsersViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="display-6 fw-semibold text-primary mb-1">
+            <i class="fa-solid fa-user-gear me-2"></i>User Management
+        </h1>
+        <p class="text-secondary mb-0">Administer roles, account status, and credentials.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-md-6 col-lg-4">
+                <label class="form-label fw-semibold" for="Search">Search</label>
+                <input type="text" class="form-control" id="Search" name="search" value="@Model.Search" placeholder="Name or email" />
+            </div>
+            <div class="col-12 col-md-4 col-lg-3">
+                <label class="form-label fw-semibold" for="Role">Role</label>
+                <select class="form-select" id="Role" name="role">
+                    @foreach (var option in Model.RoleOptions)
+                    {
+                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-2 col-lg-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fa-solid fa-filter me-2"></i>Apply
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-rotate-right me-2"></i>Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Roles</th>
+                        <th scope="col" class="text-nowrap">Status</th>
+                        <th scope="col" class="text-end text-nowrap">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Users.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="py-5 text-center text-secondary">
+                            <i class="fa-solid fa-users-slash fa-3x mb-3 text-muted"></i>
+                            <div class="fw-semibold">No users found.</div>
+                            <p class="mb-0">Try adjusting your search filters.</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var user in Model.Users)
+                    {
+                        var modalPrefix = user.Id.Replace(\" \", \"\");
+                        <tr>
+                            <td>
+                                <div class=\"fw-semibold\">@user.FullName</div>
+                                <div class=\"text-secondary small\">ID: @user.Id</div>
+                            </td>
+                            <td>
+                                <div>@user.Email</div>
+                                <div class=\"small @(user.EmailConfirmed ? \"text-success\" : \"text-warning\")\">
+                                    <i class=\"fa-solid @(user.EmailConfirmed ? \"fa-circle-check\" : \"fa-triangle-exclamation\") me-1\"></i>
+                                    @(user.EmailConfirmed ? \"Confirmed\" : \"Not confirmed\")
+                                </div>
+                            </td>
+                            <td>
+                                @if (!user.Roles.Any())
+                                {
+                                    <span class=\"badge bg-light text-secondary border\">Employee</span>
+                                }
+                                else
+                                {
+                                    foreach (var role in user.Roles)
+                                    {
+                                        <span class=\"badge bg-primary-subtle text-primary border border-primary-subtle me-1\">@role</span>
+                                    }
+                                }
+                            </td>
+                            <td class=\"text-nowrap\">
+                                @if (user.IsLockedOut)
+                                {
+                                    <span class=\"badge bg-danger-subtle text-danger border border-danger-subtle\">Locked</span>
+                                }
+                                else
+                                {
+                                    <span class=\"badge bg-success-subtle text-success border border-success-subtle\">Active</span>
+                                }
+                            </td>
+                            <td class=\"text-end text-nowrap\">
+                                <div class=\"btn-group btn-group-sm\" role=\"group\">
+                                    @if (user.Roles.Contains(\"Admin\"))
+                                    {
+                                        <button type=\"button\" class=\"btn btn-outline-secondary\" data-bs-toggle=\"modal\" data-bs-target=\"#removeAdmin-@modalPrefix\">Remove Admin</button>
+                                    }
+                                    else
+                                    {
+                                        <button type=\"button\" class=\"btn btn-outline-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#makeAdmin-@modalPrefix\">Make Admin</button>
+                                    }
+
+                                    @if (user.Roles.Contains(\"Support\"))
+                                    {
+                                        <button type=\"button\" class=\"btn btn-outline-secondary\" data-bs-toggle=\"modal\" data-bs-target=\"#removeSupport-@modalPrefix\">Remove Support</button>
+                                    }
+                                    else
+                                    {
+                                        <button type=\"button\" class=\"btn btn-outline-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#makeSupport-@modalPrefix\">Make Support</button>
+                                    }
+
+                                    @if (user.IsLockedOut)
+                                    {
+                                        <button type=\"button\" class=\"btn btn-outline-success\" data-bs-toggle=\"modal\" data-bs-target=\"#unlock-@modalPrefix\">Unlock</button>
+                                    }
+                                    else
+                                    {
+                                        <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#lock-@modalPrefix\">Lock</button>
+                                    }
+
+                                    <button type=\"button\" class=\"btn btn-outline-secondary\" data-bs-toggle=\"modal\" data-bs-target=\"#resetPassword-@modalPrefix\">Reset Password</button>
+                                    
+                                    <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#deleteUser-@modalPrefix\">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Make Admin Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"makeAdmin-\" + modalPrefix, \"Make Admin\", $\"Are you sure you want to grant Admin privileges to {user.FullName}?\", Url.Action(\"MakeAdmin\"), user.Id)\" />
+
+                        <!-- Remove Admin Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"removeAdmin-\" + modalPrefix, \"Remove Admin\", $\"Remove Admin privileges from {user.FullName}?\", Url.Action(\"RemoveAdmin\"), user.Id)\" />
+
+                        <!-- Make Support Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"makeSupport-\" + modalPrefix, \"Make Support\", $\"Add {user.FullName} to the Support team?\", Url.Action(\"MakeSupport\"), user.Id)\" />
+
+                        <!-- Remove Support Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"removeSupport-\" + modalPrefix, \"Remove Support\", $\"Remove {user.FullName} from the Support team?\", Url.Action(\"RemoveSupport\"), user.Id)\" />
+
+                        <!-- Lock Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"lock-\" + modalPrefix, \"Lock Account\", $\"Lock {user.FullName}'s account immediately?\", Url.Action(\"Lock\"), user.Id)\" />
+
+                        <!-- Unlock Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"unlock-\" + modalPrefix, \"Unlock Account\", $\"Unlock {user.FullName}'s account?\", Url.Action(\"Unlock\"), user.Id)\" />
+
+                        <!-- Reset Password Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"resetPassword-\" + modalPrefix, \"Send Password Reset\", $\"Send a password reset email to {user.Email}?\", Url.Action(\"SendResetPassword\"), user.Id)\" />
+
+                        <!-- Delete User Modal -->
+                        <partial name=\"_AdminConfirmModal\" model=\"new AdminConfirmModalViewModel(\"deleteUser-\" + modalPrefix, \"Delete User\", $\"⚠️ WARNING: This will permanently delete {user.FullName} ({user.Email}) and all associated data. This action cannot be undone!\", Url.Action(\"DeleteUser\"), user.Id)\" />
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

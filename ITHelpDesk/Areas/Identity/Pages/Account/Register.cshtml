@@ -1,0 +1,52 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4 p-lg-5">
+                <h1 class="h3 fw-semibold mb-2 text-center text-primary">Create your IT Help Desk account</h1>
+                <p class="text-secondary text-center mb-4">Access support resources with your @@yub.com.sa email.</p>
+
+                <form asp-route-returnUrl="@Model.ReturnUrl" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.FullName" class="form-label fw-semibold"></label>
+                        <input asp-for="Input.FullName" class="form-control form-control-lg" autocomplete="name" />
+                        <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" />
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        <div class="form-text">Only corporate emails ending with @@yub.com.sa are allowed.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold"></label>
+                        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

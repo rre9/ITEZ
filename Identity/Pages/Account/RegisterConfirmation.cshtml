@@ -1,0 +1,18 @@
+@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Confirm your email";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-5">
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body p-4 p-lg-5 text-center">
+                <i class="fa-solid fa-envelope-circle-check fa-3x text-primary mb-3"></i>
+                <h1 class="h3 fw-semibold text-primary mb-2">Verify your email</h1>
+                <p class="text-secondary mb-3">We've sent a confirmation link to <strong>@Model.Email</strong>. Please check your inbox to activate your IT Help Desk account.</p>
+                <p class="text-secondary small">If you don't see the email, check your spam folder or request another.</p>
+            </div>
+        </div>
+    </div>
+</div>

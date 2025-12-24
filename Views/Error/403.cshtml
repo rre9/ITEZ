@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body p-4 p-lg-5 text-center">
+                <i class="fa-solid fa-shield-halved fa-3x text-warning mb-3"></i>
+                <h1 class="h3 fw-semibold text-primary mb-2">Access denied</h1>
+                <p class="text-secondary mb-4">You don't have permission to view this ticket. If you believe this is an error, please contact the IT Help Desk.</p>
+                <a asp-controller="Tickets" asp-action="MyTickets" class="btn btn-primary">Return to My Tickets</a>
+            </div>
+        </div>
+    </div>
+</div>

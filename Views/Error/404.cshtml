@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Page not found";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body p-4 p-lg-5 text-center">
+                <i class="fa-solid fa-magnifying-glass-location fa-3x text-primary mb-3"></i>
+                <h1 class="h3 fw-semibold text-primary mb-2">We couldn't find that page</h1>
+                <p class="text-secondary mb-4">The page you were looking for may have been moved or no longer exists. Use the button below to return to the dashboard.</p>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>

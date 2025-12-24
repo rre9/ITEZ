@@ -1,0 +1,206 @@
+@model Ticket
+
+@{
+    var ticketNumber = $"HD-{Model.Id:D6}";
+    ViewData["Title"] = ticketNumber;
+}
+
+<div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-2">
+    <div>
+        @if (User.IsInRole("Employee"))
+        {
+            <a asp-action="MyTickets" class="text-decoration-none text-secondary small fw-semibold">
+                <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tickets
+            </a>
+        }
+        else if (User.IsInRole("Admin") || User.IsInRole("Support"))
+        {
+            <a asp-action="MyTasks" class="text-decoration-none text-secondary small fw-semibold">
+                <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tasks
+            </a>
+        }
+        <h1 class="display-6 fw-semibold text-primary mb-1 mt-2">
+            <i class="fa-solid fa-ticket me-2"></i>@ticketNumber
+        </h1>
+        <p class="text-secondary mb-0">Opened @Model.CreatedAt.ToLocalTime():f by @Model.CreatedBy?.FullName</p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end mb-3">
+    @{
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAdminOrSupport = User.IsInRole("Admin") || User.IsInRole("Support");
+        var isAssignedTo = Model.AssignedToId == userId;
+        var canUpdateStatus = isAdminOrSupport || isAssignedTo;
+        var isEmployee = User.IsInRole("Employee");
+    }
+    @if (canUpdateStatus)
+    {
+        <a class="btn btn-primary btn-lg me-2" asp-action="ChangeStatus" asp-route-id="@Model.Id">Update Status</a>
+    }
+    @if (isEmployee)
+    {
+        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTickets">My Tickets</a>
+    }
+    else if (isAdminOrSupport)
+    {
+        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">Tasks</a>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-xl-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pb-0">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="badge rounded-pill bg-primary text-uppercase">@Model.Status</span>
+                    <span class="badge rounded-pill @(Model.Priority == TicketPriority.High ? "bg-danger" : Model.Priority == TicketPriority.Medium ? "bg-warning text-dark" : "bg-success") text-uppercase">
+                        @Model.Priority
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h2 class="h4 fw-semibold mb-3">@Model.Title</h2>
+                <div class="mb-4">
+                    <h3 class="h6 text-uppercase text-secondary fw-semibold">Department</h3>
+                    <p class="mb-0">@Model.Department</p>
+                </div>
+                <div class="mb-4">
+                    <h3 class="h6 text-uppercase text-secondary fw-semibold">Description</h3>
+                    <p class="mb-0">@Model.Description</p>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Created By</div>
+                            <div class="fw-semibold">@Model.CreatedBy?.FullName</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Assigned To</div>
+                            <div class="fw-semibold">@(Model.AssignedTo?.FullName ?? "Unassigned")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Created At</div>
+                            <div class="fw-semibold">@Model.CreatedAt.ToLocalTime():g</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded-3 p-3 bg-light">
+                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Last Updated</div>
+                            <div class="fw-semibold">
+                                @(Model.Logs.OrderByDescending(l => l.Timestamp).FirstOrDefault()?.Timestamp.ToLocalTime().ToString("g") ?? "No updates yet")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-5">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 pb-0">
+                <h2 class="h5 fw-semibold mb-0">
+                    <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
+                </h2>
+            </div>
+            <div class="card-body">
+                @if (Model.Attachments?.Any() ?? false)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var attachment in Model.Attachments.OrderByDescending(a => a.UploadTime))
+                        {
+                            var downloadUrl = Url.Content($"~/{attachment.FilePath}");
+                            <li class="list-group-item d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <a href="@downloadUrl" class="fw-semibold text-decoration-none" target="_blank" rel="noopener">
+                                        <i class="fa-solid fa-file-lines me-2 text-secondary"></i>@attachment.FileName
+                                    </a>
+                                    <div class="text-secondary small">
+                                        Uploaded @attachment.UploadTime.ToLocalTime():g
+                                    </div>
+                                </div>
+                                <span class="badge bg-light text-secondary">@($"{attachment.FilePath}".Split('.').LastOrDefault()?.ToUpperInvariant())</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="text-secondary small">No attachments yet.</div>
+                }
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pb-0">
+                <h2 class="h5 fw-semibold mb-0">
+                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Activity Log
+                </h2>
+            </div>
+            <div class="card-body">
+                @if (Model.Logs?.Any() ?? false)
+                {
+                    <div class="timeline position-relative ps-4">
+                        <div class="timeline-line"></div>
+                        @foreach (var log in Model.Logs.OrderByDescending(l => l.Timestamp))
+                        {
+                            <div class="timeline-entry mb-4">
+                                <div class="timeline-dot bg-primary"></div>
+                                <div class="timeline-content border rounded-3 bg-light p-3">
+                                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-1">
+                                        <span class="fw-semibold text-uppercase small text-secondary">@log.Action</span>
+                                        <span class="text-secondary small">@log.Timestamp.ToLocalTime():g</span>
+                                    </div>
+                                    <p class="mb-2">@log.Notes</p>
+                                    @if (log.PerformedBy != null && !string.IsNullOrWhiteSpace(log.PerformedBy.FullName))
+                                    {
+                                        <div class="text-secondary small">
+                                            <i class="fa-solid fa-user-circle me-1"></i>@log.PerformedBy.FullName
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-secondary small">
+                                            <i class="fa-solid fa-cog me-1"></i>System
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-secondary small">No activity logged yet.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .timeline-line {
+            position: absolute;
+            top: 0.5rem;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            width: 2px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            left: -0.1rem;
+            top: 0.5rem;
+        }
+    </style>
+}
+

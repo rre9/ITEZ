@@ -1,0 +1,3 @@
+                <form asp-route-returnUrl="@Model.ReturnUrl" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>

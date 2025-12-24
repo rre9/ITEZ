@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Something went wrong";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body p-4 p-lg-5 text-center">
+                <i class="fa-solid fa-circle-exclamation fa-3x text-danger mb-3"></i>
+                <h1 class="h3 fw-semibold text-primary mb-2">Something went wrong</h1>
+                <p class="text-secondary mb-3">Our team has been notified. Please try again later, or contact the IT Help Desk if the issue persists.</p>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
