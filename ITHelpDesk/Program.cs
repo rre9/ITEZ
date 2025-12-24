@@ -96,7 +96,7 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline. يس
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
