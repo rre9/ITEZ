@@ -28,16 +28,10 @@
 
 <div class="d-flex justify-content-end mb-3">
     @{
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var isAdminOrSupport = User.IsInRole("Admin") || User.IsInRole("Support");
-        var isAssignedTo = Model.AssignedToId == userId;
-        var canUpdateStatus = isAdminOrSupport || isAssignedTo;
         var isEmployee = User.IsInRole("Employee");
+        var isAdminOrSupport = User.IsInRole("Admin") || User.IsInRole("Support");
     }
-    @if (canUpdateStatus)
-    {
-        <a class="btn btn-primary btn-lg me-2" asp-action="ChangeStatus" asp-route-id="@Model.Id">Update Status</a>
-    }
+    
     @if (isEmployee)
     {
         <a class="btn btn-outline-secondary btn-lg" asp-action="MyTickets">My Tickets</a>

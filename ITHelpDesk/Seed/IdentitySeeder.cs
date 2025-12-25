@@ -3,25 +3,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using ITHelpDesk.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace ITHelpDesk.Seed;
 
 public static class IdentitySeeder
 {
-    private static readonly string[] DefaultRoles = { "Admin", "Support", "Employee" };
-    private const string AdminEmail = "yazan@yub.com.sa";
+    private static readonly string[] Roles = { "Manager", "Security", "IT" };
+    private const string DefaultPassword = "Test@123"; // Temporary password for development only
 
     public static async Task SeedAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        var logger = serviceProvider.GetService<ILoggerFactory>()?.CreateLogger("IdentitySeeder");
 
-        foreach (var roleName in DefaultRoles)
+        // Create roles if they do not exist
+        foreach (var roleName in Roles)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
             {
@@ -34,61 +31,51 @@ public static class IdentitySeeder
             }
         }
 
-        var adminPassword = configuration["Seed:AdminDefaultPassword"];
-        if (string.IsNullOrWhiteSpace(adminPassword))
+        // Seed users
+        var usersToSeed = new[]
         {
-            logger?.LogWarning("Admin default password not configured. Skipping admin user seeding.");
-            return;
-        }
+            new { FullName = "Mohammed Cyber", Email = "mohammed.cyber@yub.com.sa", Role = "Security" },
+            new { FullName = "Yazan IT", Email = "yazan.it@yub.com.sa", Role = "IT" },
+            new { FullName = "Mashael IT R", Email = "mashael.itr@yub.com.sa", Role = "Manager" },
+            new { FullName = "Abeer Finance", Email = "abeer.finance@yub.com.sa", Role = "Manager" },
+            new { FullName = "Mashael Aggregator", Email = "mashael.agg@yub.com.sa", Role = "Manager" }
+        };
 
-        var adminUser = await userManager.FindByEmailAsync(AdminEmail);
-        if (adminUser is null)
+        foreach (var userInfo in usersToSeed)
         {
-            adminUser = new ApplicationUser
+            var existingUser = await userManager.FindByEmailAsync(userInfo.Email);
+            
+            if (existingUser == null)
             {
-                UserName = AdminEmail,
-                Email = AdminEmail,
-                FullName = "IT Help Desk Administrator",
-                EmailConfirmed = true
-            };
+                // Create user only if they do not already exist
+                var user = new ApplicationUser
+                {
+                    UserName = userInfo.Email,
+                    Email = userInfo.Email,
+                    FullName = userInfo.FullName,
+                    EmailConfirmed = true
+                };
 
-            var createResult = await userManager.CreateAsync(adminUser, adminPassword);
-            if (!createResult.Succeeded)
-            {
-                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to create admin user: {errors}");
-            }
+                var createResult = await userManager.CreateAsync(user, DefaultPassword);
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException($"Failed to create user '{userInfo.Email}': {errors}");
+                }
 
-            logger?.LogInformation("Seeded administrator account '{Email}'.", AdminEmail);
-        }
-        else
-        {
-            // إعادة تعيين كلمة المرور إذا كان الحساب موجوداً
-            var resetToken = await userManager.GeneratePasswordResetTokenAsync(adminUser);
-            var resetResult = await userManager.ResetPasswordAsync(adminUser, resetToken, adminPassword);
-            if (resetResult.Succeeded)
-            {
-                logger?.LogInformation("Admin password reset for existing account '{Email}'.", AdminEmail);
+                // Add user to role
+                var addToRoleResult = await userManager.AddToRoleAsync(user, userInfo.Role);
+                if (!addToRoleResult.Succeeded)
+                {
+                    var errors = string.Join(", ", addToRoleResult.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException($"Failed to add user '{userInfo.Email}' to role '{userInfo.Role}': {errors}");
+                }
+
+                Console.WriteLine($"User created: {userInfo.FullName} ({userInfo.Email}) - Role: {userInfo.Role}");
             }
             else
             {
-                var errors = string.Join(", ", resetResult.Errors.Select(e => e.Description));
-                logger?.LogWarning("Failed to reset admin password: {Errors}", errors);
-            }
-
-            // تأكد من تأكيد الإيميل
-            if (!adminUser.EmailConfirmed)
-            {
-                adminUser.EmailConfirmed = true;
-                await userManager.UpdateAsync(adminUser);
-            }
-        }
-
-        foreach (var role in new[] { "Admin", "Support" })
-        {
-            if (!await userManager.IsInRoleAsync(adminUser, role))
-            {
-                await userManager.AddToRoleAsync(adminUser, role);
+                Console.WriteLine($"User already exists: {userInfo.FullName} ({userInfo.Email})");
             }
         }
     }

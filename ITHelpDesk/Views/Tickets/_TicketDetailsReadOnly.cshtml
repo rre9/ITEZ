@@ -1,0 +1,131 @@
+@model Ticket
+
+<div class="card border-0 shadow-sm h-100">
+    <div class="card-header bg-white border-0 pb-0">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="badge rounded-pill bg-primary text-uppercase">@Model.Status</span>
+            <span class="badge rounded-pill @(Model.Priority == TicketPriority.High ? "bg-danger" : Model.Priority == TicketPriority.Medium ? "bg-warning text-dark" : "bg-success") text-uppercase">
+                @Model.Priority
+            </span>
+        </div>
+    </div>
+    <div class="card-body">
+        <h2 class="h4 fw-semibold mb-3">@Model.Title</h2>
+        <div class="mb-4">
+            <h3 class="h6 text-uppercase text-secondary fw-semibold">Department</h3>
+            <p class="mb-0">@Model.Department</p>
+        </div>
+        <div class="mb-4">
+            <h3 class="h6 text-uppercase text-secondary fw-semibold">Description</h3>
+            <p class="mb-0">@Model.Description</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="text-secondary small text-uppercase fw-semibold mb-1">Created By</div>
+                    <div class="fw-semibold">@Model.CreatedBy?.FullName</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="text-secondary small text-uppercase fw-semibold mb-1">Assigned To</div>
+                    <div class="fw-semibold">@(Model.AssignedTo?.FullName ?? "Unassigned")</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="text-secondary small text-uppercase fw-semibold mb-1">Created At</div>
+                    <div class="fw-semibold">@Model.CreatedAt.ToLocalTime():g</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="text-secondary small text-uppercase fw-semibold mb-1">Last Updated</div>
+                    <div class="fw-semibold">
+                        @(Model.Logs.OrderByDescending(l => l.Timestamp).FirstOrDefault()?.Timestamp.ToLocalTime().ToString("g") ?? "No updates yet")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white border-0 pb-0">
+        <h2 class="h5 fw-semibold mb-0">
+            <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
+        </h2>
+    </div>
+    <div class="card-body">
+        @if (Model.Attachments?.Any() ?? false)
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var attachment in Model.Attachments.OrderByDescending(a => a.UploadTime))
+                {
+                    var downloadUrl = Url.Content($"~/{attachment.FilePath}");
+                    <li class="list-group-item d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <a href="@downloadUrl" class="fw-semibold text-decoration-none" target="_blank" rel="noopener">
+                                <i class="fa-solid fa-file-lines me-2 text-secondary"></i>@attachment.FileName
+                            </a>
+                            <div class="text-secondary small">
+                                Uploaded @attachment.UploadTime.ToLocalTime():g
+                            </div>
+                        </div>
+                        <span class="badge bg-light text-secondary">@($"{attachment.FilePath}".Split('.').LastOrDefault()?.ToUpperInvariant())</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="text-secondary small">No attachments yet.</div>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white border-0 pb-0">
+        <h2 class="h5 fw-semibold mb-0">
+            <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Activity Log
+        </h2>
+    </div>
+    <div class="card-body">
+        @if (Model.Logs?.Any() ?? false)
+        {
+            <div class="timeline position-relative ps-4">
+                <div class="timeline-line"></div>
+                @foreach (var log in Model.Logs.OrderByDescending(l => l.Timestamp))
+                {
+                    <div class="timeline-entry mb-4">
+                        <div class="timeline-dot bg-primary"></div>
+                        <div class="timeline-content border rounded-3 bg-light p-3">
+                            <div class="d-flex justify-content-between flex-wrap gap-2 mb-1">
+                                <span class="fw-semibold text-uppercase small text-secondary">@log.Action</span>
+                                <span class="text-secondary small">@log.Timestamp.ToLocalTime():g</span>
+                            </div>
+                            <p class="mb-2">@log.Notes</p>
+                            @if (log.PerformedBy != null && !string.IsNullOrWhiteSpace(log.PerformedBy.FullName))
+                            {
+                                <div class="text-secondary small">
+                                    <i class="fa-solid fa-user-circle me-1"></i>@log.PerformedBy.FullName
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-secondary small">
+                                    <i class="fa-solid fa-cog me-1"></i>System
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-secondary small">No activity logged yet.</div>
+        }
+    </div>
+</div>
+

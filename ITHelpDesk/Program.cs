@@ -61,6 +61,9 @@ builder.Services.Configure<DepartmentOptions>(builder.Configuration.GetSection("
 builder.Services.AddScoped<IDepartmentProvider, DepartmentProvider>();
 builder.Services.AddScoped<ITicketQueryService, TicketQueryService>();
 builder.Services.AddScoped<IAuthorizationHandler, TicketAccessHandler>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITHelpDesk.Services.Notifications.INotificationService, ITHelpDesk.Services.Notifications.EmailNotificationService>();
+builder.Services.AddScoped<ITHelpDesk.Services.Email.IEmailService, ITHelpDesk.Services.Email.MockEmailService>();
 
 // Data Protection API for encrypting sensitive data
 builder.Services.AddDataProtection()
@@ -96,7 +99,7 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline. يس
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();

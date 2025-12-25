@@ -1,4 +1,4 @@
-@model IEnumerable<Ticket>
+@model ITHelpDesk.ViewModels.TasksViewModel
 
 @{
     ViewData["Title"] = "My Tasks";
@@ -47,7 +47,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Any())
+                @if (!Model.Tickets.Any())
                 {
                     <tr>
                         <td colspan="8" class="py-5 text-center text-secondary">
@@ -59,9 +59,13 @@
                 }
                 else
                 {
-                    foreach (var ticket in Model)
+                    foreach (var ticket in Model.Tickets)
                     {
                         var ticketNumber = $"HD-{ticket.Id:D6}";
+                        var reviewInfo = Model.ReviewInfo.GetValueOrDefault(ticket.Id);
+                        var canReview = reviewInfo?.CanReview ?? false;
+                        var reviewAction = reviewInfo?.ReviewAction;
+                        
                         <tr>
                             <td class="fw-semibold text-secondary">@ticketNumber</td>
                             <td>
@@ -80,8 +84,15 @@
                             <td>@(ticket.CreatedBy?.FullName ?? "Unknown")</td>
                             <td>@ticket.CreatedAt.ToLocalTime():g</td>
                             <td class="text-nowrap text-end">
-                                <a class="btn btn-primary btn-sm me-2" asp-action="Details" asp-route-id="@ticket.Id">View Details</a>
-                                <a class="btn btn-outline-secondary btn-sm" asp-action="ChangeStatus" asp-route-id="@ticket.Id">Update Status</a>
+                                @if (canReview && !string.IsNullOrEmpty(reviewAction))
+                                {
+                                    <a class="btn btn-primary btn-sm me-2" asp-action="@reviewAction" asp-route-id="@ticket.Id">
+                                        <i class="fa-solid fa-gavel me-1"></i>Review
+                                    </a>
+                                }
+                                <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@ticket.Id">
+                                    <i class="fa-solid fa-eye me-1"></i>View
+                                </a>
                             </td>
                         </tr>
                     }

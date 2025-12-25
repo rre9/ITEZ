@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Select Request Type";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10 col-xxl-9">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-lg-5">
+                <div class="text-center mb-5">
+                    <h1 class="h3 fw-semibold text-primary mb-2">
+                        <i class="fa-solid fa-file-lines me-2"></i>Select Request Type
+                    </h1>
+                    <p class="text-secondary mb-0">Choose the type of request you would like to submit.</p>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Access Request -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border shadow-sm request-type-card" data-request-type="access">
+                            <div class="card-body d-flex flex-column p-4">
+                                <div class="text-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                                        <i class="fa-solid fa-key text-primary fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title text-center fw-semibold mb-3">Access Request</h5>
+                                <p class="card-text text-secondary text-center flex-grow-1 mb-4">
+                                    Request access to systems, applications, or resources that require authorization.
+                                </p>
+                                <a href="@Url.Action("CreateAccessRequest", "Tickets")" class="btn btn-primary w-100">
+                                    <i class="fa-solid fa-arrow-right me-2"></i>Continue
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Request (Network Usage) -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border shadow-sm request-type-card opacity-75" data-request-type="service">
+                            <div class="card-body d-flex flex-column p-4">
+                                <div class="text-center mb-3">
+                                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                                        <i class="fa-solid fa-network-wired text-info fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title text-center fw-semibold mb-3">Service Request</h5>
+                                <p class="card-text text-secondary text-center flex-grow-1 mb-4">
+                                    Request network usage, bandwidth allocation, or network-related services.
+                                </p>
+                                <button class="btn btn-outline-secondary w-100" disabled>
+                                    <i class="fa-solid fa-clock me-2"></i>Coming Soon
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Change Request -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border shadow-sm request-type-card opacity-75" data-request-type="system">
+                            <div class="card-body d-flex flex-column p-4">
+                                <div class="text-center mb-3">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                                        <i class="fa-solid fa-gear text-warning fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h5 class="card-title text-center fw-semibold mb-3">System Change Request</h5>
+                                <p class="card-text text-secondary text-center flex-grow-1 mb-4">
+                                    Request changes to existing systems, configurations, or infrastructure.
+                                </p>
+                                <button class="btn btn-outline-secondary w-100" disabled>
+                                    <i class="fa-solid fa-clock me-2"></i>Coming Soon
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    @if (User.IsInRole("Admin") || User.IsInRole("Support"))
+                    {
+                        <a asp-action="MyTasks" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Tasks
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="MyTickets" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-arrow-left-long me-2"></i>Back to My Tickets
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .request-type-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        cursor: pointer;
+    }
+
+    .request-type-card:not(.opacity-75):hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+

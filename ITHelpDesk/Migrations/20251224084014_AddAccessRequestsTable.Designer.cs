@@ -4,6 +4,7 @@ using ITHelpDesk.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITHelpDesk.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251224084014_AddAccessRequestsTable")]
+    partial class AddAccessRequestsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,11 +114,6 @@ namespace ITHelpDesk.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("SelectedManagerId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -128,8 +126,6 @@ namespace ITHelpDesk.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SelectedManagerId");
 
                     b.HasIndex("TicketId")
                         .IsUnique();
@@ -466,19 +462,11 @@ namespace ITHelpDesk.Migrations
 
             modelBuilder.Entity("ITHelpDesk.Models.AccessRequest", b =>
                 {
-                    b.HasOne("ITHelpDesk.Models.ApplicationUser", "SelectedManager")
-                        .WithMany()
-                        .HasForeignKey("SelectedManagerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("ITHelpDesk.Models.Ticket", "Ticket")
                         .WithOne()
                         .HasForeignKey("ITHelpDesk.Models.AccessRequest", "TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("SelectedManager");
 
                     b.Navigation("Ticket");
                 });

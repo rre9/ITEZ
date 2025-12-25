@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
     public DbSet<TicketLog> TicketLogs => Set<TicketLog>();
+    public DbSet<AccessRequest> AccessRequests => Set<AccessRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -22,6 +23,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         ConfigureTicket(builder);
         ConfigureTicketAttachment(builder);
         ConfigureTicketLog(builder);
+        ConfigureAccessRequest(builder);
     }
 
     private static void ConfigureTicket(ModelBuilder builder)
@@ -118,6 +120,91 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany()
                 .HasForeignKey(l => l.PerformedById)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private static void ConfigureAccessRequest(ModelBuilder builder)
+    {
+        builder.Entity<AccessRequest>(accessRequest =>
+        {
+            accessRequest.ToTable("AccessRequests");
+
+            accessRequest.Property(ar => ar.FullName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            accessRequest.Property(ar => ar.EmployeeNumber)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            accessRequest.Property(ar => ar.Department)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            accessRequest.Property(ar => ar.Email)
+                .IsRequired();
+
+            accessRequest.Property(ar => ar.PhoneNumber)
+                .HasMaxLength(50);
+
+            accessRequest.Property(ar => ar.AccessType)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            accessRequest.Property(ar => ar.SystemName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            accessRequest.Property(ar => ar.Reason)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            accessRequest.Property(ar => ar.AccessDuration)
+                .HasMaxLength(100);
+
+            accessRequest.Property(ar => ar.ManagerApprovalName)
+                .HasMaxLength(150);
+
+            accessRequest.Property(ar => ar.ManagerApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            accessRequest.Property(ar => ar.ITApprovalName)
+                .HasMaxLength(150);
+
+            accessRequest.Property(ar => ar.ITApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            accessRequest.Property(ar => ar.SecurityApprovalName)
+                .HasMaxLength(150);
+
+            accessRequest.Property(ar => ar.SecurityApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            accessRequest.Property(ar => ar.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            accessRequest.Property(ar => ar.SelectedManagerId)
+                .IsRequired()
+                .HasMaxLength(450);
+
+            // One-to-One relationship with Ticket
+            accessRequest.HasOne(ar => ar.Ticket)
+                .WithOne()
+                .HasForeignKey<AccessRequest>(ar => ar.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationship with Selected Manager
+            accessRequest.HasOne(ar => ar.SelectedManager)
+                .WithMany()
+                .HasForeignKey(ar => ar.SelectedManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Make TicketId unique for one-to-one relationship
+            accessRequest.HasIndex(ar => ar.TicketId)
+                .IsUnique();
         });
     }
 }

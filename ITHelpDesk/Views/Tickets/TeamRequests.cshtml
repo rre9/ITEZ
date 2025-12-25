@@ -1,0 +1,136 @@
+@model IEnumerable<AccessRequest>
+@using ITHelpDesk.Models
+
+@{
+    ViewData["Title"] = "Team Requests";
+
+    string ManagerStatusBadge(ApprovalStatus status) => status switch
+    {
+        ApprovalStatus.Pending => "bg-warning text-dark",
+        ApprovalStatus.Approved => "bg-success",
+        ApprovalStatus.Rejected => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    string TicketStatusBadge(TicketStatus status) => status switch
+    {
+        TicketStatus.New => "bg-primary",
+        TicketStatus.InProgress => "bg-info text-dark",
+        TicketStatus.Resolved => "bg-success",
+        TicketStatus.Rejected => "bg-secondary",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="display-6 fw-semibold text-primary mb-1">
+            <i class="fa-solid fa-users me-2"></i>Team Requests
+        </h1>
+        <p class="text-secondary mb-0">Access requests assigned to you for approval or review.</p>
+    </div>
+    @{
+        var pendingCount = Model.Count(ar => ar.ManagerApprovalStatus == ApprovalStatus.Pending);
+    }
+    @if (pendingCount > 0)
+    {
+        <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@pendingCount Pending
+        </span>
+    }
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Ticket #</th>
+                        <th scope="col">Employee Name</th>
+                        <th scope="col">System Name</th>
+                        <th scope="col">Manager Status</th>
+                        <th scope="col">Ticket Status</th>
+                        <th scope="col" class="text-nowrap">Submission Date</th>
+                        <th scope="col" class="text-nowrap text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="py-5 text-center text-secondary">
+                                <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
+                                <div class="fw-semibold">No team requests found</div>
+                                <p class="mb-0">Access requests assigned to you will appear here.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var request in Model)
+                        {
+                            var ticketNumber = $"HD-{request.TicketId:D6}";
+                            
+                            // Determine Review button routing based on approval status
+                            // Manager is current approver ONLY when ManagerApprovalStatus == Pending
+                            bool isCurrentApprover = request.ManagerApprovalStatus == ApprovalStatus.Pending;
+                            string reviewUrl;
+                            string reviewButtonClass;
+                            string reviewButtonTitle;
+                            
+                            if (isCurrentApprover)
+                            {
+                                // Current approver: link to approval action (for execution)
+                                reviewUrl = Url.Action("ApproveAccessRequest", "Tickets", new { id = request.TicketId });
+                                reviewButtonClass = "btn btn-primary btn-sm me-2";
+                                reviewButtonTitle = "Review and approve or reject this request";
+                            }
+                            else
+                            {
+                                // Past approver: link to Details (read-only view)
+                                // This ensures past approvers can always view their approval history
+                                reviewUrl = Url.Action("Details", "Tickets", new { id = request.TicketId });
+                                reviewButtonClass = "btn btn-outline-secondary btn-sm me-2";
+                                reviewButtonTitle = "View in read-only mode (past approver)";
+                            }
+                            
+                            <tr>
+                                <td class="fw-semibold text-secondary">@ticketNumber</td>
+                                <td>@request.FullName</td>
+                                <td>@request.SystemName</td>
+                                <td>
+                                    <span class="badge rounded-pill @ManagerStatusBadge(request.ManagerApprovalStatus)">
+                                        @request.ManagerApprovalStatus
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (request.Ticket != null)
+                                    {
+                                        <span class="badge rounded-pill @TicketStatusBadge(request.Ticket.Status)">
+                                            @request.Ticket.Status
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">N/A</span>
+                                    }
+                                </td>
+                                <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
+                                <td class="text-nowrap text-end">
+                                    <a class="@reviewButtonClass" href="@reviewUrl" title="@reviewButtonTitle">
+                                        <i class="fa-solid fa-gavel me-1"></i>Review
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@request.TicketId">
+                                        <i class="fa-solid fa-eye me-1"></i>View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

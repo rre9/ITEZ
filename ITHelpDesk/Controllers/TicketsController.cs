@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -9,6 +10,7 @@ using ITHelpDesk.Services;
 using ITHelpDesk.Services.Abstractions;
 using ITHelpDesk.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -160,7 +162,83 @@ public class TicketsController : Controller
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
-        return View(tickets);
+        // Build review info for access requests
+        var reviewInfo = new Dictionary<int, TicketReviewInfo>();
+        var accessRequests = await _context.AccessRequests
+            .Where(ar => tickets.Select(t => t.Id).Contains(ar.TicketId))
+            .ToListAsync();
+
+        foreach (var ticket in tickets)
+        {
+            var accessRequest = accessRequests.FirstOrDefault(ar => ar.TicketId == ticket.Id);
+            if (accessRequest != null)
+            {
+                // Determine review action based on workflow stage
+                string? reviewAction = null;
+                bool canReview = false;
+
+                if (accessRequest.ManagerApprovalStatus == ApprovalStatus.Pending)
+                {
+                    // Manager approval stage
+                    reviewAction = "ApproveAccessRequest";
+                    canReview = User.IsInRole("Manager") && accessRequest.SelectedManagerId == userId;
+                }
+                else if (accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved && 
+                         accessRequest.SecurityApprovalStatus == ApprovalStatus.Pending)
+                {
+                    // Security approval stage
+                    reviewAction = "ApproveSecurityAccess";
+                    canReview = User.IsInRole("Security");
+                }
+                else if (accessRequest.SecurityApprovalStatus == ApprovalStatus.Approved && 
+                         ticket.Status == TicketStatus.InProgress)
+                {
+                    // IT execution stage
+                    reviewAction = "ExecuteAccessRequest";
+                    canReview = User.IsInRole("IT");
+                }
+
+                reviewInfo[ticket.Id] = new TicketReviewInfo
+                {
+                    CanReview = canReview,
+                    ReviewAction = reviewAction
+                };
+            }
+        }
+
+        var viewModel = new TasksViewModel
+        {
+            Tickets = tickets,
+            ReviewInfo = reviewInfo
+        };
+
+        return View(viewModel);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> TeamRequests()
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Allow access for Manager OR Security role
+        if (!User.IsInRole("Manager") && !User.IsInRole("Security"))
+        {
+            return Forbid();
+        }
+
+        // Get all access requests where the current user is the selected manager
+        var accessRequests = await _context.AccessRequests
+            .Where(ar => ar.SelectedManagerId == currentUser.Id)
+            .Include(ar => ar.Ticket)
+            .Include(ar => ar.SelectedManager)
+            .OrderByDescending(ar => ar.CreatedAt)
+            .ToListAsync();
+
+        return View(accessRequests);
     }
 
     [Authorize]
@@ -230,8 +308,8 @@ public class TicketsController : Controller
         }
         else
         {
-            // Auto-assign new tickets to yazan@yub.com.sa for regular employees
-            var defaultAssignee = await _userManager.FindByEmailAsync("yazan@yub.com.sa");
+            // Auto-assign new tickets to yazan.it@yub.com.sa for regular employees
+            var defaultAssignee = await _userManager.FindByEmailAsync("yazan.it@yub.com.sa");
             assignedToId = defaultAssignee?.Id;
             assignedToUser = defaultAssignee;
         }
@@ -345,6 +423,177 @@ Status: {ticket.Status}</p>
         {
             return RedirectToAction(nameof(MyTickets));
         }
+    }
+
+    [Authorize]
+    public async Task<IActionResult> SelectRequestType()
+    {
+        return View();
+    }
+
+    [Authorize]
+    public async Task<IActionResult> CreateAccessRequest()
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        var viewModel = new AccessRequestCreateViewModel
+        {
+            Departments = _departmentProvider.GetDepartments(),
+            Managers = await GetDirectManagersAsync(currentUser.Id)
+        };
+
+        return View(viewModel);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateAccessRequest(AccessRequestCreateViewModel model)
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Repopulate dropdowns if validation fails
+        if (!ModelState.IsValid)
+        {
+            model.Departments = _departmentProvider.GetDepartments();
+            model.Managers = await GetDirectManagersAsync(currentUser.Id);
+            return View(model);
+        }
+
+        // Convert AccessType string to enum
+        AccessType accessType;
+        switch (model.AccessType?.Trim())
+        {
+            case "Full Access":
+                accessType = AccessType.Full;
+                break;
+            case "Read Only":
+                accessType = AccessType.ReadOnly;
+                break;
+            case "Edit Access":
+                accessType = AccessType.Edit;
+                break;
+            case "Admin Access":
+                accessType = AccessType.Admin;
+                break;
+            default:
+                ModelState.AddModelError(nameof(model.AccessType), "Please select a valid access type.");
+                model.Departments = _departmentProvider.GetDepartments();
+                model.Managers = await GetDirectManagersAsync(currentUser.Id);
+                return View(model);
+        }
+
+        // Validate SelectedManagerId exists
+        var selectedManager = await _userManager.FindByIdAsync(model.SelectedManagerId);
+        if (selectedManager == null)
+        {
+            ModelState.AddModelError(nameof(model.SelectedManagerId), "Please select a valid manager.");
+            model.Departments = _departmentProvider.GetDepartments();
+            model.Managers = await GetDirectManagersAsync(currentUser.Id);
+            return View(model);
+        }
+
+        // Create Ticket
+        var ticketTitle = $"Access Request: {model.SystemName} - {model.FullName}";
+        var ticketDescription = $"Access Request for {model.FullName} ({model.EmployeeNumber})\n\n" +
+                               $"System: {model.SystemName}\n" +
+                               $"Access Type: {model.AccessType}\n" +
+                               $"Reason: {model.Reason}\n" +
+                               $"Start Date: {model.StartDate:yyyy-MM-dd}\n" +
+                               (model.EndDate.HasValue ? $"End Date: {model.EndDate.Value:yyyy-MM-dd}\n" : "") +
+                               (model.AccessDuration != null ? $"Duration: {model.AccessDuration}\n" : "") +
+                               (!string.IsNullOrWhiteSpace(model.Notes) ? $"\nNotes: {model.Notes}" : "");
+
+        var ticket = new Ticket
+        {
+            Title = ticketTitle,
+            Description = ticketDescription.Trim(),
+            Department = model.Department.Trim(),
+            Priority = TicketPriority.Medium,
+            Status = TicketStatus.New,
+            CreatedById = currentUser.Id,
+            AssignedToId = model.SelectedManagerId, // Assign to selected manager for approval
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Tickets.Add(ticket);
+        await _context.SaveChangesAsync();
+
+        // Create AccessRequest
+        var accessRequest = new AccessRequest
+        {
+            TicketId = ticket.Id,
+            FullName = model.FullName.Trim(),
+            EmployeeNumber = model.EmployeeNumber.Trim(),
+            Department = model.Department.Trim(),
+            Email = model.Email.Trim(),
+            PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber.Trim(),
+            AccessType = accessType,
+            SystemName = model.SystemName.Trim(),
+            Reason = model.Reason.Trim(),
+            AccessDuration = string.IsNullOrWhiteSpace(model.AccessDuration) ? null : model.AccessDuration.Trim(),
+            StartDate = model.StartDate,
+            EndDate = model.EndDate,
+            SelectedManagerId = model.SelectedManagerId,
+            ManagerApprovalStatus = ApprovalStatus.Pending,
+            ITApprovalStatus = ApprovalStatus.Pending,
+            SecurityApprovalStatus = ApprovalStatus.Pending,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.AccessRequests.Add(accessRequest);
+        await _context.SaveChangesAsync();
+
+        // Handle attachments if provided
+        if (model.Attachments != null && model.Attachments.Count > 0)
+        {
+            foreach (var attachment in model.Attachments.Where(f => f is { Length: > 0 }))
+            {
+                try
+                {
+                    var metadata = await _attachmentService.SaveAttachmentAsync(ticket.Id, attachment);
+                    var ticketAttachment = new TicketAttachment
+                    {
+                        TicketId = ticket.Id,
+                        FileName = metadata.OriginalFileName,
+                        FilePath = metadata.RelativePath,
+                        UploadTime = metadata.UploadedAt
+                    };
+                    _context.TicketAttachments.Add(ticketAttachment);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to upload attachment for access request ticket {TicketId}.", ticket.Id);
+                    // Continue processing even if attachment fails
+                }
+            }
+        }
+
+        // Create ticket log
+        var log = new TicketLog
+        {
+            TicketId = ticket.Id,
+            Action = "Access Request Created",
+            PerformedById = currentUser.Id,
+            Timestamp = DateTime.UtcNow,
+            Notes = $"Access request created by {currentUser.FullName}. Assigned to {selectedManager.FullName} for approval."
+        };
+
+        _context.TicketLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        TempData["Toast"] = "✅ Access request submitted successfully. It has been sent to your manager for approval.";
+
+        // Redirect to MyTickets
+        return RedirectToAction(nameof(MyTickets));
     }
 
     public async Task<IActionResult> Details(int id)
@@ -621,6 +870,293 @@ Assigned To: {assignedDisplay}</p>
         return RedirectToAction(nameof(Details), new { id = ticket.Id });
     }
 
+    [Authorize]
+    public async Task<IActionResult> ApproveAccessRequest(int id)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
+            .Include(t => t.Logs)
+                .ThenInclude(l => l.PerformedBy)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (ticket is null)
+        {
+            return NotFound();
+        }
+
+        var accessRequest = await _context.AccessRequests
+            .Include(ar => ar.SelectedManager)
+            .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
+
+        if (accessRequest is null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Check if current user is the selected manager (allows past approvers to view forever)
+        var isSelectedManager = accessRequest.SelectedManagerId == currentUser.Id;
+        var isManager = User.IsInRole("Manager");
+        
+        // Only allow managers to view (or the selected manager if they're not a manager - edge case)
+        if (!isManager && !isSelectedManager)
+        {
+            return Forbid();
+        }
+
+        // IsAuthorizedManager: true if user is the selected manager (regardless of approval status)
+        // This allows past approvers to always see their approval details
+        var isAuthorizedManager = isSelectedManager && isManager;
+        
+        // IsReadOnly: true if status is not pending (already approved/rejected)
+        // This ensures past approvers see read-only view, but current approvers can act
+        var isReadOnly = accessRequest.ManagerApprovalStatus != ApprovalStatus.Pending;
+
+        var viewModel = new AccessRequestApprovalViewModel
+        {
+            TicketId = ticket.Id,
+            Ticket = ticket,
+            AccessRequest = accessRequest,
+            IsAuthorizedManager = isAuthorizedManager,
+            IsReadOnly = isReadOnly,
+            Logs = ticket.Logs.OrderByDescending(l => l.Timestamp),
+            SelectedManagerName = accessRequest.SelectedManager?.FullName ?? "Unknown"
+        };
+
+        return View(viewModel);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ApproveAccessRequest(int id, string? comment)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (ticket is null)
+        {
+            return NotFound();
+        }
+
+        var accessRequest = await _context.AccessRequests
+            .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
+
+        if (accessRequest is null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Verify the current user is the selected manager
+        if (accessRequest.SelectedManagerId != currentUser.Id)
+        {
+            return Forbid();
+        }
+
+        // Verify the request is still pending
+        if (accessRequest.ManagerApprovalStatus != ApprovalStatus.Pending)
+        {
+            TempData["Toast"] = "⚠️ This request has already been processed.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Check if Mohammed is the ticket creator (skip Security approval)
+        var isMohammedCreator = ticket.CreatedById != null && 
+            (ticket.CreatedBy?.FullName.StartsWith("Mohammed", StringComparison.OrdinalIgnoreCase) == true ||
+             ticket.CreatedBy?.Email?.Contains("mohammed", StringComparison.OrdinalIgnoreCase) == true);
+
+        // Update manager approval
+        accessRequest.ManagerApprovalStatus = ApprovalStatus.Approved;
+        accessRequest.ManagerApprovalDate = DateTime.UtcNow;
+        accessRequest.ManagerApprovalName = currentUser.FullName;
+
+        // Find Security user (Mohammed)
+        var securityUser = await _userManager.FindByEmailAsync("mohammed.cyber@yub.com.sa");
+        
+        if (isMohammedCreator)
+        {
+            // Skip Security approval - automatically approve and assign to IT
+            accessRequest.SecurityApprovalStatus = ApprovalStatus.Approved;
+            accessRequest.SecurityApprovalDate = DateTime.UtcNow;
+            accessRequest.SecurityApprovalName = securityUser?.FullName ?? "Security (Auto-approved)";
+
+            // Find IT user (Yazan)
+            var itUser = await _userManager.FindByEmailAsync("yazan.it@yub.com.sa");
+            
+            // Assign to IT (Yazan)
+            ticket.AssignedToId = itUser?.Id;
+            ticket.Status = TicketStatus.InProgress;
+
+            // Add log entry
+            var skipLog = new TicketLog
+            {
+                TicketId = ticket.Id,
+                Action = "Security Approval Skipped",
+                PerformedById = currentUser.Id,
+                Timestamp = DateTime.UtcNow,
+                Notes = "Security approval skipped (request created by Security user). Auto-assigned to IT."
+            };
+            _context.TicketLogs.Add(skipLog);
+        }
+        else
+        {
+            // Normal workflow - assign to Security (Mohammed)
+            if (securityUser != null)
+            {
+                ticket.AssignedToId = securityUser.Id;
+                ticket.Status = TicketStatus.InProgress;
+            }
+        }
+
+        // Add approval log
+        var logNotes = $"Manager approval granted by {currentUser.FullName}.";
+        if (!string.IsNullOrWhiteSpace(comment))
+        {
+            logNotes += $" Comment: {comment}";
+        }
+        if (isMohammedCreator)
+        {
+            logNotes += " Security approval skipped (request created by Security user).";
+        }
+
+        var log = new TicketLog
+        {
+            TicketId = ticket.Id,
+            Action = "Manager Approval",
+            PerformedById = currentUser.Id,
+            Timestamp = DateTime.UtcNow,
+            Notes = logNotes
+        };
+
+        _context.TicketLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        TempData["Toast"] = "✅ Access request approved. Ticket assigned to Security for review.";
+        return RedirectToAction(nameof(Details), new { id = ticket.Id });
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ApproveSecurityAccess(int id, [FromForm] string? comment, [FromForm] List<IFormFile>? attachments)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (ticket is null)
+        {
+            return NotFound();
+        }
+
+        var accessRequest = await _context.AccessRequests
+            .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
+
+        if (accessRequest is null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Verify the current user is Security (Mohammed)
+        if (!User.IsInRole("Security"))
+        {
+            return Forbid();
+        }
+
+        // Verify manager has approved
+        if (accessRequest.ManagerApprovalStatus != ApprovalStatus.Approved)
+        {
+            TempData["Toast"] = "⚠️ Manager approval is required before Security review.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Verify the request is still pending Security approval
+        if (accessRequest.SecurityApprovalStatus != ApprovalStatus.Pending)
+        {
+            TempData["Toast"] = "⚠️ This request has already been processed.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Update Security approval
+        accessRequest.SecurityApprovalStatus = ApprovalStatus.Approved;
+        accessRequest.SecurityApprovalDate = DateTime.UtcNow;
+        accessRequest.SecurityApprovalName = currentUser.FullName;
+
+        // Find IT user (Yazan)
+        var itUser = await _userManager.FindByEmailAsync("yazan.it@yub.com.sa");
+        
+        // Assign to IT (Yazan)
+        ticket.AssignedToId = itUser?.Id;
+        ticket.Status = TicketStatus.InProgress;
+
+        // Handle attachments if provided
+        if (attachments != null && attachments.Count > 0)
+        {
+            foreach (var attachment in attachments.Where(f => f is { Length: > 0 }))
+            {
+                try
+                {
+                    var metadata = await _attachmentService.SaveAttachmentAsync(ticket.Id, attachment);
+                    var ticketAttachment = new TicketAttachment
+                    {
+                        TicketId = ticket.Id,
+                        FileName = metadata.OriginalFileName,
+                        FilePath = metadata.RelativePath,
+                        UploadTime = metadata.UploadedAt
+                    };
+                    _context.TicketAttachments.Add(ticketAttachment);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to upload attachment for ticket {TicketId} during Security approval.", ticket.Id);
+                }
+            }
+        }
+
+        // Add approval log
+        var logNotes = $"Security approval granted by {currentUser.FullName}.";
+        if (!string.IsNullOrWhiteSpace(comment))
+        {
+            logNotes += $" Comment: {comment}";
+        }
+
+        var log = new TicketLog
+        {
+            TicketId = ticket.Id,
+            Action = "Security Approval",
+            PerformedById = currentUser.Id,
+            Timestamp = DateTime.UtcNow,
+            Notes = logNotes
+        };
+
+        _context.TicketLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        TempData["Toast"] = "✅ Security approval granted. Ticket assigned to IT for execution.";
+        return RedirectToAction(nameof(Details), new { id = ticket.Id });
+    }
+
     private static string CreateStatusChangeNotes(
         TicketStatus originalStatus,
         TicketStatus newStatus,
@@ -641,5 +1177,36 @@ Assigned To: {assignedDisplay}</p>
         }
 
         return changes;
+    }
+
+    /// <summary>
+    /// Gets the list of Direct Managers (exactly 5 specific users).
+    /// Excludes the currently logged-in user.
+    /// This is business-based, not role-based.
+    /// </summary>
+    private async Task<List<UserLookupViewModel>> GetDirectManagersAsync(string? currentUserId)
+    {
+        // Define the exact 5 Direct Managers by email (business-based list)
+        var directManagerEmails = new[]
+        {
+            "abeer.finance@yub.com.sa",      // Abeer Finance
+            "mashael.agg@yub.com.sa",        // Mashael Aggregator
+            "mashael.itr@yub.com.sa",        // Mashael IT R
+            "mohammed.cyber@yub.com.sa",     // Mohammed Cyber
+            "yazan.it@yub.com.sa"            // Yazan IT
+        };
+
+        var managers = new List<UserLookupViewModel>();
+
+        foreach (var email in directManagerEmails)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null && (currentUserId == null || user.Id != currentUserId))
+            {
+                managers.Add(new UserLookupViewModel(user.Id, user.FullName, user.Email ?? string.Empty));
+            }
+        }
+
+        return managers.OrderBy(m => m.FullName).ToList();
     }
 }

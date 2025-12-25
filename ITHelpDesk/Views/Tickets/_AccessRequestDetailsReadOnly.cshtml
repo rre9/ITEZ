@@ -1,0 +1,73 @@
+@model AccessRequest
+@using ITHelpDesk.Models
+
+<div class="mb-4">
+    <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+        <i class="fa-solid fa-user me-2 text-primary"></i>Applicant Information
+    </h5>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Full Name</label>
+            <div class="form-control-plaintext">@Model.FullName</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Employee Number</label>
+            <div class="form-control-plaintext">@Model.EmployeeNumber</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Department</label>
+            <div class="form-control-plaintext">@Model.Department</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Email</label>
+            <div class="form-control-plaintext">@Model.Email</div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
+        {
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-secondary">Phone Number</label>
+                <div class="form-control-plaintext">@Model.PhoneNumber</div>
+            </div>
+        }
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Selected Direct Manager</label>
+            <div class="form-control-plaintext">@(Model.SelectedManager?.FullName ?? "Unknown")</div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+        <i class="fa-solid fa-lock me-2 text-primary"></i>Access Request Details
+    </h5>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">System Name</label>
+            <div class="form-control-plaintext">@Model.SystemName</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Access Type</label>
+            <div class="form-control-plaintext">@Model.AccessType</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Start Date</label>
+            <div class="form-control-plaintext">@Model.StartDate.ToString("yyyy-MM-dd")</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">End Date</label>
+            <div class="form-control-plaintext">@(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("yyyy-MM-dd") : "Permanent")</div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.AccessDuration))
+        {
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-secondary">Access Duration</label>
+                <div class="form-control-plaintext">@Model.AccessDuration</div>
+            </div>
+        }
+        <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Reason for Access</label>
+            <div class="form-control-plaintext border p-3 bg-light rounded">@Model.Reason</div>
+        </div>
+    </div>
+</div>
+

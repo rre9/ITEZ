@@ -28,9 +28,9 @@
         </h1>
         <p class="text-secondary mb-0">Track your open requests and follow up with support.</p>
     </div>
-    @if (User.IsInRole("Employee"))
+    @if (User.IsInRole("Employee") || User.IsInRole("Admin") || User.IsInRole("Support"))
     {
-        <a asp-action="Create" class="btn btn-primary btn-lg shadow-sm">
+        <a asp-action="SelectRequestType" class="btn btn-primary btn-lg shadow-sm">
             <i class="fa-solid fa-plus me-2"></i>Submit Ticket
         </a>
     }
@@ -60,9 +60,9 @@
                             <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
                             <div class="fw-semibold">You don't have any tickets yet.</div>
                             <p class="mb-3">Need help? Submit a ticket and our support team will assist you.</p>
-                            @if (User.IsInRole("Employee"))
+                            @if (User.IsInRole("Employee") || User.IsInRole("Admin") || User.IsInRole("Support"))
                             {
-                                <a asp-action="Create" class="btn btn-outline-primary">
+                                <a asp-action="SelectRequestType" class="btn btn-outline-primary">
                                     <i class="fa-solid fa-plus me-2"></i>Create Ticket
                                 </a>
                             }

@@ -1,0 +1,162 @@
+@model AdminDashboardViewModel
+@using ITHelpDesk.Models
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="display-6 fw-semibold text-primary mb-1">
+            <i class="fa-solid fa-chart-line me-2"></i>Admin Dashboard
+        </h1>
+        <p class="text-secondary mb-0">Overview of all access requests in the system.</p>
+    </div>
+</div>
+
+<!-- Counters -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-secondary text-uppercase small fw-semibold mb-1">Pending Manager</h6>
+                        <h2 class="mb-0 fw-bold text-warning">@Model.PendingManagerCount</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                        <i class="fa-solid fa-user-check fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-secondary text-uppercase small fw-semibold mb-1">Pending Security</h6>
+                        <h2 class="mb-0 fw-bold text-info">@Model.PendingSecurityCount</h2>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="fa-solid fa-shield-halved fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-secondary text-uppercase small fw-semibold mb-1">Pending IT</h6>
+                        <h2 class="mb-0 fw-bold text-primary">@Model.PendingITCount</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="fa-solid fa-server fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pb-0">
+        <h5 class="fw-semibold mb-0">All Access Requests</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Ticket #</th>
+                        <th scope="col">Employee</th>
+                        <th scope="col">System Name</th>
+                        <th scope="col">Manager Status</th>
+                        <th scope="col">Security Status</th>
+                        <th scope="col">Ticket Status</th>
+                        <th scope="col" class="text-nowrap">Created</th>
+                        <th scope="col" class="text-nowrap text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.AllRequests.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="py-5 text-center text-secondary">
+                                <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
+                                <div class="fw-semibold">No access requests found</div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var request in Model.AllRequests)
+                        {
+                            var ticketNumber = $"HD-{request.TicketId:D6}";
+                            
+                            string ManagerStatusBadge(ApprovalStatus status) => status switch
+                            {
+                                ApprovalStatus.Pending => "bg-warning text-dark",
+                                ApprovalStatus.Approved => "bg-success",
+                                ApprovalStatus.Rejected => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+
+                            string SecurityStatusBadge(ApprovalStatus status) => status switch
+                            {
+                                ApprovalStatus.Pending => "bg-warning text-dark",
+                                ApprovalStatus.Approved => "bg-success",
+                                ApprovalStatus.Rejected => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+
+                            string TicketStatusBadge(TicketStatus status) => status switch
+                            {
+                                TicketStatus.New => "bg-primary",
+                                TicketStatus.InProgress => "bg-info text-dark",
+                                TicketStatus.Resolved => "bg-success",
+                                TicketStatus.Rejected => "bg-secondary",
+                                _ => "bg-light text-dark"
+                            };
+                            
+                            <tr>
+                                <td class="fw-semibold text-secondary">@ticketNumber</td>
+                                <td>@request.FullName</td>
+                                <td>@request.SystemName</td>
+                                <td>
+                                    <span class="badge rounded-pill @ManagerStatusBadge(request.ManagerApprovalStatus)">
+                                        @request.ManagerApprovalStatus
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill @SecurityStatusBadge(request.SecurityApprovalStatus)">
+                                        @request.SecurityApprovalStatus
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (request.Ticket != null)
+                                    {
+                                        <span class="badge rounded-pill @TicketStatusBadge(request.Ticket.Status)">
+                                            @request.Ticket.Status
+                                        </span>
+                                    }
+                                </td>
+                                <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
+                                <td class="text-nowrap text-end">
+                                    <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="Details" asp-route-id="@request.TicketId">
+                                        <i class="fa-solid fa-eye me-1"></i>View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
