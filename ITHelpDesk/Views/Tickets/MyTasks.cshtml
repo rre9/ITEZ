@@ -84,7 +84,7 @@
                             <td>@(ticket.CreatedBy?.FullName ?? "Unknown")</td>
                             <td>@ticket.CreatedAt.ToLocalTime():g</td>
                             <td class="text-nowrap text-end">
-                                @if (canReview && !string.IsNullOrEmpty(reviewAction))
+                                @if (!string.IsNullOrEmpty(reviewAction))
                                 {
                                     <a class="btn btn-primary btn-sm me-2" asp-action="@reviewAction" asp-route-id="@ticket.Id">
                                         <i class="fa-solid fa-gavel me-1"></i>Review

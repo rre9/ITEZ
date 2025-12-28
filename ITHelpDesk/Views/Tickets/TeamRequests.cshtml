@@ -72,29 +72,6 @@
                         {
                             var ticketNumber = $"HD-{request.TicketId:D6}";
                             
-                            // Determine Review button routing based on approval status
-                            // Manager is current approver ONLY when ManagerApprovalStatus == Pending
-                            bool isCurrentApprover = request.ManagerApprovalStatus == ApprovalStatus.Pending;
-                            string reviewUrl;
-                            string reviewButtonClass;
-                            string reviewButtonTitle;
-                            
-                            if (isCurrentApprover)
-                            {
-                                // Current approver: link to approval action (for execution)
-                                reviewUrl = Url.Action("ApproveAccessRequest", "Tickets", new { id = request.TicketId });
-                                reviewButtonClass = "btn btn-primary btn-sm me-2";
-                                reviewButtonTitle = "Review and approve or reject this request";
-                            }
-                            else
-                            {
-                                // Past approver: link to Details (read-only view)
-                                // This ensures past approvers can always view their approval history
-                                reviewUrl = Url.Action("Details", "Tickets", new { id = request.TicketId });
-                                reviewButtonClass = "btn btn-outline-secondary btn-sm me-2";
-                                reviewButtonTitle = "View in read-only mode (past approver)";
-                            }
-                            
                             <tr>
                                 <td class="fw-semibold text-secondary">@ticketNumber</td>
                                 <td>@request.FullName</td>
@@ -118,7 +95,7 @@
                                 </td>
                                 <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
                                 <td class="text-nowrap text-end">
-                                    <a class="@reviewButtonClass" href="@reviewUrl" title="@reviewButtonTitle">
+                                    <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets" asp-action="ApproveAccessRequest" asp-route-id="@request.TicketId">
                                         <i class="fa-solid fa-gavel me-1"></i>Review
                                     </a>
                                     <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@request.TicketId">

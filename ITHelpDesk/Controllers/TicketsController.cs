@@ -174,28 +174,52 @@ public class TicketsController : Controller
             if (accessRequest != null)
             {
                 // Determine review action based on workflow stage
+                // CRITICAL RULE: Past approvers MUST route to Details, never to approval endpoints
                 string? reviewAction = null;
                 bool canReview = false;
 
+                // Check if user is a past approver (Manager or Security who already approved)
+                var isPastManagerApprover = User.IsInRole("Manager") && 
+                                           accessRequest.SelectedManagerId == userId &&
+                                           accessRequest.ManagerApprovalStatus != ApprovalStatus.Pending;
+                var isPastSecurityApprover = User.IsInRole("Security") &&
+                                            accessRequest.SecurityApprovalStatus != ApprovalStatus.Pending;
+
+                // Only route to approval endpoints if user is CURRENT approver AND status is Pending
                 if (accessRequest.ManagerApprovalStatus == ApprovalStatus.Pending)
                 {
                     // Manager approval stage
-                    reviewAction = "ApproveAccessRequest";
-                    canReview = User.IsInRole("Manager") && accessRequest.SelectedManagerId == userId;
+                    var isCurrentManager = User.IsInRole("Manager") && accessRequest.SelectedManagerId == userId;
+                    if (isCurrentManager)
+                    {
+                        reviewAction = "ApproveAccessRequest";
+                        canReview = true;
+                    }
+                    // Past approvers route to Details (handled below)
                 }
                 else if (accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved && 
                          accessRequest.SecurityApprovalStatus == ApprovalStatus.Pending)
                 {
                     // Security approval stage
-                    reviewAction = "ApproveSecurityAccess";
-                    canReview = User.IsInRole("Security");
+                    var isCurrentSecurity = User.IsInRole("Security");
+                    if (isCurrentSecurity)
+                    {
+                        reviewAction = "ApproveSecurityAccess";
+                        canReview = true;
+                    }
+                    // Past approvers route to Details (handled below)
                 }
                 else if (accessRequest.SecurityApprovalStatus == ApprovalStatus.Approved && 
                          ticket.Status == TicketStatus.InProgress)
                 {
                     // IT execution stage
-                    reviewAction = "ExecuteAccessRequest";
-                    canReview = User.IsInRole("IT");
+                    var isCurrentIT = User.IsInRole("IT");
+                    if (isCurrentIT)
+                    {
+                        reviewAction = "ExecuteAccessRequest";
+                        canReview = true;
+                    }
+                    // Past approvers route to Details (handled below)
                 }
 
                 reviewInfo[ticket.Id] = new TicketReviewInfo
@@ -1047,6 +1071,72 @@ Assigned To: {assignedDisplay}</p>
 
         TempData["Toast"] = "✅ Access request approved. Ticket assigned to Security for review.";
         return RedirectToAction(nameof(Details), new { id = ticket.Id });
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> ApproveSecurityAccess(int id)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
+            .Include(t => t.Logs)
+                .ThenInclude(l => l.PerformedBy)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (ticket is null)
+        {
+            return NotFound();
+        }
+
+        var accessRequest = await _context.AccessRequests
+            .Include(ar => ar.SelectedManager)
+            .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
+
+        if (accessRequest is null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Only allow Security role to view (allows past approvers to view forever)
+        var isSecurity = User.IsInRole("Security");
+        
+        if (!isSecurity)
+        {
+            return Forbid();
+        }
+
+        // IsAuthorizedSecurity: true if user is Security (regardless of approval status)
+        // This allows past approvers to always see their approval details
+        var isAuthorizedSecurity = isSecurity;
+        
+        // IsReadOnly: true if status is not pending (already approved/rejected)
+        // This ensures past approvers see read-only view, but current approvers can act
+        var isReadOnly = accessRequest.SecurityApprovalStatus != ApprovalStatus.Pending;
+        
+        // CanApprove: true if authorized AND status is pending AND manager has approved
+        var canApprove = isAuthorizedSecurity && 
+                        accessRequest.SecurityApprovalStatus == ApprovalStatus.Pending &&
+                        accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved;
+
+        var viewModel = new AccessRequestSecurityApprovalViewModel
+        {
+            TicketId = ticket.Id,
+            Ticket = ticket,
+            AccessRequest = accessRequest,
+            IsAuthorizedSecurity = isAuthorizedSecurity,
+            IsReadOnly = isReadOnly,
+            CanApprove = canApprove,
+            Logs = ticket.Logs.OrderByDescending(l => l.Timestamp)
+        };
+
+        return View(viewModel);
     }
 
     [Authorize]

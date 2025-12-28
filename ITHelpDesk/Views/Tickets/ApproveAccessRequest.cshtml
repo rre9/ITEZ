@@ -46,7 +46,7 @@
                 }
 
                 <!-- Applicant Information -->
-                <div class="mb-5">
+                <div class="mb-4">
                     <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
                         <i class="fa-solid fa-user me-2 text-primary"></i>Applicant Information
                     </h5>
@@ -82,7 +82,7 @@
                 </div>
 
                 <!-- Access Request Details -->
-                <div class="mb-5">
+                <div class="mb-4">
                     <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
                         <i class="fa-solid fa-lock me-2 text-primary"></i>Access Request Details
                     </h5>
@@ -120,7 +120,7 @@
                 <!-- Attachments -->
                 @if (Model.Ticket.Attachments.Any())
                 {
-                    <div class="mb-5">
+                    <div class="mb-4">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
                             <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
                         </h5>
@@ -144,7 +144,7 @@
                 <!-- Approval Section -->
                 @if (Model.IsAuthorizedManager && Model.AccessRequest.ManagerApprovalStatus == ApprovalStatus.Pending)
                 {
-                    <div class="mb-5">
+                    <div class="mb-4">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
                             <i class="fa-solid fa-signature me-2 text-primary"></i>Manager Approval
                         </h5>
@@ -174,7 +174,7 @@
                 }
                 else if (Model.AccessRequest.ManagerApprovalStatus != ApprovalStatus.Pending)
                 {
-                    <div class="mb-5">
+                    <div class="mb-4">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
                             <i class="fa-solid fa-signature me-2 text-primary"></i>Manager Approval Decision
                         </h5>
