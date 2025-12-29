@@ -157,13 +157,13 @@ public class DashboardController : Controller
             return Forbid();
         }
 
-        // Get access requests where manager approved but security approval is pending
+        // Get all access requests where manager approved (similar to TeamRequests behavior)
+        // This allows Security to see all requests they've reviewed, not just pending ones
         var accessRequests = await _context.AccessRequests
             .Include(ar => ar.Ticket)
                 .ThenInclude(t => t!.CreatedBy)
             .Include(ar => ar.SelectedManager)
-            .Where(ar => ar.ManagerApprovalStatus == ApprovalStatus.Approved &&
-                        ar.SecurityApprovalStatus == ApprovalStatus.Pending)
+            .Where(ar => ar.ManagerApprovalStatus == ApprovalStatus.Approved)
             .OrderByDescending(ar => ar.ManagerApprovalDate)
             .ToListAsync();
 

@@ -1,0 +1,249 @@
+@model ServiceRequestExecutionViewModel
+@using ITHelpDesk.Models
+
+@{
+    ViewData["Title"] = "IT Execution - Service Request";
+    var ticketNumber = $"HD-{Model.TicketId:D6}";
+    var managerApprovalLog = Model.Logs.FirstOrDefault(l => l.Action == "Manager Approval");
+    var securityApprovalLog = Model.Logs.FirstOrDefault(l => l.Action == "Security Approval");
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="display-6 fw-semibold text-info mb-1">
+            <i class="fa-solid fa-server me-2"></i>IT Execution - Service Request
+        </h1>
+        <p class="text-secondary mb-0">Ticket: @ticketNumber</p>
+    </div>
+    <a asp-action="MyTasks" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Tasks
+    </a>
+</div>
+
+@if (!Model.CanExecute && Model.ServiceRequest.SecurityApprovalStatus == ApprovalStatus.Approved && Model.Ticket.Status == TicketStatus.InProgress)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fa-solid fa-exclamation-triangle me-2"></i>
+        <strong>This request has already been executed.</strong>
+        <p class="mb-0 mt-2">You can view the details below but cannot make changes.</p>
+    </div>
+}
+
+@if (Model.ServiceRequest.SecurityApprovalStatus != ApprovalStatus.Approved)
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="fa-solid fa-exclamation-triangle me-2"></i>
+        <strong>Security Approval Required</strong>
+        <p class="mb-0 mt-2">This request cannot be executed until Security has approved it.</p>
+    </div>
+}
+
+@if (Model.Ticket.Status == TicketStatus.Resolved || Model.Ticket.Status == TicketStatus.Rejected)
+{
+    var completionLog = Model.Logs.FirstOrDefault(l => l.Action == "IT Completed Service Request" || l.Action == "IT Closed Service Request");
+    <div class="alert alert-success" role="alert">
+        <i class="fa-solid fa-check-circle me-2"></i>
+        <strong>Request @(Model.Ticket.Status == TicketStatus.Resolved ? "Completed" : "Closed")</strong>
+        @if (completionLog != null)
+        {
+            <span class="d-block mt-1">by @completionLog.PerformedBy?.FullName on @completionLog.Timestamp.ToLocalTime().ToString("f")</span>
+        }
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Left Side: Read-only Ticket and Service Request Details -->
+    <div class="col-12 col-xl-7">
+        <!-- Ticket Details -->
+        @await Html.PartialAsync("_TicketDetailsReadOnly", Model.Ticket)
+        
+        <!-- Service Request Details -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white border-0 pb-0">
+                <h2 class="h5 fw-semibold mb-0">
+                    <i class="fa-solid fa-file-signature me-2 text-primary"></i>Service Request Details
+                </h2>
+            </div>
+            <div class="card-body">
+                @await Html.PartialAsync("_ServiceRequestDetailsReadOnly", Model.ServiceRequest)
+            </div>
+        </div>
+
+        <!-- Approval Statuses -->
+        @if (Model.ServiceRequest.ManagerApprovalStatus == ApprovalStatus.Approved)
+        {
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h2 class="h5 fw-semibold mb-0">
+                        <i class="fa-solid fa-user-check me-2 text-primary"></i>Manager Approval
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success mb-0">
+                        <strong>Status:</strong> Approved
+                        @if (Model.ServiceRequest.ManagerApprovalDate.HasValue)
+                        {
+                            <span class="d-block mt-1"><strong>Date:</strong> @Model.ServiceRequest.ManagerApprovalDate.Value.ToLocalTime().ToString("f")</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.ServiceRequest.ManagerApprovalName))
+                        {
+                            <span class="d-block mt-1"><strong>Approved By:</strong> @Model.ServiceRequest.ManagerApprovalName</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.ServiceRequest.SecurityApprovalStatus == ApprovalStatus.Approved)
+        {
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h2 class="h5 fw-semibold mb-0">
+                        <i class="fa-solid fa-shield-halved me-2 text-primary"></i>Security Approval
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success mb-0">
+                        <strong>Status:</strong> Approved
+                        @if (Model.ServiceRequest.SecurityApprovalDate.HasValue)
+                        {
+                            <span class="d-block mt-1"><strong>Date:</strong> @Model.ServiceRequest.SecurityApprovalDate.Value.ToLocalTime().ToString("f")</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.ServiceRequest.SecurityApprovalName))
+                        {
+                            <span class="d-block mt-1"><strong>Approved By:</strong> @Model.ServiceRequest.SecurityApprovalName</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right Side: Decision Panel -->
+    <div class="col-12 col-xl-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pb-0">
+                <h2 class="h5 fw-semibold mb-0">
+                    <i class="fa-solid fa-gavel me-2 text-primary"></i>Decision Panel
+                </h2>
+            </div>
+            <div class="card-body">
+                @if (Model.CanExecute && Model.ServiceRequest.SecurityApprovalStatus == ApprovalStatus.Approved && Model.Ticket.Status == TicketStatus.InProgress)
+                {
+                    <!-- Complete/Approve Form -->
+                    <form method="post" asp-action="ExecuteServiceRequest" asp-route-id="@Model.TicketId" enctype="multipart/form-data" class="mb-4">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3">
+                            <label asp-for="ExecutionNotes" class="form-label fw-semibold">Execution Notes <span class="text-danger">*</span></label>
+                            <textarea asp-for="ExecutionNotes" name="executionNotes" class="form-control" rows="4" required placeholder="Please provide notes about the execution/completion..."></textarea>
+                            <span asp-validation-for="ExecutionNotes" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Attachments" class="form-label fw-semibold">Attachments <span class="text-muted small">(Optional)</span></label>
+                            <input asp-for="Attachments" name="attachments" type="file" class="form-control" multiple accept="image/*,.pdf">
+                            <div class="form-text">You can upload images or PDF files (max 10MB each).</div>
+                            <span asp-validation-for="Attachments" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fa-solid fa-check me-2"></i>Approve & Complete
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- Reject/Close Form -->
+                    <form method="post" asp-action="CloseServiceRequest" asp-route-id="@Model.TicketId" enctype="multipart/form-data" onsubmit="return validateRejectForm(this);">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3">
+                            <label for="closureReason" class="form-label fw-semibold">Closure Reason <span class="text-danger">*</span></label>
+                            <textarea name="closureReason" id="closureReason" class="form-control" rows="4" required placeholder="Please provide a reason for closing this request..."></textarea>
+                            <div class="invalid-feedback">Please provide a reason for closure.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="closeAttachments" class="form-label fw-semibold">Attachments <span class="text-muted small">(Optional)</span></label>
+                            <input name="attachments" id="closeAttachments" type="file" class="form-control" multiple accept="image/*,.pdf">
+                            <div class="form-text">You can upload images or PDF files (max 10MB each).</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger btn-lg w-100">
+                            <i class="fa-solid fa-times me-2"></i>Reject & Close
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <!-- Read-only: Show status if already executed -->
+                    @if (Model.Ticket.Status == TicketStatus.Resolved || Model.Ticket.Status == TicketStatus.Rejected)
+                    {
+                        var statusClass = Model.Ticket.Status == TicketStatus.Resolved ? "alert-success" : "alert-danger";
+                        var statusText = Model.Ticket.Status == TicketStatus.Resolved ? "Completed" : "Rejected/Closed";
+                        var statusIcon = Model.Ticket.Status == TicketStatus.Resolved ? "fa-check-circle" : "fa-times-circle";
+                        
+                        <div class="alert @statusClass mb-0">
+                            <i class="fa-solid @statusIcon me-2"></i>
+                            <strong>Status: @statusText</strong>
+                            @{
+                                var completionLog = Model.Logs.FirstOrDefault(l => l.Action == "IT Completed Service Request" || l.Action == "IT Closed Service Request");
+                            }
+                            @if (completionLog != null)
+                            {
+                                <span class="d-block mt-2"><strong>Date:</strong> @completionLog.Timestamp.ToLocalTime().ToString("f")</span>
+                                <span class="d-block mt-1"><strong>By:</strong> @completionLog.PerformedBy?.FullName</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="fa-solid fa-info-circle me-2"></i>
+                            <strong>Waiting for Security Approval</strong>
+                            <p class="mb-0 mt-2">This request is pending security approval before it can be executed.</p>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function validateRejectForm(form) {
+            var reasonField = form.querySelector('#closureReason');
+            if (!reasonField || !reasonField.value.trim()) {
+                reasonField.classList.add('is-invalid');
+                return false;
+            }
+            reasonField.classList.remove('is-invalid');
+            return confirm('Are you sure you want to close this request? This action cannot be undone.');
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .timeline-line {
+            position: absolute;
+            top: 0.5rem;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            width: 2px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            left: -0.1rem;
+            top: 0.5rem;
+        }
+    </style>
+}
+

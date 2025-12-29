@@ -1,0 +1,235 @@
+@model ServiceRequestCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Service Request";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10 col-xxl-9">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-lg-5">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h1 class="h3 fw-semibold text-info mb-1">
+                            <i class="fa-solid fa-network-wired me-2"></i>Service Request – Social Media Access Permit
+                        </h1>
+                        <p class="text-secondary mb-0">Submit a request for Social Media Access Permit.</p>
+                    </div>
+                    <a asp-action="SelectRequestType" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Request Types
+                    </a>
+                </div>
+
+                <form asp-action="CreateServiceRequest" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <!-- Section 1: Applicant Information -->
+                    <div class="mb-5">
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-user me-2 text-primary"></i>Applicant Information
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label asp-for="EmployeeName" class="form-label fw-semibold"></label>
+                                <input asp-for="EmployeeName" class="form-control" readonly />
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
+                                <span asp-validation-for="EmployeeName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Department" class="form-label fw-semibold"></label>
+                                <select asp-for="Department" class="form-select" required>
+                                    <option value="">-- Select Department --</option>
+                                    @if (Model.Departments != null)
+                                    {
+                                        foreach (var dept in Model.Departments)
+                                        {
+                                            <option value="@dept">@dept</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="Department" class="text-danger small"></span>
+                                <div class="invalid-feedback">Please select a department.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="JobTitle" class="form-label fw-semibold"></label>
+                                <input asp-for="JobTitle" class="form-control" />
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
+                                <span asp-validation-for="JobTitle" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="RequestDate" class="form-label fw-semibold"></label>
+                                <input asp-for="RequestDate" type="datetime-local" class="form-control" readonly />
+                                <small class="form-text text-muted">Auto-filled (current date/time)</small>
+                                <span asp-validation-for="RequestDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SelectedManagerId" class="form-label fw-semibold"></label>
+                                <select asp-for="SelectedManagerId" class="form-select" required>
+                                    <option value="">-- Select Direct Manager --</option>
+                                    @if (Model.Managers != null)
+                                    {
+                                        foreach (var manager in Model.Managers)
+                                        {
+                                            <option value="@manager.Id">@manager.FullName</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="SelectedManagerId" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Description of Requested Usage -->
+                    <div class="mb-5">
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-file-lines me-2 text-primary"></i>Description of Requested Usage
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label asp-for="UsageDescription" class="form-label fw-semibold"></label>
+                                <textarea asp-for="UsageDescription" class="form-control" rows="5" required placeholder="Describe the social media usage you are requesting..."></textarea>
+                                <small class="form-text text-muted">Maximum 2000 characters</small>
+                                <span asp-validation-for="UsageDescription" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Business / Operational Reasons -->
+                    <div class="mb-5">
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-briefcase me-2 text-primary"></i>Business / Operational Reasons
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label asp-for="UsageReason" class="form-label fw-semibold"></label>
+                                <textarea asp-for="UsageReason" class="form-control" rows="5" required placeholder="Explain the business or operational reasons for this request..."></textarea>
+                                <small class="form-text text-muted">Maximum 2000 characters</small>
+                                <span asp-validation-for="UsageReason" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Responsibility Acknowledgment (Static) -->
+                    <div class="mb-5">
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-gavel me-2 text-primary"></i>Responsibility Acknowledgment
+                        </h5>
+                        <div class="alert alert-info">
+                            <p class="mb-0"><strong>I, the undersigned, acknowledge that in consideration of being granted permission to access and use social media platforms on company devices or through Yaqeen's corporate internet network for the purposes stated above, I hereby declare and undertake the following:</strong></p>
+                            <ol class="mb-0 mt-3 ps-4">
+                                <li class="mb-2">I commit not to publish or disclose any company-related content, and I understand that this access is granted strictly for the purposes stated above, and I will perform my duties with the highest professional standards.</li>
+                                <li class="mb-2">I commit to complying with all applicable laws, regulations, and instructions related to such usage at all times.</li>
+                                <li class="mb-2">I commit to complying with all Yaqeen company policies at all times.</li>
+                                <li class="mb-2">I fully understand that the use of any illegal and/or inappropriate methods through this access permit is strictly prohibited.</li>
+                                <li class="mb-0">I fully understand that any violation of these instructions or any rules or directives issued by Yaqeen (written or verbal) related to such usage may subject the employee to disciplinary actions.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Acknowledgment & Signature -->
+                    <div class="mb-5">
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-signature me-2 text-primary"></i>Acknowledgment & Signature
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input asp-for="Acknowledged" class="form-check-input" type="checkbox" required id="Acknowledged" />
+                                    <label class="form-check-label fw-semibold" for="Acknowledged">
+                                        @Html.DisplayNameFor(m => m.Acknowledged)
+                                    </label>
+                                    <div class="invalid-feedback">You must acknowledge and agree to the responsibility terms to submit this request.</div>
+                                    <span asp-validation-for="Acknowledged" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SignatureName" class="form-label fw-semibold"></label>
+                                <input asp-for="SignatureName" class="form-control" readonly />
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
+                                <span asp-validation-for="SignatureName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SignatureJobTitle" class="form-label fw-semibold"></label>
+                                <input asp-for="SignatureJobTitle" class="form-control" />
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
+                                <span asp-validation-for="SignatureJobTitle" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SignatureDate" class="form-label fw-semibold"></label>
+                                <input asp-for="SignatureDate" type="datetime-local" class="form-control" readonly />
+                                <small class="form-text text-muted">Auto-filled (current date/time)</small>
+                                <span asp-validation-for="SignatureDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Attachments -->
+                    <div class="mb-5">
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
+                        </h5>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label for="Attachments" class="form-label fw-semibold">Supporting Documents</label>
+                                <div class="form-text mb-2">
+                                    <i class="fa-solid fa-info-circle me-1"></i>Upload supporting documents (PDF, JPG, PNG). Multiple files allowed. Maximum 10 MB per file.
+                                </div>
+                                <input asp-for="Attachments" type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png" />
+                                <span asp-validation-for="Attachments" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mt-5 pt-3 border-top">
+                        <div class="text-secondary small">
+                            <i class="fa-regular fa-clock me-1"></i>Request will be submitted for approval after review.
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a asp-action="SelectRequestType" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-info px-4">
+                                <i class="fa-solid fa-paper-plane me-2"></i>Submit Service Request
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Basic form validation
+        (function() {
+            'use strict';
+            const form = document.querySelector('.needs-validation');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Validate checkbox
+                    const checkbox = document.getElementById('Acknowledged');
+                    if (!checkbox.checked) {
+                        checkbox.setCustomValidity('You must acknowledge and agree to the responsibility terms.');
+                    } else {
+                        checkbox.setCustomValidity('');
+                    }
+
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            }
+        })();
+    </script>
+}
+

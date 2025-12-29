@@ -1,0 +1,48 @@
+@model ServiceRequest
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Employee Name</label>
+        <div class="form-control-plaintext">@Model.EmployeeName</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Department</label>
+        <div class="form-control-plaintext">@Model.Department</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Job Title</label>
+        <div class="form-control-plaintext">@Model.JobTitle</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Request Date</label>
+        <div class="form-control-plaintext">@Model.RequestDate.ToString("yyyy-MM-dd HH:mm")</div>
+    </div>
+    <div class="col-12">
+        <label class="form-label fw-semibold text-secondary">Description of Requested Social Media Usage</label>
+        <div class="form-control-plaintext border p-3 bg-light rounded">@Model.UsageDescription</div>
+    </div>
+    <div class="col-12">
+        <label class="form-label fw-semibold text-secondary">Reason for Request</label>
+        <div class="form-control-plaintext border p-3 bg-light rounded">@Model.UsageReason</div>
+    </div>
+    <div class="col-12">
+        <label class="form-label fw-semibold text-secondary">Acknowledged</label>
+        <div class="form-control-plaintext">
+            <i class="fa-solid fa-@(Model.Acknowledged ? "check text-success" : "times text-danger") me-2"></i>
+            @(Model.Acknowledged ? "Yes" : "No")
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Signature Name</label>
+        <div class="form-control-plaintext">@Model.SignatureName</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Signature Job Title</label>
+        <div class="form-control-plaintext">@Model.SignatureJobTitle</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold text-secondary">Signature Date</label>
+        <div class="form-control-plaintext">@Model.SignatureDate.ToString("yyyy-MM-dd HH:mm")</div>
+    </div>
+</div>
+

@@ -17,9 +17,11 @@ public class TicketStatusUpdateViewModel
     [Display(Name = "Assign To")]
     public string? AssignedToId { get; set; }
 
-    [Display(Name = "Internal Notes")]
+    [Display(Name = "Comment")]
     [MaxLength(1000)]
     public string? InternalNotes { get; set; }
+    
+    public bool RequireComment { get; set; } = false; // Whether comment is required (e.g., for IT final decision)
 
     [Display(Name = "Attachment (Image)")]
     public IFormFile? Attachment { get; set; }
