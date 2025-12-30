@@ -181,7 +181,7 @@
                             </button>
                         </form>
 
-                        <form method="post" asp-action="RejectSecurityAccess" asp-route-id="@Model.TicketId" enctype="multipart/form-data" onsubmit="return validateRejectForm(this);">
+                        <form method="post" asp-action="RejectSecurityAccess" asp-route-id="@Model.TicketId" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             
                             <div class="mb-3">
@@ -273,7 +273,7 @@
                 return false;
             }
             commentField.classList.remove('is-invalid');
-            return confirm('Are you sure you want to reject this request? This action cannot be undone.');
+            return true;
         }
     </script>
 }

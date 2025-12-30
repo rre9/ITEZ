@@ -179,7 +179,7 @@
                             </button>
                         </form>
 
-                        <form method="post" asp-action="RejectServiceRequest" asp-route-id="@Model.TicketId" onsubmit="return validateRejectComment();">
+                        <form method="post" asp-action="RejectServiceRequest" asp-route-id="@Model.TicketId">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
                                 <label for="rejectComment" class="form-label fw-semibold">Rejection Reason <span class="text-danger">*</span></label>
@@ -256,14 +256,6 @@
 
 @section Scripts {
     <script>
-        function validateRejectComment() {
-            const comment = document.getElementById('rejectComment').value.trim();
-            if (!comment) {
-                alert('Please provide a rejection reason.');
-                return false;
-            }
-            return confirm('Are you sure you want to reject this service request? This action cannot be undone.');
-        }
     </script>
 }
 

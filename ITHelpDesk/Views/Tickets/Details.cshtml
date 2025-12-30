@@ -19,6 +19,12 @@
                 <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tasks
             </a>
         }
+        else if (User.IsInRole("IT"))
+        {
+            <a asp-action="MyTasks" class="text-decoration-none text-secondary small fw-semibold">
+                <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tasks
+            </a>
+        }
         <h1 class="display-6 fw-semibold text-primary mb-1 mt-2">
             <i class="fa-solid fa-ticket me-2"></i>@ticketNumber
         </h1>
@@ -26,10 +32,22 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-end mb-3 gap-2">
     @{
         var isEmployee = User.IsInRole("Employee");
         var isAdminOrSupport = User.IsInRole("Admin") || User.IsInRole("Support");
+        var isIT = User.IsInRole("IT");
+        
+        // Check if this is an Access/Service Request in IT stage
+        var isAccessRequestInITStage = false;
+        var isServiceRequestInITStage = false;
+        
+        if (isIT && Model.Status == TicketStatus.InProgress)
+        {
+            // We need to check AccessRequest and ServiceRequest in the controller
+            // For now, we'll pass this info via ViewBag or check in the view
+            // Actually, better to pass it from controller
+        }
     }
     
     @if (isEmployee)
@@ -39,6 +57,10 @@
     else if (isAdminOrSupport)
     {
         <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">Tasks</a>
+    }
+    else if (isIT)
+    {
+        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">My Tasks</a>
     }
 </div>
 
