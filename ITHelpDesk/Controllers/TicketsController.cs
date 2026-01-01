@@ -287,6 +287,10 @@ public class TicketsController : Controller
         var accessRequestsForReview = await _context.AccessRequests
             .Where(ar => tickets.Select(t => t.Id).Contains(ar.TicketId))
             .ToListAsync();
+        
+        var serviceRequestsForReview = await _context.ServiceRequests
+            .Where(sr => tickets.Select(t => t.Id).Contains(sr.TicketId))
+            .ToListAsync();
 
         foreach (var ticket in tickets)
         {
@@ -374,6 +378,45 @@ public class TicketsController : Controller
                     ReviewAction = reviewAction
                 };
             }
+            else
+            {
+                // Check if this is a Service Request
+                var serviceRequest = serviceRequestsForReview.FirstOrDefault(sr => sr.TicketId == ticket.Id);
+                if (serviceRequest != null)
+                {
+                    string? reviewAction = null;
+                    bool canReview = false;
+
+                    // Determine review action based on workflow stage
+                    if (serviceRequest.ManagerApprovalStatus == ApprovalStatus.Pending)
+                    {
+                        // Manager approval stage
+                        var isCurrentManager = User.IsInRole("Manager") && serviceRequest.SelectedManagerId == userId;
+                        if (isCurrentManager)
+                        {
+                            reviewAction = "ApproveServiceRequest"; // Manager approval
+                            canReview = true;
+                        }
+                    }
+                    else if (serviceRequest.ManagerApprovalStatus == ApprovalStatus.Approved && 
+                             serviceRequest.SecurityApprovalStatus == ApprovalStatus.Pending)
+                    {
+                        // Security approval stage
+                        var isCurrentSecurity = User.IsInRole("Security");
+                        if (isCurrentSecurity)
+                        {
+                            reviewAction = "ApproveSecurityService";
+                            canReview = true;
+                        }
+                    }
+
+                    reviewInfo[ticket.Id] = new TicketReviewInfo
+                    {
+                        CanReview = canReview,
+                        ReviewAction = reviewAction
+                    };
+                }
+            }
         }
 
         var viewModel = new TasksViewModel
@@ -415,10 +458,19 @@ public class TicketsController : Controller
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
+        // Get service requests where the current user is the selected manager
+        var serviceRequests = await _context.ServiceRequests
+            .Where(sr => sr.SelectedManagerId == currentUser.Id)
+            .Include(sr => sr.Ticket)
+            .Include(sr => sr.SelectedManager)
+            .OrderByDescending(sr => sr.RequestDate)
+            .ToListAsync();
+
         var vm = new ViewModels.TeamRequestsViewModel
         {
             AccessRequests = accessRequests,
-            SystemChangeTickets = systemChangeTickets
+            SystemChangeTickets = systemChangeTickets,
+            ServiceRequests = serviceRequests
         };
 
         return View(vm);
@@ -1996,6 +2048,12 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
+        // Prevent the assigned user from reviewing/approving their own assigned ticket
+        if (ticket.AssignedToId == currentUser.Id)
+        {
+            return Forbid();
+        }
+
         // IsAuthorizedSecurity: true if user is Security (regardless of approval status)
         // This allows past approvers to always see their approval details
         var isAuthorizedSecurity = isSecurity;
@@ -2054,6 +2112,12 @@ Assigned To: {assignedDisplay}</p>
 
         // Verify the current user is Security (Mohammed)
         if (!User.IsInRole("Security"))
+        {
+            return Forbid();
+        }
+
+        // Prevent the assigned user from reviewing/approving their own assigned ticket
+        if (ticket.AssignedToId == currentUser.Id)
         {
             return Forbid();
         }
@@ -2198,6 +2262,12 @@ Assigned To: {assignedDisplay}</p>
 
         // Verify the current user is Security (Mohammed)
         if (!User.IsInRole("Security"))
+        {
+            return Forbid();
+        }
+
+        // Prevent the assigned user from reviewing/approving their own assigned ticket
+        if (ticket.AssignedToId == currentUser.Id)
         {
             return Forbid();
         }
@@ -2672,6 +2742,12 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
+        // Prevent the assigned user from reviewing/approving their own assigned ticket
+        if (ticket.AssignedToId == currentUser.Id)
+        {
+            return Forbid();
+        }
+
         // IsAuthorizedSecurity: true if user is Security (regardless of approval status)
         // This allows past approvers to always see their approval details
         var isAuthorizedSecurity = isSecurity;
@@ -2730,6 +2806,12 @@ Assigned To: {assignedDisplay}</p>
 
         // Verify the current user is Security (Mohammed)
         if (!User.IsInRole("Security"))
+        {
+            return Forbid();
+        }
+
+        // Prevent the assigned user from reviewing/approving their own assigned ticket
+        if (ticket.AssignedToId == currentUser.Id)
         {
             return Forbid();
         }
@@ -2874,6 +2956,12 @@ Assigned To: {assignedDisplay}</p>
 
         // Verify the current user is Security (Mohammed)
         if (!User.IsInRole("Security"))
+        {
+            return Forbid();
+        }
+
+        // Prevent the assigned user from reviewing/approving their own assigned ticket
+        if (ticket.AssignedToId == currentUser.Id)
         {
             return Forbid();
         }
