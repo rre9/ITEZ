@@ -1,0 +1,137 @@
+@model ITHelpDesk.Models.Ticket
+@using ITHelpDesk.Models
+@using ITHelpDesk.ViewModels
+
+@{
+    ViewData["Title"] = "IT Execution - System Change";
+    var ticketNumber = $"HD-{Model.Id:D6}";
+    var details = SystemChangeRequestDetailsViewModel.Parse(Model.Description);
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="display-6 fw-semibold text-primary mb-1">
+            <i class="fa-solid fa-server me-2"></i>IT Execution - System Change
+        </h1>
+        <p class="text-secondary mb-0">Ticket: @ticketNumber</p>
+    </div>
+    <a asp-action="MyTasks" asp-controller="Tickets" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Tasks
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-xl-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 text-primary mb-3">@Model.Title</h2>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="text-secondary mb-2 small"><i class="fa-solid fa-user me-1"></i>Requester</h6>
+                            <p class="mb-1 small"><strong>@details.RequesterName</strong></p>
+                            <p class="mb-0 small text-muted">@details.Department • @details.PhoneNumber</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="text-secondary mb-2 small"><i class="fa-solid fa-chart-line me-1"></i>Impact</h6>
+                            <p class="mb-0">
+                                @if (!string.IsNullOrEmpty(details.ChangeType))
+                                {
+                                    <span class="badge bg-secondary me-1">@details.ChangeType</span>
+                                }
+                                @if (!string.IsNullOrEmpty(details.ChangePriority))
+                                {
+                                    <span class="badge bg-secondary me-1">@details.ChangePriority</span>
+                                }
+                                @if (!string.IsNullOrEmpty(details.ChangeImpact))
+                                {
+                                    <span class="badge bg-secondary">@details.ChangeImpact</span>
+                                }
+                                @if (string.IsNullOrEmpty(details.ChangeType) && string.IsNullOrEmpty(details.ChangePriority) && string.IsNullOrEmpty(details.ChangeImpact))
+                                {
+                                    <span class="text-muted small">Not specified</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-secondary mb-2 small"><i class="fa-solid fa-file-lines me-1"></i>Description</h6>
+                    <p class="text-muted small mb-0">@details.ChangeDescription</p>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-secondary mb-2 small"><i class="fa-solid fa-question-circle me-1"></i>Reason</h6>
+                    <p class="text-muted small mb-0">@details.ChangeReason</p>
+                </div>
+
+                <div class="accordion accordion-flush" id="executeAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#execPlan">
+                                <small><i class="fa-solid fa-list-check me-2"></i>Implementation Plan</small>
+                            </button>
+                        </h2>
+                        <div id="execPlan" class="accordion-collapse collapse" data-bs-parent="#executeAccordion">
+                            <div class="accordion-body">
+                                <p class="mb-0 text-muted small">@details.ImplementationPlan</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#execBackout">
+                                <small><i class="fa-solid fa-rotate-left me-2"></i>Backout Plan</small>
+                            </button>
+                        </h2>
+                        <div id="execBackout" class="accordion-collapse collapse" data-bs-parent="#executeAccordion">
+                            <div class="accordion-body">
+                                <p class="mb-0 text-muted small">@details.BackoutPlan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <form method="post" asp-action="Execute" asp-controller="SystemChangeRequests" asp-route-id="@Model.Id" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label for="executionNotes" class="form-label fw-semibold">Execution Notes <span class="text-danger">*</span></label>
+                        <textarea name="executionNotes" id="executionNotes" class="form-control" rows="4" required placeholder="Describe the execution steps performed..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attachments" class="form-label fw-semibold">Attachments <span class="text-muted small">(Optional)</span></label>
+                        <input name="attachments" id="attachments" type="file" class="form-control" multiple accept="image/*,.pdf">
+                        <div class="form-text">You can upload images or PDF files (max 10MB each).</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fa-solid fa-check me-2"></i>Approve & Complete
+                    </button>
+                </form>
+
+                <hr class="my-4" />
+
+                <form method="post" asp-action="Reject" asp-controller="SystemChangeRequests" asp-route-id="@Model.Id" onsubmit="return confirm('Reject and close this request?');">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label for="closeReason" class="form-label fw-semibold">Closure Reason <span class="text-danger">*</span></label>
+                        <textarea name="closeReason" id="closeReason" class="form-control" rows="3" required placeholder="Reason for rejection/closure..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fa-solid fa-times me-2"></i>Reject & Close
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
