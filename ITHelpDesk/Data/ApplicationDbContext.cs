@@ -15,6 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
     public DbSet<TicketLog> TicketLogs => Set<TicketLog>();
     public DbSet<AccessRequest> AccessRequests => Set<AccessRequest>();
+    public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -24,6 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         ConfigureTicketAttachment(builder);
         ConfigureTicketLog(builder);
         ConfigureAccessRequest(builder);
+        ConfigureServiceRequest(builder);
     }
 
     private static void ConfigureTicket(ModelBuilder builder)
@@ -204,6 +206,86 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             // Make TicketId unique for one-to-one relationship
             accessRequest.HasIndex(ar => ar.TicketId)
+                .IsUnique();
+        });
+    }
+
+    private static void ConfigureServiceRequest(ModelBuilder builder)
+    {
+        builder.Entity<ServiceRequest>(serviceRequest =>
+        {
+            serviceRequest.ToTable("ServiceRequests");
+
+            serviceRequest.Property(sr => sr.EmployeeName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            serviceRequest.Property(sr => sr.Department)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            serviceRequest.Property(sr => sr.JobTitle)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            serviceRequest.Property(sr => sr.UsageDescription)
+                .IsRequired()
+                .HasMaxLength(2000);
+
+            serviceRequest.Property(sr => sr.UsageReason)
+                .IsRequired()
+                .HasMaxLength(2000);
+
+            serviceRequest.Property(sr => sr.SignatureName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            serviceRequest.Property(sr => sr.SignatureJobTitle)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            serviceRequest.Property(sr => sr.ManagerApprovalName)
+                .HasMaxLength(150);
+
+            serviceRequest.Property(sr => sr.ManagerApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            serviceRequest.Property(sr => sr.ITApprovalName)
+                .HasMaxLength(150);
+
+            serviceRequest.Property(sr => sr.ITApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            serviceRequest.Property(sr => sr.SecurityApprovalName)
+                .HasMaxLength(150);
+
+            serviceRequest.Property(sr => sr.SecurityApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            serviceRequest.Property(sr => sr.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            serviceRequest.Property(sr => sr.SelectedManagerId)
+                .IsRequired()
+                .HasMaxLength(450);
+
+            // One-to-One relationship with Ticket
+            serviceRequest.HasOne(sr => sr.Ticket)
+                .WithOne()
+                .HasForeignKey<ServiceRequest>(sr => sr.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationship with Selected Manager
+            serviceRequest.HasOne(sr => sr.SelectedManager)
+                .WithMany()
+                .HasForeignKey(sr => sr.SelectedManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Make TicketId unique for one-to-one relationship
+            serviceRequest.HasIndex(sr => sr.TicketId)
                 .IsUnique();
         });
     }

@@ -84,6 +84,27 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
             if (hasSecurityReviewed)
             {
                 context.Succeed(requirement);
+                return;
+            }
+        }
+
+        // Allow if user is IT and this is an Access/Service Request in IT stage
+        // IT can view tickets that are in IT stage (Security approved, Status InProgress)
+        if (context.User.IsInRole("IT"))
+        {
+            var isAccessRequestInITStage = await _context.AccessRequests
+                .AnyAsync(ar => ar.TicketId == resource.Id && 
+                               ar.SecurityApprovalStatus == Models.ApprovalStatus.Approved &&
+                               resource.Status == Models.TicketStatus.InProgress);
+            
+            var isServiceRequestInITStage = await _context.ServiceRequests
+                .AnyAsync(sr => sr.TicketId == resource.Id && 
+                               sr.SecurityApprovalStatus == Models.ApprovalStatus.Approved &&
+                               resource.Status == Models.TicketStatus.InProgress);
+            
+            if (isAccessRequestInITStage || isServiceRequestInITStage)
+            {
+                context.Succeed(requirement);
             }
         }
     }

@@ -70,6 +70,18 @@ public class TicketQueryService : ITicketQueryService
             .Include(t => t.AssignedTo)
             .AsQueryable();
 
+        // CRITICAL: Exclude rejected tickets from All Tickets Dashboard by default
+        // Rejected tickets are closed and should not appear in active ticket lists
+        // UNLESS user explicitly filters by Rejected status
+        if (query.Status == null || query.Status != TicketStatus.Rejected)
+        {
+            q = q.Where(t => t.Status != TicketStatus.Rejected);
+        }
+
+        // ✅ REMOVED: Exclusion of IT stage tickets from All Tickets Dashboard
+        // Tickets in IT stage will now appear in /Tickets (All Tickets Dashboard)
+        // This allows IT users to see their assigned tickets in the main dashboard
+
         if (query.Status is not null)
         {
             q = q.Where(t => t.Status == query.Status.Value);

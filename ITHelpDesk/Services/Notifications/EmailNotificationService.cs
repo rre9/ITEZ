@@ -326,7 +326,7 @@ public class EmailNotificationService : INotificationService
             // Determine who to notify
             var employeeEmail = accessRequest.Email;
             var managerEmail = accessRequest.SelectedManager?.Email;
-            var securityEmail = "mohammed@yub.com.sa"; // TODO: Retrieve from configuration
+            var securityEmail = "mohammed.cyber@yub.com.sa";
 
             var body = $@"
 <!DOCTYPE html>
@@ -409,6 +409,364 @@ public class EmailNotificationService : INotificationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send completion notification for Access Request {TicketId}", accessRequest.Ticket?.Id);
+        }
+    }
+
+    public async Task NotifyServiceRequestManagerAsync(ServiceRequest serviceRequest)
+    {
+        if (serviceRequest?.Ticket == null || serviceRequest.SelectedManager == null)
+        {
+            _logger.LogWarning("Cannot send manager notification: ServiceRequest or related entities are null");
+            return;
+        }
+
+        try
+        {
+            var ticket = serviceRequest.Ticket;
+            var ticketNumber = $"HD-{ticket.Id:D6}";
+            var manager = serviceRequest.SelectedManager;
+            var managerEmail = manager.Email ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(managerEmail))
+            {
+                _logger.LogWarning("Cannot send notification to manager {ManagerId}: email address is missing", manager.Id);
+                return;
+            }
+
+            var approvalUrl = GenerateApprovalUrl(ticket.Id, "ApproveServiceRequest");
+            var subject = $"[IT Help Desk] Service Request Approval Required - {ticketNumber}";
+
+            var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #0d6efd; color: white; padding: 20px; border-radius: 5px 5px 0 0; }}
+        .content {{ background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }}
+        .footer {{ background-color: #ffffff; padding: 15px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px; }}
+        .button {{ display: inline-block; padding: 12px 24px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+        .info-row {{ margin: 10px 0; }}
+        .label {{ font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <div class=""container"">
+        <div class=""header"">
+            <h2>Service Request Approval Required</h2>
+        </div>
+        <div class=""content"">
+            <p>Dear {manager.FullName},</p>
+            <p>A service request has been submitted and requires your approval as the Direct Manager.</p>
+            
+            <div class=""info-row"">
+                <span class=""label"">Ticket Number:</span> {ticketNumber}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Employee Name:</span> {serviceRequest.EmployeeName}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Department:</span> {serviceRequest.Department}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Request Date:</span> {serviceRequest.RequestDate:yyyy-MM-dd}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Current Status:</span> Pending Manager Approval
+            </div>
+            
+            <p style=""margin-top: 20px;"">
+                <a href=""{approvalUrl}"" class=""button"">Review & Approve Request</a>
+            </p>
+            
+            <p style=""margin-top: 20px; font-size: 0.9em; color: #666;"">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                {approvalUrl}
+            </p>
+        </div>
+        <div class=""footer"">
+            <p style=""margin: 0; font-size: 0.85em; color: #666;"">
+                This is an automated message from the IT Help Desk system. Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            await _emailSender.SendEmailAsync(managerEmail, subject, body);
+            _logger.LogInformation("Manager notification sent to {ManagerEmail} for Service Request {TicketId}", managerEmail, ticket.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send manager notification for Service Request {TicketId}", serviceRequest.Ticket?.Id);
+        }
+    }
+
+    public async Task NotifyServiceRequestSecurityAsync(ServiceRequest serviceRequest)
+    {
+        if (serviceRequest?.Ticket == null)
+        {
+            _logger.LogWarning("Cannot send security notification: ServiceRequest or Ticket is null");
+            return;
+        }
+
+        try
+        {
+            var ticket = serviceRequest.Ticket;
+            var ticketNumber = $"HD-{ticket.Id:D6}";
+            
+            var securityEmail = "mohammed.cyber@yub.com.sa";
+            
+            var approvalUrl = GenerateApprovalUrl(ticket.Id, "ApproveSecurityService");
+            var subject = $"[IT Help Desk] Security Approval Required - {ticketNumber}";
+
+            var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #dc3545; color: white; padding: 20px; border-radius: 5px 5px 0 0; }}
+        .content {{ background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }}
+        .footer {{ background-color: #ffffff; padding: 15px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px; }}
+        .button {{ display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+        .info-row {{ margin: 10px 0; }}
+        .label {{ font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <div class=""container"">
+        <div class=""header"">
+            <h2>Security Approval Required</h2>
+        </div>
+        <div class=""content"">
+            <p>Dear Security Team,</p>
+            <p>A service request has been approved by the Direct Manager and now requires Security approval.</p>
+            
+            <div class=""info-row"">
+                <span class=""label"">Ticket Number:</span> {ticketNumber}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Employee Name:</span> {serviceRequest.EmployeeName}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Manager:</span> {serviceRequest.ManagerApprovalName ?? "N/A"}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Department:</span> {serviceRequest.Department}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Current Status:</span> Pending Security Approval
+            </div>
+            
+            <p style=""margin-top: 20px;"">
+                <a href=""{approvalUrl}"" class=""button"">Review Security Approval</a>
+            </p>
+            
+            <p style=""margin-top: 20px; font-size: 0.9em; color: #666;"">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                {approvalUrl}
+            </p>
+        </div>
+        <div class=""footer"">
+            <p style=""margin: 0; font-size: 0.85em; color: #666;"">
+                This is an automated message from the IT Help Desk system. Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            await _emailSender.SendEmailAsync(securityEmail, subject, body);
+            _logger.LogInformation("Security notification sent to {SecurityEmail} for Service Request {TicketId}", securityEmail, ticket.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send security notification for Service Request {TicketId}", serviceRequest.Ticket?.Id);
+        }
+    }
+
+    public async Task NotifyServiceRequestITAsync(ServiceRequest serviceRequest)
+    {
+        if (serviceRequest?.Ticket == null)
+        {
+            _logger.LogWarning("Cannot send IT notification: ServiceRequest or Ticket is null");
+            return;
+        }
+
+        try
+        {
+            var ticket = serviceRequest.Ticket;
+            var ticketNumber = $"HD-{ticket.Id:D6}";
+            
+            var itEmail = "yazan.it@yub.com.sa";
+            
+            var executionUrl = GenerateApprovalUrl(ticket.Id, "ExecuteServiceRequest");
+            var subject = $"[IT Help Desk] Service Request Ready for Execution - {ticketNumber}";
+
+            var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #198754; color: white; padding: 20px; border-radius: 5px 5px 0 0; }}
+        .content {{ background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }}
+        .footer {{ background-color: #ffffff; padding: 15px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px; }}
+        .button {{ display: inline-block; padding: 12px 24px; background-color: #198754; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+        .info-row {{ margin: 10px 0; }}
+        .label {{ font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <div class=""container"">
+        <div class=""header"">
+            <h2>Service Request Ready for Execution</h2>
+        </div>
+        <div class=""content"">
+            <p>Dear IT Team,</p>
+            <p>A service request has been approved by Security and is ready for IT execution.</p>
+            
+            <div class=""info-row"">
+                <span class=""label"">Ticket Number:</span> {ticketNumber}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Employee Name:</span> {serviceRequest.EmployeeName}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Department:</span> {serviceRequest.Department}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Current Status:</span> Pending IT Execution
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Security Approved By:</span> {serviceRequest.SecurityApprovalName ?? "N/A"}
+            </div>
+            
+            <p style=""margin-top: 20px;"">
+                <a href=""{executionUrl}"" class=""button"">Execute Request</a>
+            </p>
+            
+            <p style=""margin-top: 20px; font-size: 0.9em; color: #666;"">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                {executionUrl}
+            </p>
+        </div>
+        <div class=""footer"">
+            <p style=""margin: 0; font-size: 0.85em; color: #666;"">
+                This is an automated message from the IT Help Desk system. Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            await _emailSender.SendEmailAsync(itEmail, subject, body);
+            _logger.LogInformation("IT notification sent to {ITEmail} for Service Request {TicketId}", itEmail, ticket.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send IT notification for Service Request {TicketId}", serviceRequest.Ticket?.Id);
+        }
+    }
+
+    public async Task NotifyServiceRequestCompletedAsync(ServiceRequest serviceRequest)
+    {
+        if (serviceRequest?.Ticket == null)
+        {
+            _logger.LogWarning("Cannot send completion notification: ServiceRequest or Ticket is null");
+            return;
+        }
+
+        try
+        {
+            var ticket = serviceRequest.Ticket;
+            var ticketNumber = $"HD-{ticket.Id:D6}";
+            var isCompleted = ticket.Status == TicketStatus.Resolved;
+            var statusText = isCompleted ? "Completed" : "Closed";
+            
+            var detailsUrl = GenerateApprovalUrl(ticket.Id, "Details");
+            var subject = $"[IT Help Desk] Service Request {statusText} - {ticketNumber}";
+
+            var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: {(isCompleted ? "#198754" : "#6c757d")}; color: white; padding: 20px; border-radius: 5px 5px 0 0; }}
+        .content {{ background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }}
+        .footer {{ background-color: #ffffff; padding: 15px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 5px 5px; }}
+        .button {{ display: inline-block; padding: 12px 24px; background-color: {(isCompleted ? "#198754" : "#6c757d")}; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+        .info-row {{ margin: 10px 0; }}
+        .label {{ font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <div class=""container"">
+        <div class=""header"">
+            <h2>Service Request {statusText}</h2>
+        </div>
+        <div class=""content"">
+            <p>Dear {serviceRequest.EmployeeName},</p>
+            <p>Your service request has been {statusText.ToLower()} by the IT Department.</p>
+            
+            <div class=""info-row"">
+                <span class=""label"">Ticket Number:</span> {ticketNumber}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Department:</span> {serviceRequest.Department}
+            </div>
+            <div class=""info-row"">
+                <span class=""label"">Status:</span> {statusText}
+            </div>
+            
+            <p style=""margin-top: 20px;"">
+                <a href=""{detailsUrl}"" class=""button"">View Request Details</a>
+            </p>
+            
+            <p style=""margin-top: 20px; font-size: 0.9em; color: #666;"">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                {detailsUrl}
+            </p>
+        </div>
+        <div class=""footer"">
+            <p style=""margin: 0; font-size: 0.85em; color: #666;"">
+                This is an automated message from the IT Help Desk system. Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            // Send to employee (ticket creator)
+            if (ticket.CreatedBy != null && !string.IsNullOrWhiteSpace(ticket.CreatedBy.Email))
+            {
+                await _emailSender.SendEmailAsync(ticket.CreatedBy.Email, subject, body);
+                _logger.LogInformation("Completion notification sent to employee {EmployeeEmail} for Service Request {TicketId}", ticket.CreatedBy.Email, ticket.Id);
+            }
+
+            // Send to manager
+            if (serviceRequest.SelectedManager?.Email != null)
+            {
+                var managerSubject = $"[IT Help Desk] Service Request {statusText} - {ticketNumber} (Manager Notification)";
+                await _emailSender.SendEmailAsync(serviceRequest.SelectedManager.Email, managerSubject, body);
+                _logger.LogInformation("Completion notification sent to manager {ManagerEmail} for Service Request {TicketId}", serviceRequest.SelectedManager.Email, ticket.Id);
+            }
+
+            // Send to security
+            var securityEmail = "mohammed.cyber@yub.com.sa";
+            var securitySubject = $"[IT Help Desk] Service Request {statusText} - {ticketNumber} (Security Notification)";
+            await _emailSender.SendEmailAsync(securityEmail, securitySubject, body);
+            _logger.LogInformation("Completion notification sent to security {SecurityEmail} for Service Request {TicketId}", securityEmail, ticket.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send completion notification for Service Request {TicketId}", serviceRequest.Ticket?.Id);
         }
     }
 

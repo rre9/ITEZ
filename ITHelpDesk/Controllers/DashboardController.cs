@@ -157,13 +157,13 @@ public class DashboardController : Controller
             return Forbid();
         }
 
-        // Get access requests where manager approved but security approval is pending
+        // Get all access requests where manager approved (similar to TeamRequests behavior)
+        // This allows Security to see all requests they've reviewed, not just pending ones
         var accessRequests = await _context.AccessRequests
             .Include(ar => ar.Ticket)
                 .ThenInclude(t => t!.CreatedBy)
             .Include(ar => ar.SelectedManager)
-            .Where(ar => ar.ManagerApprovalStatus == ApprovalStatus.Approved &&
-                        ar.SecurityApprovalStatus == ApprovalStatus.Pending)
+            .Where(ar => ar.ManagerApprovalStatus == ApprovalStatus.Approved)
             .OrderByDescending(ar => ar.ManagerApprovalDate)
             .ToListAsync();
 
@@ -193,13 +193,17 @@ public class DashboardController : Controller
             return Forbid();
         }
 
-        // Get access requests where security approved and ticket is InProgress
+        // CRITICAL: Get access requests ONLY where BOTH Manager AND Security have approved
+        // AND ticket is InProgress (NOT Rejected) AND AssignedToId == IT user
+        // Any rejection in any stage must prevent the ticket from appearing
         var accessRequests = await _context.AccessRequests
             .Include(ar => ar.Ticket)
                 .ThenInclude(t => t!.CreatedBy)
-            .Where(ar => ar.SecurityApprovalStatus == ApprovalStatus.Approved &&
+            .Where(ar => ar.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                        ar.SecurityApprovalStatus == ApprovalStatus.Approved &&
                         ar.Ticket != null &&
-                        ar.Ticket.Status == TicketStatus.InProgress)
+                        ar.Ticket.Status == TicketStatus.InProgress &&
+                        ar.Ticket.AssignedToId == currentUser.Id)
             .OrderByDescending(ar => ar.SecurityApprovalDate)
             .ToListAsync();
 
