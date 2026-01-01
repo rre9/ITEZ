@@ -31,7 +31,8 @@
     </div>
     @{
         var pendingCount = Model.AccessRequests.Count(ar => ar.ManagerApprovalStatus == ApprovalStatus.Pending)
-        + Model.SystemChangeTickets.Count(t => t.Status == TicketStatus.New);
+        + Model.SystemChangeTickets.Count(t => t.Status == TicketStatus.New)
+        + Model.ServiceRequests.Count(sr => sr.ManagerApprovalStatus == ApprovalStatus.Pending);
     }
     @if (pendingCount > 0)
     {
@@ -57,13 +58,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.AccessRequests.Any() && !Model.SystemChangeTickets.Any())
+                    @if (!Model.AccessRequests.Any() && !Model.SystemChangeTickets.Any() && !Model.ServiceRequests.Any())
                     {
                         <tr>
                             <td colspan="7" class="py-5 text-center text-secondary">
                                 <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
                                 <div class="fw-semibold">No team requests found</div>
-                                <p class="mb-0">Access requests assigned to you will appear here.</p>
+                                <p class="mb-0">Access requests, system changes, and service requests assigned to you will appear here.</p>
                             </td>
                         </tr>
                     }
@@ -104,6 +105,43 @@
                                         </a>
                                         <a class="btn btn-outline-primary btn-sm" asp-action="Details"
                                             asp-route-id="@request.TicketId">
+                                            <i class="fa-solid fa-eye me-1"></i>View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                            else if (item is ServiceRequest serviceRequest)
+                            {
+                                var ticketNumber = $"HD-{serviceRequest.TicketId:D6}";
+                                <tr>
+                                    <td class="fw-semibold text-secondary">@ticketNumber</td>
+                                    <td>@serviceRequest.EmployeeName</td>
+                                    <td>Social Media Access</td>
+                                    <td>
+                                        <span class="badge rounded-pill @ManagerStatusBadge(serviceRequest.ManagerApprovalStatus)">
+                                            @serviceRequest.ManagerApprovalStatus
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (serviceRequest.Ticket != null)
+                                        {
+                                            <span class="badge rounded-pill @TicketStatusBadge(serviceRequest.Ticket.Status)">
+                                                @serviceRequest.Ticket.Status
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">N/A</span>
+                                        }
+                                    </td>
+                                    <td>@serviceRequest.RequestDate.ToLocalTime().ToString("g")</td>
+                                    <td class="text-nowrap text-end">
+                                        <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets"
+                                            asp-action="ApproveServiceRequest" asp-route-id="@serviceRequest.TicketId">
+                                            <i class="fa-solid fa-gavel me-1"></i>Review
+                                        </a>
+                                        <a class="btn btn-outline-primary btn-sm" asp-action="Details"
+                                            asp-route-id="@serviceRequest.TicketId">
                                             <i class="fa-solid fa-eye me-1"></i>View
                                         </a>
                                     </td>
