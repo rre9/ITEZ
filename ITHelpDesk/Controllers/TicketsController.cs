@@ -162,6 +162,18 @@ public class TicketsController : Controller
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
+        // Diagnostic logging: record roles and assigned ticket IDs for troubleshooting
+        try
+        {
+            var roles = string.Join(',', User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value));
+            var assignedIds = string.Join(',', tickets.Select(t => t.AssignedToId ?? "(null)"));
+            _logger.LogInformation("MyTasks diagnostics: user={UserId} roles={Roles} ticketsCount={Count} assignedIds={AssignedIds}", userId, roles, tickets.Count, assignedIds);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to write MyTasks diagnostic log for user {UserId}", userId);
+        }
+
         // Build review info for access requests
         var reviewInfo = new Dictionary<int, TicketReviewInfo>();
         var accessRequests = await _context.AccessRequests
@@ -228,6 +240,41 @@ public class TicketsController : Controller
                     ReviewAction = reviewAction
                 };
             }
+            else if (ticket.Title != null && ticket.Title.StartsWith("System Change Request"))
+            {
+                // Determine review action for System Change Requests
+                string? reviewAction = null;
+                bool canReview = false;
+
+                if (ticket.Status == TicketStatus.New)
+                {
+                    // If assigned manager and user is manager
+                    if (User.IsInRole("Manager") && ticket.AssignedToId == userId)
+                    {
+                        reviewAction = "ApproveSystemChange"; // redirector in TicketsController
+                        canReview = true;
+                    }
+                    else if (User.IsInRole("Security") && ticket.AssignedToId == userId)
+                    {
+                        reviewAction = "ApproveSecuritySystemChange";
+                        canReview = true;
+                    }
+                }
+                else if (ticket.Status == TicketStatus.InProgress)
+                {
+                    if (User.IsInRole("IT") && ticket.AssignedToId == userId)
+                    {
+                        reviewAction = "ExecuteSystemChange";
+                        canReview = true;
+                    }
+                }
+
+                reviewInfo[ticket.Id] = new TicketReviewInfo
+                {
+                    CanReview = canReview,
+                    ReviewAction = reviewAction
+                };
+            }
         }
 
         var viewModel = new TasksViewModel
@@ -262,7 +309,39 @@ public class TicketsController : Controller
             .OrderByDescending(ar => ar.CreatedAt)
             .ToListAsync();
 
-        return View(accessRequests);
+        // Include system change tickets assigned to this user (created with title prefix)
+        var systemChangeTickets = await _context.Tickets
+            .Where(t => t.AssignedToId == currentUser.Id && t.Title.StartsWith("System Change Request"))
+            .Include(t => t.CreatedBy)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+
+        var vm = new ViewModels.TeamRequestsViewModel
+        {
+            AccessRequests = accessRequests,
+            SystemChangeTickets = systemChangeTickets
+        };
+
+        return View(vm);
+    }
+
+    // Redirect helper actions to maintain existing links from views
+    [Authorize]
+    public IActionResult ApproveSystemChange(int id)
+    {
+        return RedirectToAction("Approve", "SystemChangeRequests", new { id });
+    }
+
+    [Authorize]
+    public IActionResult ApproveSecuritySystemChange(int id)
+    {
+        return RedirectToAction("ApproveSecurity", "SystemChangeRequests", new { id });
+    }
+
+    [Authorize]
+    public IActionResult ExecuteSystemChange(int id)
+    {
+        return RedirectToAction("Execute", "SystemChangeRequests", new { id });
     }
 
     [Authorize]

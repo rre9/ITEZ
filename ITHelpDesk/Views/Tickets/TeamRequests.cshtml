@@ -1,4 +1,4 @@
-@model IEnumerable<AccessRequest>
+@model ITHelpDesk.ViewModels.TeamRequestsViewModel
 @using ITHelpDesk.Models
 
 @{
@@ -30,7 +30,8 @@
         <p class="text-secondary mb-0">Access requests assigned to you for approval or review.</p>
     </div>
     @{
-        var pendingCount = Model.Count(ar => ar.ManagerApprovalStatus == ApprovalStatus.Pending);
+        var pendingCount = Model.AccessRequests.Count(ar => ar.ManagerApprovalStatus == ApprovalStatus.Pending)
+        + Model.SystemChangeTickets.Count(t => t.Status == TicketStatus.New);
     }
     @if (pendingCount > 0)
     {
@@ -56,7 +57,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @if (!Model.AccessRequests.Any() && !Model.SystemChangeTickets.Any())
                     {
                         <tr>
                             <td colspan="7" class="py-5 text-center text-secondary">
@@ -68,41 +69,82 @@
                     }
                     else
                     {
-                        foreach (var request in Model)
+                        @foreach (var item in Model.AllRequests)
                         {
-                            var ticketNumber = $"HD-{request.TicketId:D6}";
-                            
-                            <tr>
-                                <td class="fw-semibold text-secondary">@ticketNumber</td>
-                                <td>@request.FullName</td>
-                                <td>@request.SystemName</td>
-                                <td>
-                                    <span class="badge rounded-pill @ManagerStatusBadge(request.ManagerApprovalStatus)">
-                                        @request.ManagerApprovalStatus
-                                    </span>
-                                </td>
-                                <td>
-                                    @if (request.Ticket != null)
-                                    {
-                                        <span class="badge rounded-pill @TicketStatusBadge(request.Ticket.Status)">
-                                            @request.Ticket.Status
+                            if (item is AccessRequest request)
+                            {
+                                var ticketNumber = $"HD-{request.TicketId:D6}";
+
+                                <tr>
+                                    <td class="fw-semibold text-secondary">@ticketNumber</td>
+                                    <td>@request.FullName</td>
+                                    <td>@request.SystemName</td>
+                                    <td>
+                                        <span class="badge rounded-pill @ManagerStatusBadge(request.ManagerApprovalStatus)">
+                                            @request.ManagerApprovalStatus
                                         </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-secondary">N/A</span>
-                                    }
-                                </td>
-                                <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
-                                <td class="text-nowrap text-end">
-                                    <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets" asp-action="ApproveAccessRequest" asp-route-id="@request.TicketId">
-                                        <i class="fa-solid fa-gavel me-1"></i>Review
-                                    </a>
-                                    <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@request.TicketId">
-                                        <i class="fa-solid fa-eye me-1"></i>View
-                                    </a>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        @if (request.Ticket != null)
+                                        {
+                                            <span class="badge rounded-pill @TicketStatusBadge(request.Ticket.Status)">
+                                                @request.Ticket.Status
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">N/A</span>
+                                        }
+                                    </td>
+                                    <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
+                                    <td class="text-nowrap text-end">
+                                        <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets"
+                                            asp-action="ApproveAccessRequest" asp-route-id="@request.TicketId">
+                                            <i class="fa-solid fa-gavel me-1"></i>Review
+                                        </a>
+                                        <a class="btn btn-outline-primary btn-sm" asp-action="Details"
+                                            asp-route-id="@request.TicketId">
+                                            <i class="fa-solid fa-eye me-1"></i>View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                            else if (item is Ticket ticket)
+                            {
+                                var ticketNumber = $"HD-{ticket.Id:D6}";
+                                <tr>
+                                    <td class="fw-semibold text-secondary">@ticketNumber</td>
+                                    <td>@(ticket.Title.Replace("System Change Request:", "").Trim())</td>
+                                    <td>@ticket.Department</td>
+                                    <td>
+                                        <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@ticket.Status</span>
+                                    </td>
+                                    <td>@ticket.CreatedAt.ToLocalTime().ToString("g")</td>
+                                    <td class="text-nowrap text-end">
+                                        @if (User.IsInRole("Security"))
+                                        {
+                                            <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
+                                                asp-action="ApproveSecurity" asp-route-id="@ticket.Id">
+                                                <i class="fa-solid fa-gavel me-1"></i>Review
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
+                                                asp-action="Approve" asp-route-id="@ticket.Id">
+                                                <i class="fa-solid fa-gavel me-1"></i>Review
+                                            </a>
+                                        }
+                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details"
+                                            asp-route-id="@ticket.Id">
+                                            <i class="fa-solid fa-eye me-1"></i>View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
                         }
                     }
                 </tbody>
@@ -110,4 +152,3 @@
         </div>
     </div>
 </div>
-
