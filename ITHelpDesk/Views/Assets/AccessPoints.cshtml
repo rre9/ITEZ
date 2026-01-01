@@ -1,0 +1,115 @@
+@model List<AccessPoint>
+@using ITHelpDesk.Models.Assets
+@{
+    ViewData["Title"] = "نقاط الوصول";
+}
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        <i class="fa-solid fa-wifi me-2"></i>نقاط الوصول
+                    </h2>
+                </div>
+                <div class="col-auto">
+                    <a href="@Url.Action("CreateAccessPoint", "Assets")" class="btn btn-primary">
+                        <i class="fa-solid fa-plus me-2"></i>إضافة نقطة وصول جديدة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-vcenter card-table">
+                                <thead>
+                                    <tr>
+                                        <th>الاسم</th>
+                                        <th>المنتج</th>
+                                        <th>الرقم التسلسلي</th>
+                                        <th>وسم الأصل</th>
+                                        <th>الحالة</th>
+                                        <th>تاريخ الإضافة</th>
+                                        <th class="w-1">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model == null || Model.Count == 0)
+                                    {
+                                        <tr>
+                                            <td colspan="7" class="text-center py-5 text-muted">
+                                                <i class="fa-solid fa-inbox fa-3x mb-3"></i>
+                                                <div>لا توجد نقاط وصول</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="text-truncate">
+                                                        <strong>@item.Name</strong>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @if (item.Product != null)
+                                                    {
+                                                        <span>@item.Product.ProductName</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark">@(item.SerialNumber ?? "N/A")</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark">@(item.AssetTag ?? "N/A")</span>
+                                                </td>
+                                                <td>
+                                                    @if (item.AssetState != null)
+                                                    {
+                                                        var statusBadge = item.AssetState.Status switch
+                                                        {
+                                                            AssetStatusEnum.InStore => "bg-info",
+                                                            AssetStatusEnum.InUse => "bg-success",
+                                                            AssetStatusEnum.InRepair => "bg-warning",
+                                                            AssetStatusEnum.Expired => "bg-danger",
+                                                            AssetStatusEnum.Disposed => "bg-secondary",
+                                                            _ => "bg-light"
+                                                        };
+                                                        <span class="badge @statusBadge">@item.AssetState.Status</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">@item.CreatedAt.ToLocalTime().ToString("g")</small>
+                                                </td>
+                                                <td class="text-nowrap">
+                                                    <a href="@Url.Action("EditAccessPoint", "Assets", new { id = item.Id })" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fa-solid fa-pen-to-square"></i>
+                                                    </a>
+                                                    <form method="post" action="@Url.Action("DeleteAccessPoint", "Assets")" style="display:inline;">
+                                                        @Html.HiddenFor(m => item.Id)
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('هل أنت متأكد؟')">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
