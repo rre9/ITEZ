@@ -7,27 +7,27 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4 p-lg-5">
                 <div class="text-center mb-5">
-                    <h1 class="h3 fw-semibold text-primary mb-2">
+                    <h1 class="h2 fw-bold text-primary mb-3">
                         <i class="fa-solid fa-file-lines me-2"></i>Select Request Type
                     </h1>
-                    <p class="text-secondary mb-0">Choose the type of request you would like to submit.</p>
+                    <p class="text-muted mb-0 fs-5">Choose the type of request you would like to submit.</p>
                 </div>
 
                 <div class="row g-4">
                     <!-- Access Request -->
                     <div class="col-md-4">
-                        <div class="card h-100 border shadow-sm request-type-card" data-request-type="access">
-                            <div class="card-body d-flex flex-column p-4">
-                                <div class="text-center mb-3">
-                                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
-                                        <i class="fa-solid fa-key text-primary fa-2x"></i>
+                        <div class="card h-100 border-0 shadow-sm request-type-card" data-request-type="access">
+                            <div class="card-body d-flex flex-column p-4 p-lg-5">
+                                <div class="text-center mb-4">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <i class="fa-solid fa-key text-primary fa-3x"></i>
                                     </div>
                                 </div>
-                                <h5 class="card-title text-center fw-semibold mb-3">Access Request</h5>
-                                <p class="card-text text-secondary text-center flex-grow-1 mb-4">
+                                <h5 class="card-title text-center fw-bold mb-3">Access Request</h5>
+                                <p class="card-text text-muted text-center flex-grow-1 mb-4">
                                     Request access to systems, applications, or resources that require authorization.
                                 </p>
-                                <a href="@Url.Action("CreateAccessRequest", "Tickets")" class="btn btn-primary w-100">
+                                <a href="@Url.Action("CreateAccessRequest", "Tickets")" class="btn btn-primary w-100 btn-lg">
                                     <i class="fa-solid fa-arrow-right me-2"></i>Continue
                                 </a>
                             </div>
@@ -36,18 +36,18 @@
 
                     <!-- Service Request (Social Media Access Permit) -->
                     <div class="col-md-4">
-                        <div class="card h-100 border shadow-sm request-type-card" data-request-type="service">
-                            <div class="card-body d-flex flex-column p-4">
-                                <div class="text-center mb-3">
-                                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
-                                        <i class="fa-solid fa-network-wired text-info fa-2x"></i>
+                        <div class="card h-100 border-0 shadow-sm request-type-card" data-request-type="service">
+                            <div class="card-body d-flex flex-column p-4 p-lg-5">
+                                <div class="text-center mb-4">
+                                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <i class="fa-solid fa-network-wired text-info fa-3x"></i>
                                     </div>
                                 </div>
-                                <h5 class="card-title text-center fw-semibold mb-3">Service Request</h5>
-                                <p class="card-text text-secondary text-center flex-grow-1 mb-4">
+                                <h5 class="card-title text-center fw-bold mb-3">Service Request</h5>
+                                <p class="card-text text-muted text-center flex-grow-1 mb-4">
                                     Request Social Media Access Permit for company devices or corporate internet network.
                                 </p>
-                                <a href="@Url.Action("CreateServiceRequest", "Tickets")" class="btn btn-info w-100">
+                                <a href="@Url.Action("CreateServiceRequest", "Tickets")" class="btn btn-info w-100 btn-lg">
                                     <i class="fa-solid fa-arrow-right me-2"></i>Continue
                                 </a>
                             </div>
@@ -58,19 +58,19 @@
                     @if (User.IsInRole("IT") || User.IsInRole("Security") || User.IsInRole("Admin"))
                     {
                         <div class="col-md-4">
-                            <div class="card h-100 border shadow-sm request-type-card" data-request-type="system">
-                                <div class="card-body d-flex flex-column p-4">
-                                    <div class="text-center mb-3">
-                                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
-                                            <i class="fa-solid fa-gear text-warning fa-2x"></i>
+                            <div class="card h-100 border-0 shadow-sm request-type-card" data-request-type="system">
+                                <div class="card-body d-flex flex-column p-4 p-lg-5">
+                                    <div class="text-center mb-4">
+                                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                            <i class="fa-solid fa-gear text-warning fa-3x"></i>
                                         </div>
                                     </div>
-                                    <h5 class="card-title text-center fw-semibold mb-3">System Change Request</h5>
-                                    <p class="card-text text-secondary text-center flex-grow-1 mb-4">
+                                    <h5 class="card-title text-center fw-bold mb-3">System Change Request</h5>
+                                    <p class="card-text text-muted text-center flex-grow-1 mb-4">
                                         Request changes to existing systems, configurations, or infrastructure.
                                     </p>
                                     <a href="@Url.Action("Create", "SystemChangeRequests")"
-                                        class="btn btn-primary w-100">
+                                        class="btn btn-warning w-100 btn-lg text-dark">
                                         <i class="fa-solid fa-arrow-right me-2"></i>Continue
                                     </a>
                                 </div>
@@ -100,13 +100,23 @@
 
 <style>
     .request-type-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        transition: all 0.3s ease;
         cursor: pointer;
+        border: 2px solid transparent !important;
     }
 
-    .request-type-card:not(.opacity-75):hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    .request-type-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important;
+        border-color: var(--primary-color) !important;
+    }
+    
+    .request-type-card .card-body {
+        transition: all 0.3s ease;
+    }
+    
+    .request-type-card:hover .card-body {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     }
 </style>
 

@@ -872,14 +872,19 @@ Status: {ticket.Status}</p>
             return Challenge();
         }
 
+        // Ensure FullName is used, fallback to Email if FullName is empty
+        var employeeName = !string.IsNullOrWhiteSpace(currentUser.FullName) 
+            ? currentUser.FullName 
+            : currentUser.Email ?? string.Empty;
+
         var viewModel = new ServiceRequestCreateViewModel
         {
-            EmployeeName = currentUser.FullName,
+            EmployeeName = employeeName,
             Departments = _departmentProvider.GetDepartments(),
             Managers = await GetDirectManagersAsync(currentUser.Id),
             RequestDate = DateTime.UtcNow,
             SignatureDate = DateTime.UtcNow,
-            SignatureName = currentUser.FullName
+            SignatureName = employeeName
         };
 
         return View(viewModel);
@@ -896,6 +901,11 @@ Status: {ticket.Status}</p>
             return Challenge();
         }
 
+        // Ensure EmployeeName and SignatureName use FullName (not Email)
+        var employeeName = !string.IsNullOrWhiteSpace(currentUser.FullName) 
+            ? currentUser.FullName 
+            : currentUser.Email ?? string.Empty;
+
         // Validate Acknowledged checkbox
         if (!model.Acknowledged)
         {
@@ -909,7 +919,11 @@ Status: {ticket.Status}</p>
             model.Managers = await GetDirectManagersAsync(currentUser.Id);
             if (string.IsNullOrWhiteSpace(model.EmployeeName))
             {
-                model.EmployeeName = currentUser.FullName;
+                model.EmployeeName = employeeName;
+            }
+            if (string.IsNullOrWhiteSpace(model.SignatureName))
+            {
+                model.SignatureName = employeeName;
             }
             return View(model);
         }
@@ -950,18 +964,23 @@ Status: {ticket.Status}</p>
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
+        // Use FullName for SignatureName (already set employeeName at the beginning)
+        var signatureName = !string.IsNullOrWhiteSpace(currentUser.FullName) 
+            ? currentUser.FullName 
+            : (!string.IsNullOrWhiteSpace(model.SignatureName) ? model.SignatureName.Trim() : currentUser.Email ?? string.Empty);
+
         // Create ServiceRequest
         var serviceRequest = new ServiceRequest
         {
             TicketId = ticket.Id,
-            EmployeeName = model.EmployeeName.Trim(),
+            EmployeeName = employeeName,
             Department = model.Department.Trim(),
             JobTitle = model.JobTitle.Trim(),
             RequestDate = model.RequestDate,
             UsageDescription = model.UsageDescription.Trim(),
             UsageReason = model.UsageReason.Trim(),
             Acknowledged = model.Acknowledged,
-            SignatureName = model.SignatureName.Trim(),
+            SignatureName = signatureName,
             SignatureJobTitle = model.SignatureJobTitle.Trim(),
             SignatureDate = model.SignatureDate,
             SelectedManagerId = model.SelectedManagerId,

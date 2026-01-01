@@ -23,23 +23,30 @@
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
-        <h1 class="display-6 fw-semibold text-primary mb-1">
+        <h1 class="display-6 fw-bold text-primary mb-2">
             <i class="fa-solid fa-user-check me-2"></i>My Tickets
         </h1>
-        <p class="text-secondary mb-0">Track your open requests and follow up with support.</p>
+        <p class="text-muted mb-0">
+            <i class="fa-solid fa-info-circle me-1"></i>Track your open requests and follow up with support.
+        </p>
     </div>
     @if (User.IsInRole("Employee") || User.IsInRole("Admin") || User.IsInRole("Support"))
     {
         <a asp-action="SelectRequestType" class="btn btn-primary btn-lg shadow-sm">
-            <i class="fa-solid fa-plus me-2"></i>Submit Ticket
+            <i class="fa-solid fa-plus me-2"></i>Submit New Ticket
         </a>
     }
 </div>
 
 <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-list me-2 text-primary"></i>Your Tickets
+        </h5>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th scope="col">Ticket #</th>
@@ -56,16 +63,18 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="8" class="py-5 text-center text-secondary">
-                            <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
-                            <div class="fw-semibold">You don't have any tickets yet.</div>
-                            <p class="mb-3">Need help? Submit a ticket and our support team will assist you.</p>
-                            @if (User.IsInRole("Employee") || User.IsInRole("Admin") || User.IsInRole("Support"))
-                            {
-                                <a asp-action="SelectRequestType" class="btn btn-outline-primary">
-                                    <i class="fa-solid fa-plus me-2"></i>Create Ticket
-                                </a>
-                            }
+                        <td colspan="8" class="py-5 text-center">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-inbox fa-4x mb-4 text-muted opacity-50"></i>
+                                <h5 class="fw-semibold text-dark mb-2">No tickets found</h5>
+                                <p class="text-muted mb-4">You don't have any tickets yet. Submit a ticket to get started.</p>
+                                @if (User.IsInRole("Employee") || User.IsInRole("Admin") || User.IsInRole("Support"))
+                                {
+                                    <a asp-action="SelectRequestType" class="btn btn-primary">
+                                        <i class="fa-solid fa-plus me-2"></i>Create Your First Ticket
+                                    </a>
+                                }
+                            </div>
                         </td>
                     </tr>
                 }
@@ -92,10 +101,14 @@
                             <td>@ticket.CreatedAt.ToLocalTime():g</td>
                             <td>@(ticket.AssignedTo?.FullName ?? "Unassigned")</td>
                             <td class="text-nowrap text-end">
-                                <a class="btn btn-primary btn-sm me-2" asp-action="Details" asp-route-id="@ticket.Id">View Details</a>
+                                <a class="btn btn-primary btn-sm me-2" asp-action="Details" asp-route-id="@ticket.Id">
+                                    <i class="fa-solid fa-eye me-1"></i>View
+                                </a>
                                 @if (User.IsInRole("Admin") || User.IsInRole("Support"))
                                 {
-                                    <a class="btn btn-outline-secondary btn-sm" asp-action="ChangeStatus" asp-route-id="@ticket.Id">Update Status</a>
+                                    <a class="btn btn-outline-secondary btn-sm" asp-action="ChangeStatus" asp-route-id="@ticket.Id">
+                                        <i class="fa-solid fa-edit me-1"></i>Update
+                                    </a>
                                 }
                             </td>
                         </tr>

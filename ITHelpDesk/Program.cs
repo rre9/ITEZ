@@ -11,10 +11,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Security.Authentication;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure culture for date formatting
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Configure Kestrel to enforce TLS 1.2 and TLS 1.3 only
 builder.WebHost.ConfigureKestrel(options =>
@@ -114,6 +120,15 @@ using (var scope = app.Services.CreateScope())
 {
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);
 }
+
+// Configure culture middleware for date formatting
+var supportedCultures = new[] { new CultureInfo("en-US") };
+app.UseRequestLocalization(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
