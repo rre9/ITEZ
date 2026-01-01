@@ -192,27 +192,24 @@ public class TicketsController : Controller
                 allAssignedTickets.Count,
                 string.Join(", ", allAssignedTickets.Select(t => $"#{t.Id} (AssignedTo: {t.AssignedToId}, Status: {t.Status})")));
             
-            // 🔥 CRITICAL: Show tickets assigned to ANY IT user (not just current user)
+            // 🔥 CRITICAL: Show tickets assigned to ANY IT user (including closed tickets for documentation)
             // This ensures we find tickets even if assigned to different IT user ID
             ticketsQuery = _context.Tickets
                 .Where(t => t.AssignedToId != null && 
-                           itUserIds.Contains(t.AssignedToId) &&
-                           t.Status == TicketStatus.InProgress)
+                           itUserIds.Contains(t.AssignedToId))
                 .Include(t => t.CreatedBy)
                 .Include(t => t.AssignedTo);
             
             _logger.LogInformation(
-                "MyTasks IT - Query: AssignedToId IN ({ITUserIds}) AND Status=InProgress. " +
+                "MyTasks IT - Query: AssignedToId IN ({ITUserIds}) (all statuses including closed). " +
                 "This will show tickets assigned to ANY IT user.",
                 string.Join(", ", itUserIds));
         }
         else
         {
-            // For non-IT users: Only show tickets assigned to user that are NOT rejected or resolved
+            // For non-IT users: Show tickets assigned to user (including closed tickets for documentation)
             ticketsQuery = _context.Tickets
-                .Where(t => t.AssignedToId == userId && 
-                           t.Status != TicketStatus.Rejected && 
-                           t.Status != TicketStatus.Resolved)
+                .Where(t => t.AssignedToId == userId)
                 .Include(t => t.CreatedBy)
                 .Include(t => t.AssignedTo);
         }
@@ -294,6 +291,17 @@ public class TicketsController : Controller
 
         foreach (var ticket in tickets)
         {
+            // If ticket is closed, only show View button (no Review button)
+            if (ticket.Status == TicketStatus.Closed)
+            {
+                reviewInfo[ticket.Id] = new TicketReviewInfo
+                {
+                    CanReview = false,
+                    ReviewAction = null
+                };
+                continue;
+            }
+            
             var accessRequest = accessRequestsForReview.FirstOrDefault(ar => ar.TicketId == ticket.Id);
             if (accessRequest != null)
             {
@@ -325,8 +333,10 @@ public class TicketsController : Controller
                          accessRequest.SecurityApprovalStatus == ApprovalStatus.Pending)
                 {
                     // Security approval stage
+                    // Security can review if ticket is assigned to them
                     var isCurrentSecurity = User.IsInRole("Security");
-                    if (isCurrentSecurity)
+                    var isAssignedToSecurity = ticket.AssignedToId == userId;
+                    if (isCurrentSecurity && isAssignedToSecurity)
                     {
                         reviewAction = "ApproveSecurityAccess";
                         canReview = true;
@@ -402,8 +412,10 @@ public class TicketsController : Controller
                              serviceRequest.SecurityApprovalStatus == ApprovalStatus.Pending)
                     {
                         // Security approval stage
+                        // Security can review if ticket is assigned to them
                         var isCurrentSecurity = User.IsInRole("Security");
-                        if (isCurrentSecurity)
+                        var isAssignedToSecurity = ticket.AssignedToId == userId;
+                        if (isCurrentSecurity && isAssignedToSecurity)
                         {
                             reviewAction = "ApproveSecurityService";
                             canReview = true;
@@ -1034,39 +1046,246 @@ Status: {ticket.Status}</p>
             return Forbid();
         }
 
-        // Check if this is an Access/Service Request in IT stage for IT user
+        // Check if this is an Access/Service Request in IT Execution stage for IT user
         var isIT = User.IsInRole("IT");
-        var canITUpdateStatus = false;
+        var currentUser = await _userManager.GetUserAsync(User);
+        var canITExecute = false;
+        AccessRequest? accessRequestForIT = null;
+        ServiceRequest? serviceRequestForIT = null;
         
-        if (isIT && ticket.Status == TicketStatus.InProgress)
+        if (isIT && ticket.Status == TicketStatus.InProgress && ticket.AssignedToId == currentUser?.Id)
         {
-            var accessRequest = await _context.AccessRequests
+            accessRequestForIT = await _context.AccessRequests
                 .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
             
-            var serviceRequest = await _context.ServiceRequests
+            serviceRequestForIT = await _context.ServiceRequests
                 .FirstOrDefaultAsync(sr => sr.TicketId == ticket.Id);
             
-            // IT can update status only if:
-            // 1. Manager has approved
-            // 2. Security has approved
-            // 3. Status is still InProgress (not Resolved/Rejected)
-            // CRITICAL: Any rejection in any stage must stop the workflow
-            var isAccessRequestInITStage = accessRequest != null &&
-                                          accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
-                                          accessRequest.SecurityApprovalStatus == ApprovalStatus.Approved;
+            // IT Execution stage requirements:
+            // 1. User Role = IT
+            // 2. Manager has approved
+            // 3. Security has approved
+            // 4. AssignedTo = Current User
+            // 5. Status = InProgress
+            var isAccessRequestInITStage = accessRequestForIT != null &&
+                                          accessRequestForIT.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                                          accessRequestForIT.SecurityApprovalStatus == ApprovalStatus.Approved;
             
-            var isServiceRequestInITStage = serviceRequest != null &&
-                                           serviceRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
-                                           serviceRequest.SecurityApprovalStatus == ApprovalStatus.Approved;
+            var isServiceRequestInITStage = serviceRequestForIT != null &&
+                                           serviceRequestForIT.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                                           serviceRequestForIT.SecurityApprovalStatus == ApprovalStatus.Approved;
             
-            canITUpdateStatus = (isAccessRequestInITStage || isServiceRequestInITStage) &&
-                              ticket.Status == TicketStatus.InProgress;
+            canITExecute = (isAccessRequestInITStage || isServiceRequestInITStage) &&
+                          ticket.Status == TicketStatus.InProgress &&
+                          ticket.AssignedToId == currentUser.Id;
         }
 
-        ViewBag.CanITUpdateStatus = canITUpdateStatus;
+        ViewBag.CanITExecute = canITExecute;
         ViewBag.IsIT = isIT;
+        ViewBag.AccessRequestForIT = accessRequestForIT;
+        ViewBag.ServiceRequestForIT = serviceRequestForIT;
 
         return View(ticket);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CompleteAndClose(int id, [FromForm] string? notes)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (ticket is null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Verify user is IT and ticket is assigned to them
+        if (!User.IsInRole("IT") || ticket.AssignedToId != currentUser.Id)
+        {
+            return Forbid();
+        }
+
+        // Verify ticket is in IT Execution stage
+        if (ticket.Status != TicketStatus.InProgress)
+        {
+            TempData["Toast"] = "⚠️ This ticket is not in IT Execution stage.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Verify Manager and Security have approved
+        var accessRequest = await _context.AccessRequests
+            .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
+        
+        var serviceRequest = await _context.ServiceRequests
+            .FirstOrDefaultAsync(sr => sr.TicketId == ticket.Id);
+
+        var isAccessRequestInITStage = accessRequest != null &&
+                                      accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                                      accessRequest.SecurityApprovalStatus == ApprovalStatus.Approved;
+        
+        var isServiceRequestInITStage = serviceRequest != null &&
+                                       serviceRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                                       serviceRequest.SecurityApprovalStatus == ApprovalStatus.Approved;
+
+        if (!isAccessRequestInITStage && !isServiceRequestInITStage)
+        {
+            TempData["Toast"] = "⚠️ Manager and Security approvals are required before IT Execution.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Validate notes
+        if (string.IsNullOrWhiteSpace(notes))
+        {
+            TempData["Toast"] = "⚠️ Completion notes are required.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Update ticket status to Closed
+        ticket.Status = TicketStatus.Closed;
+        ticket.CloseReason = CloseReason.Completed;
+        // Keep AssignedToId for documentation (ticket remains visible in Tasks)
+
+        // Update IT approval status
+        if (isAccessRequestInITStage && accessRequest != null)
+        {
+            accessRequest.ITApprovalStatus = ApprovalStatus.Approved;
+            accessRequest.ITApprovalDate = DateTime.UtcNow;
+            accessRequest.ITApprovalName = currentUser.FullName;
+        }
+        else if (isServiceRequestInITStage && serviceRequest != null)
+        {
+            serviceRequest.ITApprovalStatus = ApprovalStatus.Approved;
+            serviceRequest.ITApprovalDate = DateTime.UtcNow;
+            serviceRequest.ITApprovalName = currentUser.FullName;
+        }
+
+        // Add completion log
+        var logNotes = $"IT Completed and Closed Request by {currentUser.FullName}. Notes: {notes}";
+
+        var log = new TicketLog
+        {
+            TicketId = ticket.Id,
+            Action = "IT Completed and Closed Request",
+            PerformedById = currentUser.Id,
+            Timestamp = DateTime.UtcNow,
+            Notes = logNotes
+        };
+
+        _context.TicketLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        TempData["Toast"] = "✅ Request completed and closed successfully.";
+        return RedirectToAction(nameof(Details), new { id = ticket.Id });
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RejectAndClose(int id, [FromForm] string? notes)
+    {
+        var ticket = await _context.Tickets
+            .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (ticket is null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser is null)
+        {
+            return Challenge();
+        }
+
+        // Verify user is IT and ticket is assigned to them
+        if (!User.IsInRole("IT") || ticket.AssignedToId != currentUser.Id)
+        {
+            return Forbid();
+        }
+
+        // Verify ticket is in IT Execution stage
+        if (ticket.Status != TicketStatus.InProgress)
+        {
+            TempData["Toast"] = "⚠️ This ticket is not in IT Execution stage.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Verify Manager and Security have approved
+        var accessRequest = await _context.AccessRequests
+            .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
+        
+        var serviceRequest = await _context.ServiceRequests
+            .FirstOrDefaultAsync(sr => sr.TicketId == ticket.Id);
+
+        var isAccessRequestInITStage = accessRequest != null &&
+                                      accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                                      accessRequest.SecurityApprovalStatus == ApprovalStatus.Approved;
+        
+        var isServiceRequestInITStage = serviceRequest != null &&
+                                       serviceRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                                       serviceRequest.SecurityApprovalStatus == ApprovalStatus.Approved;
+
+        if (!isAccessRequestInITStage && !isServiceRequestInITStage)
+        {
+            TempData["Toast"] = "⚠️ Manager and Security approvals are required before IT Execution.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Validate notes
+        if (string.IsNullOrWhiteSpace(notes))
+        {
+            TempData["Toast"] = "⚠️ Rejection reason is required.";
+            return RedirectToAction(nameof(Details), new { id = ticket.Id });
+        }
+
+        // Update ticket status to Closed
+        ticket.Status = TicketStatus.Closed;
+        ticket.CloseReason = CloseReason.Rejected;
+        // Keep AssignedToId for documentation (ticket remains visible in Tasks)
+
+        // Update IT approval status
+        if (isAccessRequestInITStage && accessRequest != null)
+        {
+            accessRequest.ITApprovalStatus = ApprovalStatus.Rejected;
+            accessRequest.ITApprovalDate = DateTime.UtcNow;
+            accessRequest.ITApprovalName = currentUser.FullName;
+        }
+        else if (isServiceRequestInITStage && serviceRequest != null)
+        {
+            serviceRequest.ITApprovalStatus = ApprovalStatus.Rejected;
+            serviceRequest.ITApprovalDate = DateTime.UtcNow;
+            serviceRequest.ITApprovalName = currentUser.FullName;
+        }
+
+        // Add rejection log
+        var logNotes = $"IT Rejected and Closed Request by {currentUser.FullName}. Reason: {notes}";
+
+        var log = new TicketLog
+        {
+            TicketId = ticket.Id,
+            Action = "IT Rejected and Closed Request",
+            PerformedById = currentUser.Id,
+            Timestamp = DateTime.UtcNow,
+            Notes = logNotes
+        };
+
+        _context.TicketLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        TempData["Toast"] = "⚠️ Request rejected and closed.";
+        return RedirectToAction(nameof(Details), new { id = ticket.Id });
     }
 
     [Authorize]
@@ -2048,11 +2267,9 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
-        // Prevent the assigned user from reviewing/approving their own assigned ticket
-        if (ticket.AssignedToId == currentUser.Id)
-        {
-            return Forbid();
-        }
+        // SECURITY CAN REVIEW TICKETS ASSIGNED TO THEM
+        // This is required for the Security approval workflow stage
+        // Security must be able to review tickets assigned to them after Manager approval
 
         // IsAuthorizedSecurity: true if user is Security (regardless of approval status)
         // This allows past approvers to always see their approval details
@@ -2063,9 +2280,11 @@ Assigned To: {assignedDisplay}</p>
         var isReadOnly = accessRequest.SecurityApprovalStatus != ApprovalStatus.Pending;
         
         // CanApprove: true if authorized AND status is pending AND manager has approved
+        // AND ticket is assigned to current Security user (for Security approval stage)
         var canApprove = isAuthorizedSecurity && 
                         accessRequest.SecurityApprovalStatus == ApprovalStatus.Pending &&
-                        accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved;
+                        accessRequest.ManagerApprovalStatus == ApprovalStatus.Approved &&
+                        ticket.AssignedToId == currentUser.Id; // Security must be assigned to approve
 
         var viewModel = new AccessRequestSecurityApprovalViewModel
         {
@@ -2116,8 +2335,11 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
-        // Prevent the assigned user from reviewing/approving their own assigned ticket
-        if (ticket.AssignedToId == currentUser.Id)
+        // SECURITY CAN REVIEW TICKETS ASSIGNED TO THEM
+        // This is required for the Security approval workflow stage
+        // Security must be able to review tickets assigned to them after Manager approval
+        // Only allow if ticket is assigned to current Security user (for Security approval stage)
+        if (ticket.AssignedToId != currentUser.Id)
         {
             return Forbid();
         }
@@ -2200,12 +2422,30 @@ Assigned To: {assignedDisplay}</p>
         ticket.AssignedToId = itUser.Id;
         ticket.Status = TicketStatus.InProgress;
         
+        // Add Security approval log entry for documentation and tracking
+        var logNotes = $"Security approval granted by {currentUser.FullName}.";
+        if (!string.IsNullOrWhiteSpace(comment))
+        {
+            logNotes += $" Comment: {comment}";
+        }
+        logNotes += $" Ticket assigned to {itUser.FullName} for IT execution.";
+
+        var approvalLog = new TicketLog
+        {
+            TicketId = ticket.Id,
+            Action = "Security Approved Access Request",
+            PerformedById = currentUser.Id,
+            Timestamp = DateTime.UtcNow,
+            Notes = logNotes
+        };
+
+        _context.TicketLogs.Add(approvalLog);
+        
         _logger.LogInformation(
             "BEFORE SaveChangesAsync - Ticket {TicketId}: OldAssignedToId={OldId}, NewAssignedToId={NewId}, Status={Status}, SecurityStatus={SecurityStatus}",
             ticket.Id, oldAssignedToId, ticket.AssignedToId, ticket.Status, accessRequest.SecurityApprovalStatus);
         
-        // 🚨 EMERGENCY FIX: Save immediately without any reloads or notifications
-        // This isolates the assignment logic to verify it works
+        // Save all changes including the log entry
         var savedChanges = await _context.SaveChangesAsync();
         
         _logger.LogInformation(
@@ -2221,10 +2461,18 @@ Assigned To: {assignedDisplay}</p>
             .AsNoTracking()
             .FirstOrDefaultAsync(ar => ar.TicketId == ticket.Id);
         
+        // Verify Security Approval log entry was saved
+        var verifyLog = await _context.TicketLogs
+            .AsNoTracking()
+            .Where(l => l.TicketId == ticket.Id && l.Action == "Security Approved Access Request")
+            .OrderByDescending(l => l.Timestamp)
+            .FirstOrDefaultAsync();
+        
         _logger.LogInformation(
-            "VERIFICATION FROM DB - Ticket {TicketId}: AssignedToId={AssignedToId}, Status={Status}, ManagerStatus={ManagerStatus}, SecurityStatus={SecurityStatus}",
+            "VERIFICATION FROM DB - Ticket {TicketId}: AssignedToId={AssignedToId}, Status={Status}, ManagerStatus={ManagerStatus}, SecurityStatus={SecurityStatus}, SecurityLogExists={LogExists}",
             ticket.Id, verifyTicket?.AssignedToId, verifyTicket?.Status, 
-            verifyAccessRequest?.ManagerApprovalStatus, verifyAccessRequest?.SecurityApprovalStatus);
+            verifyAccessRequest?.ManagerApprovalStatus, verifyAccessRequest?.SecurityApprovalStatus,
+            verifyLog != null);
         
         // Direct redirect to MyTasks to verify assignment
         return RedirectToAction(nameof(MyTasks));
@@ -2266,8 +2514,11 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
-        // Prevent the assigned user from reviewing/approving their own assigned ticket
-        if (ticket.AssignedToId == currentUser.Id)
+        // SECURITY CAN REVIEW TICKETS ASSIGNED TO THEM
+        // This is required for the Security approval workflow stage
+        // Security must be able to review tickets assigned to them after Manager approval
+        // Only allow if ticket is assigned to current Security user (for Security approval stage)
+        if (ticket.AssignedToId != currentUser.Id)
         {
             return Forbid();
         }
@@ -2742,11 +2993,9 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
-        // Prevent the assigned user from reviewing/approving their own assigned ticket
-        if (ticket.AssignedToId == currentUser.Id)
-        {
-            return Forbid();
-        }
+        // SECURITY CAN REVIEW TICKETS ASSIGNED TO THEM
+        // This is required for the Security approval workflow stage
+        // Security must be able to review tickets assigned to them after Manager approval
 
         // IsAuthorizedSecurity: true if user is Security (regardless of approval status)
         // This allows past approvers to always see their approval details
@@ -2810,8 +3059,11 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
-        // Prevent the assigned user from reviewing/approving their own assigned ticket
-        if (ticket.AssignedToId == currentUser.Id)
+        // SECURITY CAN REVIEW TICKETS ASSIGNED TO THEM
+        // This is required for the Security approval workflow stage
+        // Security must be able to review tickets assigned to them after Manager approval
+        // Only allow if ticket is assigned to current Security user (for Security approval stage)
+        if (ticket.AssignedToId != currentUser.Id)
         {
             return Forbid();
         }
@@ -2907,7 +3159,7 @@ Assigned To: {assignedDisplay}</p>
         var log = new TicketLog
         {
             TicketId = ticket.Id,
-            Action = "Security Approval",
+            Action = "Security Approved Service Request",
             PerformedById = currentUser.Id,
             Timestamp = DateTime.UtcNow,
             Notes = logNotes
@@ -2960,8 +3212,11 @@ Assigned To: {assignedDisplay}</p>
             return Forbid();
         }
 
-        // Prevent the assigned user from reviewing/approving their own assigned ticket
-        if (ticket.AssignedToId == currentUser.Id)
+        // SECURITY CAN REVIEW TICKETS ASSIGNED TO THEM
+        // This is required for the Security approval workflow stage
+        // Security must be able to review tickets assigned to them after Manager approval
+        // Only allow if ticket is assigned to current Security user (for Security approval stage)
+        if (ticket.AssignedToId != currentUser.Id)
         {
             return Forbid();
         }

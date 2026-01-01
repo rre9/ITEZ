@@ -10,10 +10,12 @@
         <h1 class="display-6 fw-semibold text-primary mb-1">
             <i class="fa-solid fa-shield-halved me-2"></i>Security Dashboard
         </h1>
-        <p class="text-secondary mb-0">Review access requests approved by managers. Review pending requests or view previously reviewed requests.</p>
+        <p class="text-secondary mb-0">Review access requests and service requests approved by managers. Review pending requests or view previously reviewed requests.</p>
     </div>
     @{
-        var pendingCount = Model.PendingRequests.Count(ar => ar.SecurityApprovalStatus == ApprovalStatus.Pending);
+        var pendingAccessCount = Model.PendingRequests.Count(ar => ar.SecurityApprovalStatus == ApprovalStatus.Pending);
+        var pendingServiceCount = Model.PendingServiceRequests.Count(sr => sr.SecurityApprovalStatus == ApprovalStatus.Pending);
+        var pendingCount = pendingAccessCount + pendingServiceCount;
     }
     @if (pendingCount > 0)
     {
@@ -38,23 +40,74 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.PendingRequests.Any())
+                    @if (!Model.PendingRequests.Any() && !Model.PendingServiceRequests.Any())
                     {
                         <tr>
                             <td colspan="6" class="py-5 text-center text-secondary">
                                 <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
-                                <div class="fw-semibold">No access requests found</div>
-                                <p class="mb-0">Access requests approved by managers will appear here.</p>
+                                <div class="fw-semibold">No requests found</div>
+                                <p class="mb-0">Access requests and service requests approved by managers will appear here.</p>
                             </td>
                         </tr>
                     }
                     else
                     {
-                        foreach (var request in Model.PendingRequests)
+                        @* Merge and sort Access Requests and Service Requests by creation date (newest first) *@
+                        var accessRequestItems = Model.PendingRequests
+                            .Select(ar => new
+                            {
+                                TicketId = ar.TicketId,
+                                CreatedAt = ar.Ticket?.CreatedAt ?? ar.CreatedAt,
+                                Type = "Access",
+                                Request = (object)ar
+                            });
+                        
+                        var serviceRequestItems = Model.PendingServiceRequests
+                            .Select(sr => new
+                            {
+                                TicketId = sr.TicketId,
+                                CreatedAt = sr.Ticket?.CreatedAt ?? sr.CreatedAt,
+                                Type = "Service",
+                                Request = (object)sr
+                            });
+                        
+                        var allRequests = accessRequestItems
+                            .Concat(serviceRequestItems)
+                            .OrderByDescending(r => r.CreatedAt)
+                            .ToList();
+                        
+                        @foreach (var item in allRequests)
                         {
-                            var ticketNumber = $"HD-{request.TicketId:D6}";
-                            var isPending = request.SecurityApprovalStatus == ApprovalStatus.Pending;
-                            var statusBadgeClass = request.SecurityApprovalStatus switch
+                            var ticketNumber = $"HD-{item.TicketId:D6}";
+                            ApprovalStatus securityStatus;
+                            bool isPending;
+                            string employeeName;
+                            string systemName;
+                            string reviewAction;
+                            string managerName;
+                            
+                            if (item.Type == "Access")
+                            {
+                                var request = (AccessRequest)item.Request;
+                                securityStatus = request.SecurityApprovalStatus;
+                                isPending = securityStatus == ApprovalStatus.Pending;
+                                employeeName = request.FullName;
+                                systemName = request.SystemName;
+                                reviewAction = "ApproveSecurityAccess";
+                                managerName = request.SelectedManager?.FullName ?? "Unknown";
+                            }
+                            else
+                            {
+                                var request = (ServiceRequest)item.Request;
+                                securityStatus = request.SecurityApprovalStatus;
+                                isPending = securityStatus == ApprovalStatus.Pending;
+                                employeeName = request.EmployeeName;
+                                systemName = "Social Media Access";
+                                reviewAction = "ApproveSecurityService";
+                                managerName = request.SelectedManager?.FullName ?? "Unknown";
+                            }
+                            
+                            var statusBadgeClass = securityStatus switch
                             {
                                 ApprovalStatus.Pending => "bg-warning text-dark",
                                 ApprovalStatus.Approved => "bg-success",
@@ -64,24 +117,24 @@
                             
                             <tr>
                                 <td class="fw-semibold text-secondary">@ticketNumber</td>
-                                <td>@request.FullName</td>
-                                <td>@(request.SelectedManager?.FullName ?? "Unknown")</td>
-                                <td>@request.SystemName</td>
+                                <td>@employeeName</td>
+                                <td>@managerName</td>
+                                <td>@systemName</td>
                                 <td>
                                     <span class="badge rounded-pill @statusBadgeClass">
-                                        @request.SecurityApprovalStatus
+                                        @securityStatus
                                     </span>
                                 </td>
                                 <td class="text-nowrap text-end">
                                     @if (isPending)
                                     {
-                                        <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="ApproveSecurityAccess" asp-route-id="@request.TicketId">
+                                        <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="@reviewAction" asp-route-id="@item.TicketId">
                                             <i class="fa-solid fa-shield-halved me-1"></i>Review
                                         </a>
                                     }
                                     else
                                     {
-                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details" asp-route-id="@request.TicketId">
+                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details" asp-route-id="@item.TicketId">
                                             <i class="fa-solid fa-eye me-1"></i>View
                                         </a>
                                     }

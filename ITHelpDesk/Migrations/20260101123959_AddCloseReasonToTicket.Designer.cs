@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITHelpDesk.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260101103219_AddFullNameToAspNetUsers")]
-    partial class AddFullNameToAspNetUsers
+    [Migration("20260101123959_AddCloseReasonToTicket")]
+    partial class AddCloseReasonToTicket
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -331,6 +331,9 @@ namespace ITHelpDesk.Migrations
 
                     b.Property<string>("AssignedToId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("CloseReason")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()

@@ -117,6 +117,45 @@
         </div>
     </div>
     <div class="col-12 col-xl-5">
+        @* IT Execution Section - Only visible for IT users in IT Execution stage *@
+        @if (ViewBag.CanITExecute == true)
+        {
+            <div class="card border-0 shadow-sm mb-4 border-primary">
+                <div class="card-header bg-primary text-white border-0">
+                    <h2 class="h5 fw-semibold mb-0">
+                        <i class="fa-solid fa-server me-2"></i>IT Execution
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-secondary mb-4">Final decision for this request. This action will close the ticket.</p>
+                    
+                    <div class="d-flex flex-column gap-3">
+                        <form asp-action="CompleteAndClose" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label for="completionNotes" class="form-label fw-semibold">Completion Notes</label>
+                                <textarea id="completionNotes" name="notes" class="form-control" rows="3" placeholder="Enter completion notes..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fa-solid fa-check-circle me-2"></i>Complete & Close
+                            </button>
+                        </form>
+                        
+                        <form asp-action="RejectAndClose" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label for="rejectionNotes" class="form-label fw-semibold">Rejection Reason</label>
+                                <textarea id="rejectionNotes" name="notes" class="form-control" rows="3" placeholder="Enter rejection reason..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fa-solid fa-times-circle me-2"></i>Reject & Close
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0 pb-0">
                 <h2 class="h5 fw-semibold mb-0">

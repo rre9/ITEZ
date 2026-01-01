@@ -53,6 +53,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasConversion<string>()
                 .HasMaxLength(20);
 
+            // CloseReason is stored as int (enum) in database, no conversion needed
+            ticket.Property(t => t.CloseReason);
+
             ticket.Property(t => t.CreatedAt)
                 .HasDefaultValueSql("GETUTCDATE()");
 

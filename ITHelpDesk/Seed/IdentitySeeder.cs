@@ -9,7 +9,7 @@ namespace ITHelpDesk.Seed;
 
 public static class IdentitySeeder
 {
-    private static readonly string[] Roles = { "Manager", "Security", "IT" };
+    private static readonly string[] Roles = { "Employee", "Manager", "Security", "IT" };
     private const string DefaultPassword = "Test@123"; // Temporary password for development only
 
     public static async Task SeedAsync(IServiceProvider serviceProvider)
