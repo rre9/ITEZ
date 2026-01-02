@@ -1,16 +1,238 @@
 @model dynamic
 @{
-    ViewData["Title"] = "لوحة تحكم الأصول";
+    ViewData["Title"] = "Assets Dashboard";
 }
 
+<style>
+    .asset-type-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        position: relative;
+        height: 100%;
+    }
+    
+    .asset-type-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #0066cc, #0099ff);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .asset-type-card:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 102, 204, 0.15);
+        border-color: #0066cc;
+    }
+    
+    .asset-type-card:hover::before {
+        opacity: 1;
+    }
+    
+    .asset-type-card .card-body {
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .asset-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    
+    .asset-icon-badge {
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #e8f4ff 0%, #d6ebff 100%);
+        border-radius: 16px;
+        position: relative;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .asset-type-card:hover .asset-icon-badge {
+        background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+        transform: rotate(-5deg) scale(1.1);
+    }
+    
+    .asset-icon-badge i {
+        font-size: 2rem;
+        color: #0066cc;
+        transition: all 0.3s ease;
+    }
+    
+    .asset-icon-badge img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+        transition: all 0.3s ease;
+        filter: brightness(1) contrast(1.1);
+    }
+    
+    .asset-type-card:hover .asset-icon-badge img {
+        filter: brightness(1.2) contrast(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.3));
+        transform: scale(1.1);
+    }
+    
+    .asset-type-card:hover .asset-icon-badge i {
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .asset-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .asset-type-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.01em;
+    }
+    
+    .asset-total-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.85rem;
+        background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+        color: white;
+        border-radius: 12px;
+        font-size: 1.25rem;
+        font-weight: 800;
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
+        transition: all 0.3s ease;
+    }
+    
+    .asset-type-card:hover .asset-total-badge {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 102, 204, 0.35);
+    }
+    
+    .asset-total-badge small {
+        font-size: 0.7rem;
+        opacity: 0.9;
+        font-weight: 600;
+    }
+    
+    .add-asset-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .add-asset-btn:hover {
+        background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+        color: white;
+        border-color: #0066cc;
+        transform: rotate(90deg) scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    }
+    
+    .asset-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 0.5rem 0;
+    }
+    
+    .stat-box {
+        padding: 0.75rem;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+    
+    .stat-box:hover {
+        border-color: #0066cc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.1);
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+    
+    .stat-box.in-use .stat-value { color: #10b981; }
+    .stat-box.in-store .stat-value { color: #3b82f6; }
+    .stat-box.in-repair .stat-value { color: #f59e0b; }
+    .stat-box.others .stat-value { color: #6b7280; }
+    
+    .view-all-btn {
+        margin-top: auto;
+        padding: 0.65rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 2px solid #e5e7eb;
+        background: white;
+        color: #0066cc;
+    }
+    
+    .view-all-btn:hover {
+        background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+        border-color: #0066cc;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 102, 204, 0.2);
+    }
+    
+    .view-all-btn i {
+        transition: transform 0.3s ease;
+    }
+    
+    .view-all-btn:hover i {
+        transform: translateX(4px);
+    }
+</style>
+
 <div class="page-wrapper">
-    <div class="page-header d-print-none">
+    <div class="page-header d-print-none" style="margin-bottom: 2rem;">
         <div class="container-xl">
             <div class="row align-items-center">
                 <div class="col">
-                    <h2 class="page-title">
-                        <i class="fa-solid fa-server me-2"></i>لوحة تحكم الأصول
+                    <h2 class="page-title" style="color: #0066cc; font-weight: 700;">
+                        <i class="fa-solid fa-server me-2"></i>Assets Control Dashboard
                     </h2>
+                    @* <p class="text-muted mt-1">Comprehensive overview of all IT assets and their status</p> *@
                 </div>
             </div>
         </div>
@@ -18,229 +240,331 @@
 
     <div class="page-body">
         <div class="container-xl">
-            <!-- إحصائيات سريعة -->
-            <div class="row row-deck row-cards mb-4">
+            <!-- Assets Grid -->
+            <div class="row row-deck row-cards g-4">
+                
                 <!-- Access Points -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("AccessPoints", "Assets")" class="text-reset">
-                                        نقاط الوصول
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/AccessPoint.png" alt="Access Point" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Access Point</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.AccessPoints.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreateAccessPoint", "Assets")" class="add-asset-btn" title="Add Access Point">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.AccessPoints</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-primary">
-                                        <i class="fa-solid fa-wifi"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.AccessPoints.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.AccessPoints.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.AccessPoints.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.AccessPoints.Others</div>
                                 </div>
                             </div>
+                            
+                            <a href="@Url.Action("AccessPoints", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Computers -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("Computers", "Assets")" class="text-reset">
-                                        أجهزة الكمبيوتر
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/pc.png" alt="Computer" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Computer</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.Computers.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreateComputer", "Assets")" class="add-asset-btn" title="Add Computer">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.Computers</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-info">
-                                        <i class="fa-solid fa-desktop"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.Computers.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.Computers.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.Computers.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.Computers.Others</div>
                                 </div>
                             </div>
+                            
+                            <a href="@Url.Action("Computers", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Servers -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("Servers", "Assets")" class="text-reset">
-                                        السيرفرات
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/server.png" alt="Server" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Server</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.Servers.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreateServer", "Assets")" class="add-asset-btn" title="Add Server">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.Servers</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-warning">
-                                        <i class="fa-solid fa-server"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.Servers.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.Servers.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.Servers.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.Servers.Others</div>
                                 </div>
                             </div>
+                            
+                            <a href="@Url.Action("Servers", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Smartphones -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <!-- Mobile (Smartphones) -->
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("Smartphones", "Assets")" class="text-reset">
-                                        الهواتف الذكية
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/iphone.png" alt="Mobile" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Mobile</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.Smartphones.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreateSmartphone", "Assets")" class="add-asset-btn" title="Add Mobile">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.Smartphones</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-success">
-                                        <i class="fa-solid fa-mobile"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.Smartphones.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.Smartphones.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.Smartphones.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.Smartphones.Others</div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- صف إضافي من الإحصائيات -->
-            <div class="row row-deck row-cards mb-4">
-                <!-- Virtual Machines -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("VirtualMachines", "Assets")" class="text-reset">
-                                        الأجهزة الافتراضية
-                                    </a>
-                                </h3>
-                            </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.VirtualMachines</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-danger">
-                                        <i class="fa-solid fa-cube"></i>
-                                    </span>
-                                </div>
-                            </div>
+                            
+                            <a href="@Url.Action("Smartphones", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Printers -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("Printers", "Assets")" class="text-reset">
-                                        الطابعات
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/printer.png" alt="Printer" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Printer</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.Printers.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreatePrinter", "Assets")" class="add-asset-btn" title="Add Printer">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.Printers</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-secondary">
-                                        <i class="fa-solid fa-print"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.Printers.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.Printers.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.Printers.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.Printers.Others</div>
                                 </div>
                             </div>
+                            
+                            <a href="@Url.Action("Printers", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Routers -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("Routers", "Assets")" class="text-reset">
-                                        الموجهات
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/wifi-router.png" alt="Router" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Router</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.Routers.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreateRouter", "Assets")" class="add-asset-btn" title="Add Router">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.Routers</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-dark">
-                                        <i class="fa-solid fa-router"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.Routers.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.Routers.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.Routers.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.Routers.Others</div>
                                 </div>
                             </div>
+                            
+                            <a href="@Url.Action("Routers", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Switches -->
-                <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card asset-type-card">
                         <div class="card-body">
-                            <div class="text-truncate">
-                                <h3 class="card-title">
-                                    <a href="@Url.Action("Switches", "Assets")" class="text-reset">
-                                        المفاتيح
-                                    </a>
-                                </h3>
+                            <div class="asset-header">
+                                <div class="asset-icon-badge">
+                                    <img src="~/images/assets/network.png" alt="Switch" style="width: 48px; height: 48px; object-fit: contain;" />
+                                </div>
+                                <div class="asset-info">
+                                    <h3 class="asset-type-title">Switch</h3>
+                                    <div class="asset-total-badge">
+                                        <span>@Model.Switches.Total</span>
+                                        <small>Total</small>
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("CreateSwitch", "Assets")" class="add-asset-btn" title="Add Switch">
+                                    <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
+                                </a>
                             </div>
-                            <div class="d-flex align-items-baseline">
-                                <div class="h1 mb-0">@Model.Switches</div>
-                                <div class="ms-auto">
-                                    <span class="badge bg-primary">
-                                        <i class="fa-solid fa-network-wired"></i>
-                                    </span>
+                            
+                            <div class="asset-stats-grid">
+                                <div class="stat-box in-use">
+                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-value">@Model.Switches.InUse</div>
+                                </div>
+                                <div class="stat-box in-store">
+                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-value">@Model.Switches.InStore</div>
+                                </div>
+                                <div class="stat-box in-repair">
+                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-value">@Model.Switches.InRepair</div>
+                                </div>
+                                <div class="stat-box others">
+                                    <div class="stat-label">Others</div>
+                                    <div class="stat-value">@Model.Switches.Others</div>
                                 </div>
                             </div>
+                            
+                            <a href="@Url.Action("Switches", "Assets")" class="btn view-all-btn w-100">
+                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- شبكة سريعة -->
-            <div class="row row-cards mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">الروابط السريعة</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row row-cols-auto g-3">
-                                <div class="col">
-                                    <a href="@Url.Action("AccessPoints", "Assets")" class="btn btn-sm btn-outline-primary">
-                                        <i class="fa-solid fa-plus me-2"></i>إضافة نقطة وصول
-                                    </a>
-                                </div>
-                                <div class="col">
-                                    <a href="@Url.Action("CreateComputer", "Assets")" class="btn btn-sm btn-outline-info">
-                                        <i class="fa-solid fa-plus me-2"></i>إضافة كمبيوتر
-                                    </a>
-                                </div>
-                                <div class="col">
-                                    <a href="@Url.Action("CreateServer", "Assets")" class="btn btn-sm btn-outline-warning">
-                                        <i class="fa-solid fa-plus me-2"></i>إضافة سيرفر
-                                    </a>
-                                </div>
-                                <div class="col">
-                                    <a href="@Url.Action("CreateSmartphone", "Assets")" class="btn btn-sm btn-outline-success">
-                                        <i class="fa-solid fa-plus me-2"></i>إضافة هاتف
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

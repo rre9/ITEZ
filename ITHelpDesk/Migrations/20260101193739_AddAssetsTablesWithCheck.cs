@@ -5,7 +5,7 @@
 namespace ITHelpDesk.Migrations
 {
     /// <inheritdoc />
-    public partial class AddAssetsModels : Migration
+    public partial class AddAssetsTablesWithCheck : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

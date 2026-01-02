@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITHelpDesk.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260101162612_AddAssetsModels")]
-    partial class AddAssetsModels
+    [Migration("20260101193739_AddAssetsTablesWithCheck")]
+    partial class AddAssetsTablesWithCheck
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
