@@ -777,6 +777,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Configure MobileDevice entity relationships
         builder.Entity<MobileDevice>(md =>
         {
+            // Map properties to columns without prefix
+            md.Property(m => m.MobileDetailsId).HasColumnName("MobileDetailsId");
+            md.Property(m => m.OperatingSystemInfoId).HasColumnName("OperatingSystemInfoId");
+
             md.HasOne(m => m.MobileDetails)
                 .WithMany()
                 .HasForeignKey(m => m.MobileDetailsId)

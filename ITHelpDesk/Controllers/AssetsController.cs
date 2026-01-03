@@ -55,13 +55,21 @@ public class AssetsController : Controller
             var serversOthers = await _context.Servers.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
-            // Smartphones
-            var smartphonesTotal = await _context.Smartphones.CountAsync();
-            var smartphonesInUse = await _context.Smartphones.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
-            var smartphonesInStore = await _context.Smartphones.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
-            var smartphonesInRepair = await _context.Smartphones.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var smartphonesOthers = await _context.Smartphones.CountAsync(a => a.AssetState != null &&
-                (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
+            // Smartphones (Mobile Devices)
+            var smartphonesTotal = await _context.MobileDevices.CountAsync();
+            var smartphonesInUse = await _context.MobileDevices
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
+            var smartphonesInStore = await _context.MobileDevices
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
+            var smartphonesInRepair = await _context.MobileDevices
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
+            var smartphonesOthers = await _context.MobileDevices
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null &&
+                    (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Printers
             var printersTotal = await _context.Printers.CountAsync();
@@ -1789,6 +1797,399 @@ public class AssetsController : Controller
             _logger.LogError(ex, "Error deleting server");
             TempData["ErrorMessage"] = "An error occurred while deleting the server.";
             return RedirectToAction(nameof(Servers));
+        }
+    }
+
+    #endregion
+
+    #region Mobile Devices
+
+    // GET: Assets/Mobiles
+    public async Task<IActionResult> Mobiles()
+    {
+        var mobiles = await _context.MobileDevices
+            .Include(m => m.Product)
+            .Include(m => m.Vendor)
+            .Include(m => m.AssetState)
+            .Include(m => m.NetworkDetails)
+            .Include(m => m.MobileDetails)
+            .Include(m => m.OperatingSystemInfo)
+            .ToListAsync();
+
+        return View(mobiles);
+    }
+
+    // GET: Assets/CreateMobile
+    public async Task<IActionResult> CreateMobile()
+    {
+        // Prevent browser caching
+        Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        Response.Headers["Pragma"] = "no-cache";
+        Response.Headers["Expires"] = "0";
+
+        ViewBag.Products = await _context.Products.ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+        return View(new MobileCreateViewModel());
+    }
+
+    // GET: Assets/CreateMobileSimple - for testing
+    public async Task<IActionResult> CreateMobileSimple()
+    {
+        return View();
+    }
+
+    // POST: Assets/CreateMobile
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateMobile(MobileCreateViewModel viewModel)
+    {
+        _logger.LogInformation($"CreateMobile POST called. Name: '{viewModel?.Name}', ProductId: {viewModel?.ProductId}");
+
+        if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("ModelState is invalid. Errors:");
+            foreach (var key in ModelState.Keys)
+            {
+                var modelState = ModelState[key];
+                foreach (var error in modelState.Errors)
+                {
+                    _logger.LogWarning($"  - {key}: {error.ErrorMessage}");
+                }
+            }
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(viewModel);
+        }
+
+        // Validate Product exists
+        var productExists = await _context.Products.AnyAsync(p => p.Id == viewModel.ProductId);
+        if (!productExists)
+        {
+            ModelState.AddModelError("ProductId", "Selected product does not exist.");
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(viewModel);
+        }
+
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Create Mobile Details
+            MobileDetails? mobileDetails = null;
+            if (!string.IsNullOrEmpty(viewModel.IMEI) || !string.IsNullOrEmpty(viewModel.Model))
+            {
+                mobileDetails = new MobileDetails
+                {
+                    IMEI = viewModel.IMEI,
+                    Model = viewModel.Model,
+                    ModelNo = viewModel.ModelNo,
+                    TotalCapacityGB = viewModel.TotalCapacityGB,
+                    AvailableCapacityGB = viewModel.AvailableCapacityGB,
+                    ModemFirmwareVersion = viewModel.ModemFirmwareVersion,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.MobileDetails.Add(mobileDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Operating System Info
+            OperatingSystemInfo? osInfo = null;
+            if (!string.IsNullOrEmpty(viewModel.OSName))
+            {
+                osInfo = new OperatingSystemInfo
+                {
+                    Name = viewModel.OSName,
+                    Version = viewModel.OSVersion,
+                    BuildNumber = viewModel.BuildNumber,
+                    ServicePack = viewModel.ServicePack,
+                    ProductId = viewModel.OSProductId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.OperatingSystemInfos.Add(osInfo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Asset State
+            var assetState = new AssetState
+            {
+                Status = (AssetStatusEnum)viewModel.AssetStatus,
+                AssociatedTo = viewModel.AssociatedTo,
+                Site = viewModel.Site,
+                StateComments = viewModel.StateComments,
+                UserId = viewModel.UserId,
+                Department = viewModel.Department,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.AssetStates.Add(assetState);
+            await _context.SaveChangesAsync();
+
+            // Create Network Details
+            NetworkDetails? networkDetails = null;
+            if (!string.IsNullOrEmpty(viewModel.IPAddress) || !string.IsNullOrEmpty(viewModel.MACAddress))
+            {
+                networkDetails = new NetworkDetails
+                {
+                    IPAddress = viewModel.IPAddress,
+                    MACAddress = viewModel.MACAddress,
+                    NIC = viewModel.NIC,
+                    Network = viewModel.Network,
+                    DefaultGateway = viewModel.DefaultGateway,
+                    DHCPEnabled = viewModel.DHCPEnabled,
+                    DHCPServer = viewModel.DHCPServer,
+                    DNSHostname = viewModel.DNSHostname,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.NetworkDetails.Add(networkDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Mobile Device
+            var mobile = new MobileDevice
+            {
+                Name = viewModel.Name,
+                ProductId = viewModel.ProductId,
+                SerialNumber = viewModel.SerialNumber,
+                AssetTag = viewModel.AssetTag,
+                VendorId = viewModel.VendorId,
+                PurchaseCost = viewModel.PurchaseCost,
+                ExpiryDate = viewModel.ExpiryDate,
+                Location = viewModel.Location,
+                AcquisitionDate = viewModel.AcquisitionDate,
+                WarrantyExpiryDate = viewModel.WarrantyExpiryDate,
+                AssetStateId = assetState.Id,
+                NetworkDetailsId = networkDetails?.Id,
+                MobileDetailsId = mobileDetails?.Id,
+                OperatingSystemInfoId = osInfo?.Id,
+                CreatedAt = DateTime.UtcNow,
+                CreatedById = user?.Id
+            };
+
+            _context.MobileDevices.Add(mobile);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Mobile device created successfully!";
+            return RedirectToAction(nameof(Mobiles));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating mobile device. Exception Type: {ExceptionType}, Message: {Message}, StackTrace: {StackTrace}",
+                ex.GetType().Name, ex.Message, ex.StackTrace);
+
+            // If it's a database exception, log inner exception details
+            if (ex.InnerException != null)
+            {
+                _logger.LogError("Inner Exception: {InnerExceptionType}, Message: {InnerMessage}",
+                    ex.InnerException.GetType().Name, ex.InnerException.Message);
+            }
+
+            ModelState.AddModelError("", $"An error occurred while creating the mobile device: {ex.Message}");
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(viewModel);
+        }
+    }
+
+    // GET: Assets/EditMobile/5
+    public async Task<IActionResult> EditMobile(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var mobile = await _context.MobileDevices
+            .Include(m => m.Product)
+            .Include(m => m.Vendor)
+            .Include(m => m.AssetState)
+            .Include(m => m.NetworkDetails)
+            .Include(m => m.MobileDetails)
+            .Include(m => m.OperatingSystemInfo)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (mobile == null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.Products = await _context.Products.ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+        return View(mobile);
+    }
+
+    // POST: Assets/EditMobile/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditMobile(int id, MobileDevice model)
+    {
+        if (id != model.Id)
+        {
+            return NotFound();
+        }
+
+        ModelState.Remove("Product");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("AssetState");
+        ModelState.Remove("NetworkDetails");
+        ModelState.Remove("MobileDetails");
+        ModelState.Remove("OperatingSystemInfo");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(model);
+        }
+
+        try
+        {
+            var existingMobile = await _context.MobileDevices
+                .Include(m => m.NetworkDetails)
+                .Include(m => m.MobileDetails)
+                .Include(m => m.OperatingSystemInfo)
+                .Include(m => m.AssetState)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (existingMobile == null)
+            {
+                return NotFound();
+            }
+
+            // Update basic asset properties
+            existingMobile.Name = model.Name;
+            existingMobile.ProductId = model.ProductId;
+            existingMobile.SerialNumber = model.SerialNumber;
+            existingMobile.AssetTag = model.AssetTag;
+            existingMobile.VendorId = model.VendorId;
+            existingMobile.PurchaseCost = model.PurchaseCost;
+            existingMobile.ExpiryDate = model.ExpiryDate;
+            existingMobile.Location = model.Location;
+            existingMobile.AcquisitionDate = model.AcquisitionDate;
+            existingMobile.WarrantyExpiryDate = model.WarrantyExpiryDate;
+            existingMobile.UpdatedAt = DateTime.UtcNow;
+
+            // Update Asset State if provided
+            if (model.AssetState != null && existingMobile.AssetState != null)
+            {
+                existingMobile.AssetState.Status = model.AssetState.Status;
+                existingMobile.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
+                existingMobile.AssetState.Site = model.AssetState.Site;
+                existingMobile.AssetState.StateComments = model.AssetState.StateComments;
+                existingMobile.AssetState.UserId = model.AssetState.UserId;
+                existingMobile.AssetState.Department = model.AssetState.Department;
+                existingMobile.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Mobile Details if provided
+            if (model.MobileDetails != null && existingMobile.MobileDetails != null)
+            {
+                existingMobile.MobileDetails.IMEI = model.MobileDetails.IMEI;
+                existingMobile.MobileDetails.Model = model.MobileDetails.Model;
+                existingMobile.MobileDetails.ModelNo = model.MobileDetails.ModelNo;
+                existingMobile.MobileDetails.TotalCapacityGB = model.MobileDetails.TotalCapacityGB;
+                existingMobile.MobileDetails.AvailableCapacityGB = model.MobileDetails.AvailableCapacityGB;
+                existingMobile.MobileDetails.ModemFirmwareVersion = model.MobileDetails.ModemFirmwareVersion;
+                existingMobile.MobileDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Operating System Info if provided
+            if (model.OperatingSystemInfo != null && existingMobile.OperatingSystemInfo != null)
+            {
+                existingMobile.OperatingSystemInfo.Name = model.OperatingSystemInfo.Name;
+                existingMobile.OperatingSystemInfo.Version = model.OperatingSystemInfo.Version;
+                existingMobile.OperatingSystemInfo.BuildNumber = model.OperatingSystemInfo.BuildNumber;
+                existingMobile.OperatingSystemInfo.ServicePack = model.OperatingSystemInfo.ServicePack;
+                existingMobile.OperatingSystemInfo.ProductId = model.OperatingSystemInfo.ProductId;
+                existingMobile.OperatingSystemInfo.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Network Details if provided
+            if (model.NetworkDetails != null && existingMobile.NetworkDetails != null)
+            {
+                existingMobile.NetworkDetails.IPAddress = model.NetworkDetails.IPAddress;
+                existingMobile.NetworkDetails.MACAddress = model.NetworkDetails.MACAddress;
+                existingMobile.NetworkDetails.NIC = model.NetworkDetails.NIC;
+                existingMobile.NetworkDetails.Network = model.NetworkDetails.Network;
+                existingMobile.NetworkDetails.DefaultGateway = model.NetworkDetails.DefaultGateway;
+                existingMobile.NetworkDetails.DHCPEnabled = model.NetworkDetails.DHCPEnabled;
+                existingMobile.NetworkDetails.DHCPServer = model.NetworkDetails.DHCPServer;
+                existingMobile.NetworkDetails.DNSHostname = model.NetworkDetails.DNSHostname;
+                existingMobile.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Mobile device updated successfully!";
+            return RedirectToAction(nameof(Mobiles));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating mobile device");
+            ModelState.AddModelError("", "An error occurred while updating the mobile device. Please try again.");
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(model);
+        }
+    }
+
+    // POST: Assets/DeleteMobile/5
+    [Authorize(Roles = "Admin,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteMobile(int id)
+    {
+        try
+        {
+            var mobile = await _context.MobileDevices
+                .Include(m => m.NetworkDetails)
+                .Include(m => m.MobileDetails)
+                .Include(m => m.OperatingSystemInfo)
+                .Include(m => m.AssetState)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (mobile == null)
+            {
+                return NotFound();
+            }
+
+            // Delete related records
+            if (mobile.NetworkDetails != null)
+                _context.NetworkDetails.Remove(mobile.NetworkDetails);
+
+            if (mobile.MobileDetails != null)
+                _context.MobileDetails.Remove(mobile.MobileDetails);
+
+            if (mobile.OperatingSystemInfo != null)
+                _context.OperatingSystemInfos.Remove(mobile.OperatingSystemInfo);
+
+            if (mobile.AssetState != null)
+                _context.AssetStates.Remove(mobile.AssetState);
+
+            _context.MobileDevices.Remove(mobile);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Mobile device deleted successfully!";
+            return RedirectToAction(nameof(Mobiles));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting mobile device");
+            TempData["ErrorMessage"] = "An error occurred while deleting the mobile device.";
+            return RedirectToAction(nameof(Mobiles));
         }
     }
 

@@ -1,0 +1,24 @@
+@model ITHelpDesk.ViewModels.Assets.MobileCreateViewModel
+@{
+    ViewData["Title"] = "Test Mobile";
+}
+
+<div class="container mt-5">
+    <h2>Test Create Mobile - Simple Form</h2>
+
+    <form method="post" action="/Assets/CreateMobile">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label for="Name">Name:</label>
+            <input type="text" id="Name" name="Name" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label for="ProductId">Product ID:</label>
+            <input type="number" id="ProductId" name="ProductId" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
