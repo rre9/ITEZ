@@ -73,11 +73,19 @@ public class AssetsController : Controller
 
             // Printers
             var printersTotal = await _context.Printers.CountAsync();
-            var printersInUse = await _context.Printers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
-            var printersInStore = await _context.Printers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
-            var printersInRepair = await _context.Printers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var printersOthers = await _context.Printers.CountAsync(a => a.AssetState != null &&
-                (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
+            var printersInUse = await _context.Printers
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
+            var printersInStore = await _context.Printers
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
+            var printersInRepair = await _context.Printers
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
+            var printersOthers = await _context.Printers
+                .Include(a => a.AssetState)
+                .CountAsync(a => a.AssetState != null &&
+                    (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Routers (combined)
             var routersTotal = await _context.Routers.CountAsync() + await _context.CiscoRouters.CountAsync();
@@ -2223,6 +2231,358 @@ public class AssetsController : Controller
         public string? PhoneNo { get; set; }
         public string? Email { get; set; }
         public string? Description { get; set; }
+    }
+
+    // #endregion
+
+    // #region Printers
+
+    // GET: Assets/Printers
+    [Authorize(Roles = "Admin,IT")]
+    public async Task<IActionResult> Printers()
+    {
+        try
+        {
+            var printers = await _context.Printers
+                .Include(p => p.Product)
+                .Include(p => p.Vendor)
+                .Include(p => p.AssetState)
+                .Include(p => p.NetworkDetails)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            return View(printers);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading printers");
+            TempData["Toast"] = "حدث خطأ في تحميل الطابعات";
+            return RedirectToAction("Dashboard");
+        }
+    }
+
+    // GET: Assets/CreatePrinter
+    [Authorize(Roles = "Admin,IT")]
+    public async Task<IActionResult> CreatePrinter()
+    {
+        try
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(new PrinterCreateEditViewModel());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading create printer page");
+            TempData["Toast"] = "حدث خطأ في تحميل الصفحة";
+            return RedirectToAction(nameof(Printers));
+        }
+    }
+
+    // POST: Assets/CreatePrinter
+    [Authorize(Roles = "Admin,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreatePrinter(PrinterCreateEditViewModel viewModel)
+    {
+        _logger.LogInformation($"CreatePrinter POST called. Name: '{viewModel?.Name}', ProductId: {viewModel?.ProductId}");
+
+        if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("ModelState is invalid. Errors:");
+            foreach (var key in ModelState.Keys)
+            {
+                var modelState = ModelState[key];
+                foreach (var error in modelState.Errors)
+                {
+                    _logger.LogWarning($"  - {key}: {error.ErrorMessage}");
+                }
+            }
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(viewModel);
+        }
+
+        // Validate Product exists
+        var productExists = await _context.Products.AnyAsync(p => p.Id == viewModel.ProductId);
+        if (!productExists)
+        {
+            ModelState.AddModelError("ProductId", "Selected product does not exist.");
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(viewModel);
+        }
+
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Create Asset State
+            var assetState = new AssetState
+            {
+                Status = (AssetStatusEnum)viewModel.AssetStatus,
+                AssociatedTo = viewModel.AssociatedTo,
+                Site = viewModel.Site,
+                StateComments = viewModel.StateComments,
+                UserId = viewModel.UserId,
+                Department = viewModel.Department,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.AssetStates.Add(assetState);
+            await _context.SaveChangesAsync();
+
+            // Create Network Details
+            NetworkDetails? networkDetails = null;
+            if (!string.IsNullOrEmpty(viewModel.IPAddress) || !string.IsNullOrEmpty(viewModel.MACAddress))
+            {
+                networkDetails = new NetworkDetails
+                {
+                    IPAddress = viewModel.IPAddress,
+                    MACAddress = viewModel.MACAddress,
+                    NIC = viewModel.NIC,
+                    Network = viewModel.Network,
+                    DefaultGateway = viewModel.DefaultGateway,
+                    DHCPEnabled = viewModel.DHCPEnabled ?? false,
+                    DHCPServer = viewModel.DHCPServer,
+                    DNSHostname = viewModel.DNSHostname,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.NetworkDetails.Add(networkDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Printer
+            var printer = new Printer
+            {
+                Name = viewModel.Name,
+                ProductId = viewModel.ProductId,
+                SerialNumber = viewModel.SerialNumber,
+                AssetTag = viewModel.AssetTag,
+                VendorId = viewModel.VendorId,
+                PurchaseCost = viewModel.PurchaseCost ?? 0,
+                ExpiryDate = viewModel.ExpiryDate,
+                Location = viewModel.Location,
+                AcquisitionDate = viewModel.AcquisitionDate,
+                WarrantyExpiryDate = viewModel.WarrantyExpiryDate,
+                AssetStateId = assetState.Id,
+                NetworkDetailsId = networkDetails?.Id,
+                CreatedAt = DateTime.UtcNow,
+                CreatedById = user?.Id
+            };
+
+            _context.Printers.Add(printer);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Printer created successfully!";
+            return RedirectToAction(nameof(Printers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating printer. Exception Type: {ExceptionType}, Message: {Message}, StackTrace: {StackTrace}",
+                ex.GetType().Name, ex.Message, ex.StackTrace);
+
+            if (ex.InnerException != null)
+            {
+                _logger.LogError("Inner Exception: {InnerExceptionType}, Message: {InnerMessage}",
+                    ex.InnerException.GetType().Name, ex.InnerException.Message);
+            }
+
+            ModelState.AddModelError("", $"An error occurred while creating the printer: {ex.Message}");
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(viewModel);
+        }
+    }
+
+    // GET: Assets/EditPrinter/5
+    [Authorize(Roles = "Admin,IT")]
+    public async Task<IActionResult> EditPrinter(int id)
+    {
+        try
+        {
+            var printer = await _context.Printers
+                .Include(p => p.Product)
+                .Include(p => p.Vendor)
+                .Include(p => p.AssetState)
+                .Include(p => p.NetworkDetails)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (printer == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(printer);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading edit printer page");
+            TempData["Toast"] = "حدث خطأ في تحميل صفحة التعديل";
+            return RedirectToAction(nameof(Printers));
+        }
+    }
+
+    // POST: Assets/EditPrinter/5
+    [Authorize(Roles = "Admin,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditPrinter(int id, Printer model)
+    {
+        if (id != model.Id)
+        {
+            return NotFound();
+        }
+
+        ModelState.Remove("Product");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("AssetState");
+        ModelState.Remove("NetworkDetails");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(model);
+        }
+
+        try
+        {
+            var existingPrinter = await _context.Printers
+                .Include(p => p.NetworkDetails)
+                .Include(p => p.AssetState)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (existingPrinter == null)
+            {
+                return NotFound();
+            }
+
+            // Update basic asset properties
+            existingPrinter.Name = model.Name;
+            existingPrinter.ProductId = model.ProductId;
+            existingPrinter.SerialNumber = model.SerialNumber;
+            existingPrinter.AssetTag = model.AssetTag;
+            existingPrinter.VendorId = model.VendorId;
+            existingPrinter.PurchaseCost = model.PurchaseCost;
+            existingPrinter.ExpiryDate = model.ExpiryDate;
+            existingPrinter.Location = model.Location;
+            existingPrinter.AcquisitionDate = model.AcquisitionDate;
+            existingPrinter.WarrantyExpiryDate = model.WarrantyExpiryDate;
+            existingPrinter.UpdatedAt = DateTime.UtcNow;
+
+            // Update Asset State if provided
+            if (model.AssetState != null)
+            {
+                if (existingPrinter.AssetState == null)
+                {
+                    existingPrinter.AssetState = new AssetState
+                    {
+                        CreatedAt = DateTime.UtcNow
+                    };
+                }
+                
+                existingPrinter.AssetState.Status = model.AssetState.Status;
+                existingPrinter.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
+                existingPrinter.AssetState.Site = model.AssetState.Site;
+                existingPrinter.AssetState.StateComments = model.AssetState.StateComments;
+                existingPrinter.AssetState.UserId = model.AssetState.UserId;
+                existingPrinter.AssetState.Department = model.AssetState.Department;
+                existingPrinter.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Network Details if provided
+            if (model.NetworkDetails != null)
+            {
+                if (existingPrinter.NetworkDetails == null)
+                {
+                    existingPrinter.NetworkDetails = new NetworkDetails
+                    {
+                        CreatedAt = DateTime.UtcNow
+                    };
+                }
+                
+                existingPrinter.NetworkDetails.IPAddress = model.NetworkDetails.IPAddress;
+                existingPrinter.NetworkDetails.MACAddress = model.NetworkDetails.MACAddress;
+                existingPrinter.NetworkDetails.NIC = model.NetworkDetails.NIC;
+                existingPrinter.NetworkDetails.Network = model.NetworkDetails.Network;
+                existingPrinter.NetworkDetails.DefaultGateway = model.NetworkDetails.DefaultGateway;
+                existingPrinter.NetworkDetails.DHCPEnabled = model.NetworkDetails.DHCPEnabled;
+                existingPrinter.NetworkDetails.DHCPServer = model.NetworkDetails.DHCPServer;
+                existingPrinter.NetworkDetails.DNSHostname = model.NetworkDetails.DNSHostname;
+                existingPrinter.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Printer updated successfully!";
+            return RedirectToAction(nameof(Printers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating printer");
+            ModelState.AddModelError("", "An error occurred while updating the printer. Please try again.");
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(model);
+        }
+    }
+
+    // POST: Assets/DeletePrinter/5
+    [Authorize(Roles = "Admin,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePrinter(int id)
+    {
+        try
+        {
+            var printer = await _context.Printers
+                .Include(p => p.NetworkDetails)
+                .Include(p => p.AssetState)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (printer == null)
+            {
+                return NotFound();
+            }
+
+            // Delete related data
+            if (printer.NetworkDetails != null)
+            {
+                _context.NetworkDetails.Remove(printer.NetworkDetails);
+            }
+
+            if (printer.AssetState != null)
+            {
+                _context.AssetStates.Remove(printer.AssetState);
+            }
+
+            _context.Printers.Remove(printer);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Printer deleted successfully!";
+            return RedirectToAction(nameof(Printers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting printer");
+            TempData["Toast"] = "حدث خطأ في حذف الطابعة";
+            return RedirectToAction(nameof(Printers));
+        }
     }
 
     // #endregion

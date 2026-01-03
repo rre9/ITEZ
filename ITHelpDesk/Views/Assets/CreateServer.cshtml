@@ -98,14 +98,9 @@
                                         <div class="select-with-add">
                                             <select asp-for="ProductId" class="form-select" required>
                                                 <option value="">-- Select Product --</option>
-                                                @if (ViewBag.Products != null)
+                                                @foreach (var product in (ViewBag.Products as List<ITHelpDesk.Models.Assets.Product>) ?? new List<ITHelpDesk.Models.Assets.Product>())
                                                 {
-                                                    @foreach (var product in ViewBag.Products as
-                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
-                                                    {
-                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer
-                                                        </option>
-                                                    }
+                                                    <option value="@product.Id">@product.ProductName - @product.Manufacturer</option>
                                                 }
                                             </select>
                                             <button type="button" class="btn btn-add" data-bs-toggle="modal"
@@ -136,13 +131,9 @@
                                         <div class="select-with-add">
                                             <select asp-for="VendorId" class="form-select">
                                                 <option value="">-- Select Vendor --</option>
-                                                @if (ViewBag.Vendors != null)
+                                                @foreach (var vendor in (ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>) ?? new List<ITHelpDesk.Models.Assets.Vendor>())
                                                 {
-                                                    @foreach (var vendor in ViewBag.Vendors as
-                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
-                                                    {
-                                                        <option value="@vendor.Id">@vendor.VendorName</option>
-                                                    }
+                                                    <option value="@vendor.Id">@vendor.VendorName</option>
                                                 }
                                             </select>
                                             <button type="button" class="btn btn-add" data-bs-toggle="modal"

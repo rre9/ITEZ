@@ -1,0 +1,495 @@
+@model ITHelpDesk.ViewModels.Assets.PrinterCreateEditViewModel
+@{
+    ViewData["Title"] = "Add New Printer";
+}
+
+<style>
+    .select-with-add {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .select-with-add .form-select {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        padding-right: 2.5rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+    }
+
+    .select-with-add .btn-add {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        padding: 0.5rem 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #495057;
+        transition: all 0.2s ease;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .select-with-add .btn-add:hover {
+        background: #0066cc;
+        border-color: #0066cc;
+        color: white;
+    }
+
+    .select-with-add .btn-add::before {
+        content: '+';
+        font-size: 1.3rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        <i class="fa-solid fa-plus me-2"></i>Add New Printer
+                    </h2>
+                </div>
+                <div class="col-auto">
+                    <a asp-action="Printers" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left me-1"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-action="CreatePrinter" method="post" class="needs-validation" novalidate>
+                                @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-12">
+                                <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ProductId" class="form-label">Product <span
+                                        class="text-danger">*</span></label>
+                                <div class="select-with-add">
+                                    <select asp-for="ProductId" class="form-select" required>
+                                        <option value="">-- Select Product --</option>
+                                        @if (ViewBag.Products != null)
+                                        {
+                                            @foreach (var product in ViewBag.Products as
+                                                                                    List<ITHelpDesk.Models.Assets.Product>)
+                                            {
+                                                <option value="@product.Id">@product.ProductName - @product.Manufacturer
+                                                </option>
+                                            }
+                                        }
+                                    </select>
+                                    <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                        data-bs-target="#addProductModal" title="Add New Product"></button>
+                                </div>
+                                <span asp-validation-for="ProductId" class="text-danger"></span>
+                            </div>
+
+                                    <!-- Asset Details -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Asset Details</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="SerialNumber" class="form-label">Serial Number</label>
+                                        <input asp-for="SerialNumber" class="form-control" />
+                                        <span asp-validation-for="SerialNumber" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AssetTag" class="form-label">Asset Tag</label>
+                                        <input asp-for="AssetTag" class="form-control" />
+                                        <span asp-validation-for="AssetTag" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="VendorId" class="form-label">Vendor</label>
+                                        <div class="select-with-add">
+                                            <select asp-for="VendorId" class="form-select">
+                                                <option value="">-- Select Vendor --</option>
+                                                @if (ViewBag.Vendors != null)
+                                                {
+                                                    @foreach (var vendor in ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>)
+                                                    {
+                                                        <option value="@vendor.Id">@vendor.VendorName</option>
+                                                    }
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addVendorModal" title="Add New Vendor"></button>
+                                        </div>
+                                        <span asp-validation-for="VendorId" class="text-danger"></span>
+                                    </div>                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="PurchaseCost" class="form-label">Purchase Cost</label>
+                                        <input asp-for="PurchaseCost" class="form-control" type="number" step="0.01" />
+                                        <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+                                        <input asp-for="ExpiryDate" class="form-control" type="date" />
+                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Location" class="form-label">Location</label>
+                                        <input asp-for="Location" class="form-control" />
+                                        <span asp-validation-for="Location" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
+                                        <input asp-for="AcquisitionDate" class="form-control" type="date" />
+                                        <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date</label>
+                                        <input asp-for="WarrantyExpiryDate" class="form-control" type="date" />
+                                        <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- Asset State -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AssetStatus" class="form-label">Asset Status</label>
+                                        <select asp-for="AssetStatus" class="form-select">
+                                            <option value="1">In Store</option>
+                                            <option value="2">In Use</option>
+                                            <option value="3">In Repair</option>
+                                            <option value="4">Expired</option>
+                                            <option value="5">Disposed</option>
+                                        </select>
+                                        <span asp-validation-for="AssetStatus" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AssociatedTo" class="form-label">Associated To</label>
+                                        <input asp-for="AssociatedTo" class="form-control" />
+                                        <span asp-validation-for="AssociatedTo" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Site" class="form-label">Site</label>
+                                        <input asp-for="Site" class="form-control" />
+                                        <span asp-validation-for="Site" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="StateComments" class="form-label">State Comments</label>
+                                        <textarea asp-for="StateComments" class="form-control" rows="2"></textarea>
+                                        <span asp-validation-for="StateComments" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="UserId" class="form-label">User ID</label>
+                                        <input asp-for="UserId" class="form-control" />
+                                        <span asp-validation-for="UserId" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Department" class="form-label">Department</label>
+                                        <input asp-for="Department" class="form-control" />
+                                        <span asp-validation-for="Department" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- Network Details -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="IPAddress" class="form-label">IP Address</label>
+                                        <input asp-for="IPAddress" class="form-control" />
+                                        <span asp-validation-for="IPAddress" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MACAddress" class="form-label">MAC Address</label>
+                                        <input asp-for="MACAddress" class="form-control" />
+                                        <span asp-validation-for="MACAddress" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="NIC" class="form-label">NIC</label>
+                                        <input asp-for="NIC" class="form-control" />
+                                        <span asp-validation-for="NIC" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Network" class="form-label">Network</label>
+                                        <input asp-for="Network" class="form-control" />
+                                        <span asp-validation-for="Network" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DefaultGateway" class="form-label">Default Gateway</label>
+                                        <input asp-for="DefaultGateway" class="form-control" />
+                                        <span asp-validation-for="DefaultGateway" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DHCPEnabled" class="form-label">DHCP Enabled</label>
+                                        <select asp-for="DHCPEnabled" class="form-select">
+                                            <option value="">-- Select --</option>
+                                            <option value="true">True</option>
+                                            <option value="false">False</option>
+                                        </select>
+                                        <span asp-validation-for="DHCPEnabled" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DHCPServer" class="form-label">DHCP Server</label>
+                                        <input asp-for="DHCPServer" class="form-control" />
+                                        <span asp-validation-for="DHCPServer" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DNSHostname" class="form-label">DNS Hostname</label>
+                                        <input asp-for="DNSHostname" class="form-control" />
+                                        <span asp-validation-for="DNSHostname" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Buttons -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a asp-action="Printers" class="btn btn-secondary">
+                                                <i class="fa-solid fa-times me-1"></i>Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fa-solid fa-save me-1"></i>Create Printer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <input type="hidden" name="ProductType" value="Printer" />
+                    <div class="mb-3">
+                        <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                        <input type="text" name="ProductName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Manufacturer</label>
+                        <input type="text" name="Manufacturer" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Part No.</label>
+                        <input type="text" name="PartNo" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cost</label>
+                        <input type="number" name="Cost" class="form-control" step="0.01" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="Description" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Vendor Modal -->
+<div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVendorModalLabel">Add New Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addVendorForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Vendor Name <span class="text-danger">*</span></label>
+                            <input type="text" name="VendorName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Currency</label>
+                            <input type="text" name="Currency" class="form-control" value="SR" readonly />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Door Number</label>
+                            <input type="text" name="DoorNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Landmark</label>
+                            <input type="text" name="Landmark" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ZIP/Postal Code</label>
+                            <input type="text" name="PostalCode" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Country</label>
+                            <input type="text" name="Country" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fax</label>
+                            <input type="text" name="Fax" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="FirstName" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Street</label>
+                            <input type="text" name="Street" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">City</label>
+                            <input type="text" name="City" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">State/Province</label>
+                            <input type="text" name="StateProvince" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone No.</label>
+                            <input type="text" name="PhoneNo" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="Email" class="form-control" />
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="Description" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveVendor()">Save Vendor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        async function saveProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/Assets/AddProduct', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    const select = document.querySelector('select[name="ProductId"]');
+                    const option = new Option(result.productName + ' - ' + result.manufacturer, result.id, true, true);
+                    select.add(option);
+
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    form.reset();
+                    alert('Product added successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding the product.');
+            }
+        }
+
+        async function saveVendor() {
+            const form = document.getElementById('addVendorForm');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/Assets/AddVendor', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    const select = document.querySelector('select[name="VendorId"]');
+                    const option = new Option(result.vendorName, result.id, true, true);
+                    select.add(option);
+
+                    bootstrap.Modal.getInstance(document.getElementById('addVendorModal')).hide();
+                    form.reset();
+                    alert('Vendor added successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding the vendor.');
+            }
+        }
+    </script>
+}

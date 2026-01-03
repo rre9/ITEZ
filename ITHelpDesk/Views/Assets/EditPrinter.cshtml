@@ -1,6 +1,6 @@
-@model ITHelpDesk.Models.Assets.MobileDevice
+@model ITHelpDesk.Models.Assets.Printer
 @{
-    ViewData["Title"] = "Edit Mobile Device";
+    ViewData["Title"] = "Edit Printer";
 }
 
 <style>
@@ -59,11 +59,11 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <i class="fa-solid fa-edit me-2"></i>Edit Mobile Device
+                        <i class="fa-solid fa-edit me-2"></i>Edit Printer
                     </h2>
                 </div>
                 <div class="col-auto">
-                    <a asp-action="Mobiles" class="btn btn-secondary">
+                    <a asp-action="Printers" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left me-1"></i>
                         Back
                     </a>
@@ -78,17 +78,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <form asp-action="EditMobile" method="post">
+                            <form asp-action="EditPrinter" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" asp-for="Id" />
                                 <input type="hidden" name="AssetStateId" value="@Model.AssetStateId" />
                                 <input type="hidden" name="AssetState.Id" value="@Model.AssetState?.Id" />
-                                <input type="hidden" name="MobileDetailsId" value="@Model.MobileDetailsId" />
-                                <input type="hidden" name="MobileDetails.Id" value="@Model.MobileDetails?.Id" />
-                                <input type="hidden" name="OperatingSystemInfoId"
-                                    value="@Model.OperatingSystemInfoId" />
-                                <input type="hidden" name="OperatingSystemInfo.Id"
-                                    value="@Model.OperatingSystemInfo?.Id" />
                                 <input type="hidden" name="NetworkDetailsId" value="@Model.NetworkDetailsId" />
                                 <input type="hidden" name="NetworkDetails.Id" value="@Model.NetworkDetails?.Id" />
 
@@ -111,14 +105,9 @@
                                         <div class="select-with-add">
                                             <select asp-for="ProductId" class="form-select" required>
                                                 <option value="">-- Select Product --</option>
-                                                @if (ViewBag.Products != null)
+                                                @foreach (var product in (ViewBag.Products as List<ITHelpDesk.Models.Assets.Product>) ?? new List<ITHelpDesk.Models.Assets.Product>())
                                                 {
-                                                    @foreach (var product in ViewBag.Products as
-                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
-                                                    {
-                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer
-                                                        </option>
-                                                    }
+                                                    <option value="@product.Id">@product.ProductName - @product.Manufacturer</option>
                                                 }
                                             </select>
                                             <button type="button" class="btn btn-add" data-bs-toggle="modal"
@@ -191,83 +180,7 @@
                                         <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
                                     </div>
 
-                                    <!-- Mobile Details -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Mobile Device Information</h6>
-                                    </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">IMEI</label>
-                                        <input type="text" name="MobileDetails.IMEI" value="@Model.MobileDetails?.IMEI"
-                                            class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Model</label>
-                                        <input type="text" name="MobileDetails.Model"
-                                            value="@Model.MobileDetails?.Model" class="form-control"
-                                            style="border: 3px solid #0066cc !important; background-color: #e8f4ff !important; box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25) !important;" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Model Number</label>
-                                        <input type="text" name="MobileDetails.ModelNo"
-                                            value="@Model.MobileDetails?.ModelNo" class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Total Capacity (GB)</label>
-                                        <input type="number" name="MobileDetails.TotalCapacityGB"
-                                            value="@Model.MobileDetails?.TotalCapacityGB" class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Available Capacity (GB)</label>
-                                        <input type="number" name="MobileDetails.AvailableCapacityGB"
-                                            value="@Model.MobileDetails?.AvailableCapacityGB" class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Modem Firmware Version</label>
-                                        <input type="text" name="MobileDetails.ModemFirmwareVersion"
-                                            value="@Model.MobileDetails?.ModemFirmwareVersion" class="form-control" />
-                                    </div>
-
-                                    <!-- Operating System Info -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Operating System Info</h6>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">OS Name</label>
-                                        <input type="text" name="OperatingSystemInfo.Name"
-                                            value="@Model.OperatingSystemInfo?.Name" class="form-control"
-                                            placeholder="e.g., iOS, Android" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">OS Version</label>
-                                        <input type="text" name="OperatingSystemInfo.Version"
-                                            value="@Model.OperatingSystemInfo?.Version" class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Build Number</label>
-                                        <input type="text" name="OperatingSystemInfo.BuildNumber"
-                                            value="@Model.OperatingSystemInfo?.BuildNumber" class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Service Pack</label>
-                                        <input type="text" name="OperatingSystemInfo.ServicePack"
-                                            value="@Model.OperatingSystemInfo?.ServicePack" class="form-control" />
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">Product ID</label>
-                                        <input type="text" name="OperatingSystemInfo.ProductId"
-                                            value="@Model.OperatingSystemInfo?.ProductId" class="form-control" />
-                                    </div>
 
                                     <!-- Asset State -->
                                     <div class="col-md-12 mt-3">
@@ -278,21 +191,11 @@
                                         <label class="form-label">Asset Status</label>
                                         <select name="AssetState.Status" class="form-select">
                                             <option value="">Select Status...</option>
-                                            <option value="1"
-                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">
-                                                In Use</option>
-                                            <option value="2"
-                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">
-                                                In Store</option>
-                                            <option value="3"
-                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">
-                                                In Repair</option>
-                                            <option value="4"
-                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">
-                                                Expired</option>
-                                            <option value="5"
-                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">
-                                                Disposed</option>
+                                            <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">In Store</option>
+                                            <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">In Use</option>
+                                            <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">In Repair</option>
+                                            <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">Expired</option>
+                                            <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">Disposed</option>
                                         </select>
                                     </div>
 
@@ -389,11 +292,11 @@
                                 <div class="row mt-4">
                                     <div class="col-12">
                                         <div class="d-flex justify-content-end gap-2">
-                                            <a asp-action="Mobiles" class="btn btn-secondary">
+                                            <a asp-action="Printers" class="btn btn-secondary">
                                                 <i class="fa-solid fa-times me-1"></i>Cancel
                                             </a>
                                             <button type="submit" class="btn btn-primary">
-                                                <i class="fa-solid fa-save me-1"></i>Update Mobile Device
+                                                <i class="fa-solid fa-save me-1"></i>Update Printer
                                             </button>
                                         </div>
                                     </div>
