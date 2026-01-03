@@ -40,11 +40,11 @@ public class AssetsController : Controller
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Computers
-            var computersTotal = await _context.Computers.CountAsync();
-            var computersInUse = await _context.Computers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
-            var computersInStore = await _context.Computers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
-            var computersInRepair = await _context.Computers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var computersOthers = await _context.Computers.CountAsync(a => a.AssetState != null && 
+            var computersTotal = await _context.Workstations.CountAsync();
+            var computersInUse = await _context.Workstations.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
+            var computersInStore = await _context.Workstations.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
+            var computersInRepair = await _context.Workstations.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
+            var computersOthers = await _context.Workstations.CountAsync(a => a.AssetState != null && 
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Servers
@@ -318,7 +318,7 @@ public class AssetsController : Controller
             _context.AccessPoints.Add(accessPoint);
             await _context.SaveChangesAsync();
 
-            TempData["Toast"] = $"✅ Access Point '{accessPoint.Name}' created successfully";
+            TempData["SuccessMessage"] = "Access Point created successfully!";
             return RedirectToAction(nameof(AccessPoints));
         }
         catch (Exception ex)
@@ -422,7 +422,7 @@ public class AssetsController : Controller
 
             await _context.SaveChangesAsync();
 
-            TempData["Toast"] = $"✅ Access Point '{model.Name}' updated successfully";
+            TempData["SuccessMessage"] = "Access Point updated successfully!";
             return RedirectToAction(nameof(AccessPoints));
         }
         catch (Exception ex)
@@ -453,13 +453,11 @@ public class AssetsController : Controller
             _context.AccessPoints.Remove(accessPoint);
             await _context.SaveChangesAsync();
 
-            TempData["Toast"] = $"✅ تم حذف نقطة الوصول بنجاح";
             return RedirectToAction(nameof(AccessPoints));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting access point");
-            TempData["Toast"] = "❌ حدث خطأ في حذف البيانات";
             return RedirectToAction(nameof(AccessPoints));
         }
     }
@@ -595,6 +593,567 @@ public class AssetsController : Controller
             return StatusCode(500, new { success = false, message = $"خطأ: {ex.Message}" });
         }
     }
+
+    #region Computers
+
+    // GET: Assets/Computers
+    public async Task<IActionResult> Computers()
+    {
+        var computers = await _context.Workstations
+            .Include(c => c.Product)
+            .Include(c => c.Vendor)
+            .Include(c => c.AssetState)
+            .Include(c => c.NetworkDetails)
+            .Include(c => c.ComputerInfo)
+            .Include(c => c.OperatingSystemInfo)
+            .Include(c => c.MemoryDetails)
+            .Include(c => c.Processor)
+            .Include(c => c.HardDisk)
+            .Include(c => c.Keyboard)
+            .Include(c => c.Mouse)
+            .Include(c => c.Monitor)
+            .ToListAsync();
+
+        return View(computers);
+    }
+
+    // GET: Assets/CreateComputer
+    public async Task<IActionResult> CreateComputer()
+    {
+        ViewBag.Products = await _context.Products.ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+        return View();
+    }
+
+    // POST: Assets/CreateComputer
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateComputer(ComputerCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(model);
+        }
+
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Create Computer Info
+            ComputerInfo? computerInfo = null;
+            if (!string.IsNullOrEmpty(model.ServiceTag) || !string.IsNullOrEmpty(model.ComputerManufacturer))
+            {
+                computerInfo = new ComputerInfo
+                {
+                    ServiceTag = model.ServiceTag,
+                    Manufacturer = model.ComputerManufacturer,
+                    BiosDate = model.BiosDate,
+                    Domain = model.Domain,
+                    SMBiosVersion = model.SMBiosVersion,
+                    BiosVersion = model.BiosVersion,
+                    BiosManufacturer = model.BiosManufacturer,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ComputerInfos.Add(computerInfo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Operating System Info
+            OperatingSystemInfo? osInfo = null;
+            if (!string.IsNullOrEmpty(model.OSName))
+            {
+                osInfo = new OperatingSystemInfo
+                {
+                    Name = model.OSName,
+                    Version = model.OSVersion,
+                    BuildNumber = model.BuildNumber,
+                    ServicePack = model.ServicePack,
+                    ProductId = model.OSProductId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.OperatingSystemInfos.Add(osInfo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Memory Details
+            MemoryDetails? memoryDetails = null;
+            if (model.RAM.HasValue || model.VirtualMemory.HasValue)
+            {
+                memoryDetails = new MemoryDetails
+                {
+                    RAM = model.RAM,
+                    VirtualMemory = model.VirtualMemory,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.MemoryDetails.Add(memoryDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Processor
+            Processor? processor = null;
+            if (!string.IsNullOrEmpty(model.ProcessorInfo))
+            {
+                processor = new Processor
+                {
+                    ProcessorInfo = model.ProcessorInfo,
+                    Manufacturer = model.ProcessorManufacturer,
+                    ClockSpeedMHz = model.ClockSpeedMHz,
+                    NumberOfCores = model.NumberOfCores,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Processors.Add(processor);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Hard Disk
+            HardDisk? hardDisk = null;
+            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            {
+                hardDisk = new HardDisk
+                {
+                    Model = model.HardDiskModel,
+                    SerialNumber = model.HardDiskSerialNumber,
+                    Manufacturer = model.HardDiskManufacturer,
+                    CapacityGB = model.CapacityGB,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.HardDisks.Add(hardDisk);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Keyboard
+            Keyboard? keyboard = null;
+            if (!string.IsNullOrEmpty(model.KeyboardType))
+            {
+                keyboard = new Keyboard
+                {
+                    KeyboardType = model.KeyboardType,
+                    Manufacturer = model.KeyboardManufacturer,
+                    SerialNumber = model.KeyboardSerialNumber,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Keyboards.Add(keyboard);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Mouse
+            Mouse? mouse = null;
+            if (!string.IsNullOrEmpty(model.MouseType))
+            {
+                mouse = new Mouse
+                {
+                    MouseType = model.MouseType,
+                    SerialNumber = model.MouseSerialNumber,
+                    MouseButtons = model.MouseButtons,
+                    Manufacturer = model.MouseManufacturer,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Mice.Add(mouse);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Monitor
+            ITHelpDesk.Models.Assets.Monitor? monitor = null;
+            if (!string.IsNullOrEmpty(model.MonitorType))
+            {
+                monitor = new ITHelpDesk.Models.Assets.Monitor
+                {
+                    MonitorType = model.MonitorType,
+                    SerialNumber = model.MonitorSerialNumber,
+                    Manufacturer = model.MonitorManufacturer,
+                    MaxResolution = model.MaxResolution,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Monitors.Add(monitor);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Asset State
+            var assetState = new AssetState
+            {
+                Status = (AssetStatusEnum)model.AssetStatus,
+                AssociatedTo = model.AssociatedTo,
+                Site = model.Site,
+                StateComments = model.StateComments,
+                UserId = model.UserId,
+                Department = model.Department,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.AssetStates.Add(assetState);
+            await _context.SaveChangesAsync();
+
+            // Create Network Details
+            NetworkDetails? networkDetails = null;
+            if (!string.IsNullOrEmpty(model.IPAddress) || !string.IsNullOrEmpty(model.MACAddress))
+            {
+                networkDetails = new NetworkDetails
+                {
+                    IPAddress = model.IPAddress,
+                    MACAddress = model.MACAddress,
+                    NIC = model.NIC,
+                    Network = model.Network,
+                    DefaultGateway = model.DefaultGateway,
+                    DHCPEnabled = model.DHCPEnabled,
+                    DHCPServer = model.DHCPServer,
+                    DNSHostname = model.DNSHostname,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.NetworkDetails.Add(networkDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Workstation (Computer)
+            var computer = new Workstation
+            {
+                Name = model.Name,
+                ProductId = model.ProductId,
+                SerialNumber = model.SerialNumber,
+                AssetTag = model.AssetTag,
+                VendorId = model.VendorId,
+                PurchaseCost = model.PurchaseCost,
+                ExpiryDate = model.ExpiryDate,
+                Location = model.Location,
+                AcquisitionDate = model.AcquisitionDate,
+                WarrantyExpiryDate = model.WarrantyExpiryDate,
+                AssetStateId = assetState.Id,
+                NetworkDetailsId = networkDetails?.Id,
+                ComputerInfoId = computerInfo?.Id,
+                OperatingSystemInfoId = osInfo?.Id,
+                MemoryDetailsId = memoryDetails?.Id,
+                ProcessorId = processor?.Id,
+                HardDiskId = hardDisk?.Id,
+                KeyboardId = keyboard?.Id,
+                MouseId = mouse?.Id,
+                MonitorId = monitor?.Id,
+                CreatedAt = DateTime.UtcNow,
+                CreatedById = user?.Id
+            };
+
+            _context.Workstations.Add(computer);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Computer created successfully!";
+            return RedirectToAction(nameof(Computers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating computer");
+            ModelState.AddModelError("", "An error occurred while creating the computer. Please try again.");
+            
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            
+            return View(model);
+        }
+    }
+
+    // GET: Assets/EditComputer/5
+    public async Task<IActionResult> EditComputer(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var computer = await _context.Workstations
+            .Include(c => c.Product)
+            .Include(c => c.Vendor)
+            .Include(c => c.AssetState)
+            .Include(c => c.NetworkDetails)
+            .Include(c => c.ComputerInfo)
+            .Include(c => c.OperatingSystemInfo)
+            .Include(c => c.MemoryDetails)
+            .Include(c => c.Processor)
+            .Include(c => c.HardDisk)
+            .Include(c => c.Keyboard)
+            .Include(c => c.Mouse)
+            .Include(c => c.Monitor)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (computer == null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.Products = await _context.Products.ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+        return View(computer);
+    }
+
+    // POST: Assets/EditComputer/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditComputer(int id, Workstation model)
+    {
+        if (id != model.Id)
+        {
+            return NotFound();
+        }
+
+        ModelState.Remove("Product");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("AssetState");
+        ModelState.Remove("NetworkDetails");
+        ModelState.Remove("ComputerInfo");
+        ModelState.Remove("OperatingSystemInfo");
+        ModelState.Remove("MemoryDetails");
+        ModelState.Remove("Processor");
+        ModelState.Remove("HardDisk");
+        ModelState.Remove("Keyboard");
+        ModelState.Remove("Mouse");
+        ModelState.Remove("Monitor");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(model);
+        }
+
+        try
+        {
+            var existingComputer = await _context.Workstations
+                .Include(c => c.NetworkDetails)
+                .Include(c => c.ComputerInfo)
+                .Include(c => c.OperatingSystemInfo)
+                .Include(c => c.MemoryDetails)
+                .Include(c => c.Processor)
+                .Include(c => c.HardDisk)
+                .Include(c => c.Keyboard)
+                .Include(c => c.Mouse)
+                .Include(c => c.Monitor)
+                .Include(c => c.AssetState)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (existingComputer == null)
+            {
+                return NotFound();
+            }
+
+            // Update basic asset properties
+            existingComputer.Name = model.Name;
+            existingComputer.ProductId = model.ProductId;
+            existingComputer.SerialNumber = model.SerialNumber;
+            existingComputer.AssetTag = model.AssetTag;
+            existingComputer.VendorId = model.VendorId;
+            existingComputer.PurchaseCost = model.PurchaseCost;
+            existingComputer.ExpiryDate = model.ExpiryDate;
+            existingComputer.Location = model.Location;
+            existingComputer.AcquisitionDate = model.AcquisitionDate;
+            existingComputer.WarrantyExpiryDate = model.WarrantyExpiryDate;
+            existingComputer.UpdatedAt = DateTime.UtcNow;
+
+            // Update Computer Info
+            if (existingComputer.ComputerInfo != null)
+            {
+                existingComputer.ComputerInfo.ServiceTag = Request.Form["ComputerInfo.ServiceTag"];
+                existingComputer.ComputerInfo.Manufacturer = Request.Form["ComputerInfo.Manufacturer"];
+                existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"]) 
+                    ? DateTime.Parse(Request.Form["ComputerInfo.BiosDate"]!) : null;
+                existingComputer.ComputerInfo.Domain = Request.Form["ComputerInfo.Domain"];
+                existingComputer.ComputerInfo.SMBiosVersion = Request.Form["ComputerInfo.SMBiosVersion"];
+                existingComputer.ComputerInfo.BiosVersion = Request.Form["ComputerInfo.BiosVersion"];
+                existingComputer.ComputerInfo.BiosManufacturer = Request.Form["ComputerInfo.BiosManufacturer"];
+                existingComputer.ComputerInfo.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update OS Info
+            if (existingComputer.OperatingSystemInfo != null)
+            {
+                existingComputer.OperatingSystemInfo.Name = Request.Form["OperatingSystemInfo.Name"];
+                existingComputer.OperatingSystemInfo.Version = Request.Form["OperatingSystemInfo.Version"];
+                existingComputer.OperatingSystemInfo.BuildNumber = Request.Form["OperatingSystemInfo.BuildNumber"];
+                existingComputer.OperatingSystemInfo.ServicePack = Request.Form["OperatingSystemInfo.ServicePack"];
+                existingComputer.OperatingSystemInfo.ProductId = Request.Form["OperatingSystemInfo.ProductId"];
+                existingComputer.OperatingSystemInfo.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Memory Details
+            if (existingComputer.MemoryDetails != null)
+            {
+                existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"]) 
+                    ? int.Parse(Request.Form["MemoryDetails.RAM"]!) : null;
+                existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"]) 
+                    ? int.Parse(Request.Form["MemoryDetails.VirtualMemory"]!) : null;
+                existingComputer.MemoryDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Processor
+            if (existingComputer.Processor != null)
+            {
+                existingComputer.Processor.ProcessorInfo = Request.Form["Processor.ProcessorInfo"];
+                existingComputer.Processor.Manufacturer = Request.Form["Processor.Manufacturer"];
+                existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"]) 
+                    ? int.Parse(Request.Form["Processor.ClockSpeedMHz"]!) : null;
+                existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"]) 
+                    ? int.Parse(Request.Form["Processor.NumberOfCores"]!) : null;
+                existingComputer.Processor.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Hard Disk
+            if (existingComputer.HardDisk != null)
+            {
+                existingComputer.HardDisk.Model = Request.Form["HardDisk.Model"];
+                existingComputer.HardDisk.SerialNumber = Request.Form["HardDisk.SerialNumber"];
+                existingComputer.HardDisk.Manufacturer = Request.Form["HardDisk.Manufacturer"];
+                existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"]) 
+                    ? int.Parse(Request.Form["HardDisk.CapacityGB"]!) : null;
+                existingComputer.HardDisk.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Keyboard
+            if (existingComputer.Keyboard != null)
+            {
+                existingComputer.Keyboard.KeyboardType = Request.Form["Keyboard.KeyboardType"];
+                existingComputer.Keyboard.Manufacturer = Request.Form["Keyboard.Manufacturer"];
+                existingComputer.Keyboard.SerialNumber = Request.Form["Keyboard.SerialNumber"];
+                existingComputer.Keyboard.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Mouse
+            if (existingComputer.Mouse != null)
+            {
+                existingComputer.Mouse.MouseType = Request.Form["Mouse.MouseType"];
+                existingComputer.Mouse.SerialNumber = Request.Form["Mouse.SerialNumber"];
+                existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"]) 
+                    ? int.Parse(Request.Form["Mouse.MouseButtons"]!) : null;
+                existingComputer.Mouse.Manufacturer = Request.Form["Mouse.Manufacturer"];
+                existingComputer.Mouse.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Monitor
+            if (existingComputer.Monitor != null)
+            {
+                existingComputer.Monitor.MonitorType = Request.Form["Monitor.MonitorType"];
+                existingComputer.Monitor.SerialNumber = Request.Form["Monitor.SerialNumber"];
+                existingComputer.Monitor.Manufacturer = Request.Form["Monitor.Manufacturer"];
+                existingComputer.Monitor.MaxResolution = Request.Form["Monitor.MaxResolution"];
+                existingComputer.Monitor.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Asset State
+            if (existingComputer.AssetState != null)
+            {
+                existingComputer.AssetState.Status = (AssetStatusEnum)int.Parse(Request.Form["AssetState.Status"]!);
+                existingComputer.AssetState.AssociatedTo = Request.Form["AssetState.AssociatedTo"];
+                existingComputer.AssetState.Site = Request.Form["AssetState.Site"];
+                existingComputer.AssetState.StateComments = Request.Form["AssetState.StateComments"];
+                existingComputer.AssetState.UserId = Request.Form["AssetState.UserId"];
+                existingComputer.AssetState.Department = Request.Form["AssetState.Department"];
+                existingComputer.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
+
+            // Update Network Details
+            if (existingComputer.NetworkDetails != null)
+            {
+                existingComputer.NetworkDetails.IPAddress = Request.Form["NetworkDetails.IPAddress"];
+                existingComputer.NetworkDetails.MACAddress = Request.Form["NetworkDetails.MACAddress"];
+                existingComputer.NetworkDetails.NIC = Request.Form["NetworkDetails.NIC"];
+                existingComputer.NetworkDetails.Network = Request.Form["NetworkDetails.Network"];
+                existingComputer.NetworkDetails.DefaultGateway = Request.Form["NetworkDetails.DefaultGateway"];
+                existingComputer.NetworkDetails.DHCPEnabled = Request.Form["NetworkDetails.DHCPEnabled"] == "true";
+                existingComputer.NetworkDetails.DHCPServer = Request.Form["NetworkDetails.DHCPServer"];
+                existingComputer.NetworkDetails.DNSHostname = Request.Form["NetworkDetails.DNSHostname"];
+                existingComputer.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Computer updated successfully!";
+            return RedirectToAction(nameof(Computers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating computer");
+            ModelState.AddModelError("", "An error occurred while updating the computer. Please try again.");
+            
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            
+            return View(model);
+        }
+    }
+
+    // POST: Assets/DeleteComputer/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteComputer(int id)
+    {
+        try
+        {
+            var computer = await _context.Workstations
+                .Include(c => c.NetworkDetails)
+                .Include(c => c.ComputerInfo)
+                .Include(c => c.OperatingSystemInfo)
+                .Include(c => c.MemoryDetails)
+                .Include(c => c.Processor)
+                .Include(c => c.HardDisk)
+                .Include(c => c.Keyboard)
+                .Include(c => c.Mouse)
+                .Include(c => c.Monitor)
+                .Include(c => c.AssetState)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (computer == null)
+            {
+                return NotFound();
+            }
+
+            // Delete related records
+            if (computer.NetworkDetails != null)
+                _context.NetworkDetails.Remove(computer.NetworkDetails);
+            
+            if (computer.ComputerInfo != null)
+                _context.ComputerInfos.Remove(computer.ComputerInfo);
+            
+            if (computer.OperatingSystemInfo != null)
+                _context.OperatingSystemInfos.Remove(computer.OperatingSystemInfo);
+            
+            if (computer.MemoryDetails != null)
+                _context.MemoryDetails.Remove(computer.MemoryDetails);
+            
+            if (computer.Processor != null)
+                _context.Processors.Remove(computer.Processor);
+            
+            if (computer.HardDisk != null)
+                _context.HardDisks.Remove(computer.HardDisk);
+            
+            if (computer.Keyboard != null)
+                _context.Keyboards.Remove(computer.Keyboard);
+            
+            if (computer.Mouse != null)
+                _context.Mice.Remove(computer.Mouse);
+            
+            if (computer.Monitor != null)
+                _context.Monitors.Remove(computer.Monitor);
+            
+            if (computer.AssetState != null)
+                _context.AssetStates.Remove(computer.AssetState);
+
+            _context.Workstations.Remove(computer);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Computers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting computer");
+            TempData["ErrorMessage"] = "An error occurred while deleting the computer.";
+            return RedirectToAction(nameof(Computers));
+        }
+    }
+
+    #endregion
 
     // DTO class for Product creation
     public class ProductDto

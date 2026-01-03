@@ -1,0 +1,810 @@
+@model ITHelpDesk.Models.Assets.Workstation
+
+@{
+    ViewData["Title"] = "Edit Computer";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <h5>Edit Computer</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditComputer" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Basic Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="Name" class="form-label">Name</label>
+                                            <input asp-for="Name" class="form-control" />
+                                            <span asp-validation-for="Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="ProductId" class="form-label">Product</label>
+                                            <div class="select-with-add">
+                                                <select asp-for="ProductId" class="form-select">
+                                                    <option value="">Select Product</option>
+                                                    @foreach (var product in ViewBag.Products)
+                                                    {
+                                                        <option value="@product.Id">@product.ProductName</option>
+                                                    }
+                                                </select>
+                                                <button type="button" class="btn btn-sm btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#addProductModal"></button>
+                                            </div>
+                                            <span asp-validation-for="ProductId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asset Details Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Asset Details</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="SerialNumber" class="form-label">Serial Number</label>
+                                            <input asp-for="SerialNumber" class="form-control" />
+                                            <span asp-validation-for="SerialNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="AssetTag" class="form-label">Asset Tag</label>
+                                            <input asp-for="AssetTag" class="form-control" />
+                                            <span asp-validation-for="AssetTag" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="VendorId" class="form-label">Vendor</label>
+                                            <div class="select-with-add">
+                                                <select asp-for="VendorId" class="form-select">
+                                                    <option value="">Select Vendor</option>
+                                                    @foreach (var vendor in ViewBag.Vendors)
+                                                    {
+                                                        <option value="@vendor.Id">@vendor.VendorName</option>
+                                                    }
+                                                </select>
+                                                <button type="button" class="btn btn-sm btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#addVendorModal"></button>
+                                            </div>
+                                            <span asp-validation-for="VendorId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PurchaseCost" class="form-label">Purchase Cost</label>
+                                            <input asp-for="PurchaseCost" class="form-control" type="number" step="0.01" />
+                                            <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
+                                            <input asp-for="AcquisitionDate" class="form-control" type="date" />
+                                            <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date</label>
+                                            <input asp-for="WarrantyExpiryDate" class="form-control" type="date" />
+                                            <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+                                            <input asp-for="ExpiryDate" class="form-control" type="date" />
+                                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="Location" class="form-label">Location</label>
+                                            <input asp-for="Location" class="form-control" />
+                                            <span asp-validation-for="Location" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Computer Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Computer Information</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_ServiceTag" class="form-label">Service Tag</label>
+                                            <input name="ComputerInfo.ServiceTag" value="@Model.ComputerInfo?.ServiceTag" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_Manufacturer" class="form-label">Manufacturer</label>
+                                            <input name="ComputerInfo.Manufacturer" value="@Model.ComputerInfo?.Manufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_BiosDate" class="form-label">BIOS Date</label>
+                                            <input name="ComputerInfo.BiosDate" value="@Model.ComputerInfo?.BiosDate?.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_Domain" class="form-label">Domain</label>
+                                            <input name="ComputerInfo.Domain" value="@Model.ComputerInfo?.Domain" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_SMBiosVersion" class="form-label">SMBios Version</label>
+                                            <input name="ComputerInfo.SMBiosVersion" value="@Model.ComputerInfo?.SMBiosVersion" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_BiosVersion" class="form-label">BIOS Version</label>
+                                            <input name="ComputerInfo.BiosVersion" value="@Model.ComputerInfo?.BiosVersion" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="ComputerInfo_BiosManufacturer" class="form-label">BIOS Manufacturer</label>
+                                            <input name="ComputerInfo.BiosManufacturer" value="@Model.ComputerInfo?.BiosManufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operating System Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Operating System Information</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="OperatingSystemInfo_Name" class="form-label">OS Name</label>
+                                            <input name="OperatingSystemInfo.Name" value="@Model.OperatingSystemInfo?.Name" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="OperatingSystemInfo_Version" class="form-label">Version</label>
+                                            <input name="OperatingSystemInfo.Version" value="@Model.OperatingSystemInfo?.Version" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="OperatingSystemInfo_BuildNumber" class="form-label">Build Number</label>
+                                            <input name="OperatingSystemInfo.BuildNumber" value="@Model.OperatingSystemInfo?.BuildNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="OperatingSystemInfo_ServicePack" class="form-label">Service Pack</label>
+                                            <input name="OperatingSystemInfo.ServicePack" value="@Model.OperatingSystemInfo?.ServicePack" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="OperatingSystemInfo_ProductId" class="form-label">Product ID</label>
+                                            <input name="OperatingSystemInfo.ProductId" value="@Model.OperatingSystemInfo?.ProductId" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Memory Details Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Memory Details</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="MemoryDetails_RAM" class="form-label">RAM (GB)</label>
+                                            <input name="MemoryDetails.RAM" value="@Model.MemoryDetails?.RAM" class="form-control" type="number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="MemoryDetails_VirtualMemory" class="form-label">Virtual Memory (GB)</label>
+                                            <input name="MemoryDetails.VirtualMemory" value="@Model.MemoryDetails?.VirtualMemory" class="form-control" type="number" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Processor Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Processor Information</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Processor_ProcessorInfo" class="form-label">Processor Info</label>
+                                            <input name="Processor.ProcessorInfo" value="@Model.Processor?.ProcessorInfo" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Processor_Manufacturer" class="form-label">Manufacturer</label>
+                                            <input name="Processor.Manufacturer" value="@Model.Processor?.Manufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Processor_ClockSpeedMHz" class="form-label">Clock Speed (MHz)</label>
+                                            <input name="Processor.ClockSpeedMHz" value="@Model.Processor?.ClockSpeedMHz" class="form-control" type="number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Processor_NumberOfCores" class="form-label">Number of Cores</label>
+                                            <input name="Processor.NumberOfCores" value="@Model.Processor?.NumberOfCores" class="form-control" type="number" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hard Disk Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Hard Disk</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="HardDisk_Model" class="form-label">Model</label>
+                                            <input name="HardDisk.Model" value="@Model.HardDisk?.Model" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="HardDisk_SerialNumber" class="form-label">Serial Number</label>
+                                            <input name="HardDisk.SerialNumber" value="@Model.HardDisk?.SerialNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="HardDisk_Manufacturer" class="form-label">Manufacturer</label>
+                                            <input name="HardDisk.Manufacturer" value="@Model.HardDisk?.Manufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="HardDisk_CapacityGB" class="form-label">Capacity (GB)</label>
+                                            <input name="HardDisk.CapacityGB" value="@Model.HardDisk?.CapacityGB" class="form-control" type="number" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Keyboard Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Keyboard</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Keyboard_KeyboardType" class="form-label">Keyboard Type</label>
+                                            <input name="Keyboard.KeyboardType" value="@Model.Keyboard?.KeyboardType" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Keyboard_Manufacturer" class="form-label">Manufacturer</label>
+                                            <input name="Keyboard.Manufacturer" value="@Model.Keyboard?.Manufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Keyboard_SerialNumber" class="form-label">Serial Number</label>
+                                            <input name="Keyboard.SerialNumber" value="@Model.Keyboard?.SerialNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mouse Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Mouse</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Mouse_MouseType" class="form-label">Mouse Type</label>
+                                            <input name="Mouse.MouseType" value="@Model.Mouse?.MouseType" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Mouse_SerialNumber" class="form-label">Serial Number</label>
+                                            <input name="Mouse.SerialNumber" value="@Model.Mouse?.SerialNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Mouse_MouseButtons" class="form-label">Mouse Buttons</label>
+                                            <input name="Mouse.MouseButtons" value="@Model.Mouse?.MouseButtons" class="form-control" type="number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Mouse_Manufacturer" class="form-label">Manufacturer</label>
+                                            <input name="Mouse.Manufacturer" value="@Model.Mouse?.Manufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Monitor Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Monitor</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Monitor_MonitorType" class="form-label">Monitor Type</label>
+                                            <input name="Monitor.MonitorType" value="@Model.Monitor?.MonitorType" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Monitor_SerialNumber" class="form-label">Serial Number</label>
+                                            <input name="Monitor.SerialNumber" value="@Model.Monitor?.SerialNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Monitor_Manufacturer" class="form-label">Manufacturer</label>
+                                            <input name="Monitor.Manufacturer" value="@Model.Monitor?.Manufacturer" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="Monitor_MaxResolution" class="form-label">Max Resolution</label>
+                                            <input name="Monitor.MaxResolution" value="@Model.Monitor?.MaxResolution" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asset State Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="AssetState_Status" class="form-label">Asset Status</label>
+                                            <select name="AssetState.Status" class="form-select">
+                                                <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">In Use</option>
+                                                <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">In Store</option>
+                                                <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">In Repair</option>
+                                                <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">Expired</option>
+                                                <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">Disposed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="AssetState_AssociatedTo" class="form-label">Associated To</label>
+                                            <input name="AssetState.AssociatedTo" value="@Model.AssetState?.AssociatedTo" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="AssetState_Site" class="form-label">Site</label>
+                                            <input name="AssetState.Site" value="@Model.AssetState?.Site" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="AssetState_StateComments" class="form-label">State Comments</label>
+                                            <input name="AssetState.StateComments" value="@Model.AssetState?.StateComments" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="AssetState_UserId" class="form-label">User ID</label>
+                                            <input name="AssetState.UserId" value="@Model.AssetState?.UserId" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="AssetState_Department" class="form-label">Department</label>
+                                            <input name="AssetState.Department" value="@Model.AssetState?.Department" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Details Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_IPAddress" class="form-label">IP Address</label>
+                                            <input name="NetworkDetails.IPAddress" value="@Model.NetworkDetails?.IPAddress" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_MACAddress" class="form-label">MAC Address</label>
+                                            <input name="NetworkDetails.MACAddress" value="@Model.NetworkDetails?.MACAddress" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_NIC" class="form-label">NIC</label>
+                                            <input name="NetworkDetails.NIC" value="@Model.NetworkDetails?.NIC" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_Network" class="form-label">Network</label>
+                                            <input name="NetworkDetails.Network" value="@Model.NetworkDetails?.Network" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_DefaultGateway" class="form-label">Default Gateway</label>
+                                            <input name="NetworkDetails.DefaultGateway" value="@Model.NetworkDetails?.DefaultGateway" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_DHCPEnabled" class="form-label">DHCP Enabled</label>
+                                            <select name="NetworkDetails.DHCPEnabled" class="form-select">
+                                                <option value="true" selected="@(Model.NetworkDetails?.DHCPEnabled == true)">Yes</option>
+                                                <option value="false" selected="@(Model.NetworkDetails?.DHCPEnabled == false)">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_DHCPServer" class="form-label">DHCP Server</label>
+                                            <input name="NetworkDetails.DHCPServer" value="@Model.NetworkDetails?.DHCPServer" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="NetworkDetails_DNSHostname" class="form-label">DNS Hostname</label>
+                                            <input name="NetworkDetails.DNSHostname" value="@Model.NetworkDetails?.DNSHostname" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Computers" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Computer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .select-with-add {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .select-with-add .form-select {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        padding-right: 2.5rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+    }
+
+    .select-with-add .btn-add {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        padding: 0.5rem 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #495057;
+        transition: all 0.2s ease;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .select-with-add .btn-add:hover {
+        background: #0066cc;
+        border-color: #0066cc;
+        color: white;
+    }
+
+    .select-with-add .btn-add i {
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+
+    .select-with-add .btn-add::before {
+        content: '+';
+        font-size: 1.3rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+</style>
+
+<!-- Modal إضافة مورد جديد -->
+<div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVendorModalLabel">إضافة مورد جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addVendorForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorName" class="form-label">اسم المورد <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="vendorName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorCurrency" class="form-label">العملة</label>
+                            <input type="text" class="form-control" id="vendorCurrency" value="SR" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorDoorNumber" class="form-label">رقم الباب</label>
+                            <input type="text" class="form-control" id="vendorDoorNumber">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorLandmark" class="form-label">معلم بارز</label>
+                            <input type="text" class="form-control" id="vendorLandmark">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorPostalCode" class="form-label">الرمز البريدي</label>
+                            <input type="text" class="form-control" id="vendorPostalCode">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorCountry" class="form-label">الدولة</label>
+                            <input type="text" class="form-control" id="vendorCountry">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorFax" class="form-label">الفاكس</label>
+                            <input type="text" class="form-control" id="vendorFax">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorFirstName" class="form-label">الاسم الأول</label>
+                            <input type="text" class="form-control" id="vendorFirstName">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorStreet" class="form-label">الشارع</label>
+                            <input type="text" class="form-control" id="vendorStreet">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorCity" class="form-label">المدينة</label>
+                            <input type="text" class="form-control" id="vendorCity">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorStateProvince" class="form-label">الولاية/المنطقة</label>
+                            <input type="text" class="form-control" id="vendorStateProvince">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorPhone" class="form-label">رقم الهاتف</label>
+                            <input type="text" class="form-control" id="vendorPhone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorEmail" class="form-label">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="vendorEmail">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="vendorDescription" class="form-label">الوصف</label>
+                            <textarea class="form-control" id="vendorDescription" rows="2"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    إلغاء
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveVendor()">
+                    <i class="fas fa-save me-1"></i>
+                    حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal إضافة منتج جديد -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">إضافة منتج جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="mb-3">
+                        <label for="productType" class="form-label">نوع المنتج <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="productType" value="Computer" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">اسم المنتج <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="productName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="manufacturer" class="form-label">الشركة المصنعة <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="manufacturer" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="partNo" class="form-label">رقم القطعة</label>
+                        <input type="text" class="form-control" id="partNo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cost" class="form-label">التكلفة (ريال)</label>
+                        <input type="number" step="0.01" class="form-control" id="cost" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">الوصف</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    إلغاء
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveProduct()">
+                    <i class="fas fa-save me-1"></i>
+                    حفظ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        function saveVendor() {
+            const form = document.getElementById('addVendorForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const vendorData = {
+                vendorName: document.getElementById('vendorName').value,
+                currency: 'SR',
+                doorNumber: document.getElementById('vendorDoorNumber').value || null,
+                landmark: document.getElementById('vendorLandmark').value || null,
+                postalCode: document.getElementById('vendorPostalCode').value || null,
+                country: document.getElementById('vendorCountry').value || null,
+                fax: document.getElementById('vendorFax').value || null,
+                firstName: document.getElementById('vendorFirstName').value || null,
+                street: document.getElementById('vendorStreet').value || null,
+                city: document.getElementById('vendorCity').value || null,
+                stateProvince: document.getElementById('vendorStateProvince').value || null,
+                phoneNo: document.getElementById('vendorPhone').value || null,
+                email: document.getElementById('vendorEmail').value || null,
+                description: document.getElementById('vendorDescription').value || null
+            };
+
+            fetch('/Assets/CreateVendor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(vendorData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.querySelector('select[name="VendorId"]');
+                        const option = new Option(data.name, data.id, true, true);
+                        select.add(option);
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addVendorModal'));
+                        modal.hide();
+                        form.reset();
+                        document.getElementById('vendorCurrency').value = 'SR';
+
+                        alert('✅ تم إضافة المورد بنجاح');
+                    } else {
+                        alert('❌ حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ حدث خطأ أثناء حفظ المورد: ' + error.message);
+                });
+        }
+
+        function saveProduct() {
+            const form = document.getElementById('addProductForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const productData = {
+                productType: document.getElementById('productType').value,
+                productName: document.getElementById('productName').value,
+                manufacturer: document.getElementById('manufacturer').value,
+                partNo: document.getElementById('partNo').value || null,
+                cost: parseFloat(document.getElementById('cost').value) || 0,
+                description: document.getElementById('description').value || null
+            };
+
+            fetch('/Assets/CreateProduct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(productData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.querySelector('select[name="ProductId"]');
+                        const option = new Option(data.productName + ' - ' + data.manufacturer, data.id, true, true);
+                        select.add(option);
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+                        modal.hide();
+                        form.reset();
+                        document.getElementById('productType').value = 'Computer';
+
+                        alert('✅ تم إضافة المنتج بنجاح');
+                    } else {
+                        alert('❌ حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ حدث خطأ أثناء حفظ المنتج: ' + error.message);
+                });
+        }
+    </script>
+}

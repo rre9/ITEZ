@@ -509,6 +509,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Configure Computer entity relationships
         builder.Entity<Computer>(computer =>
         {
+            // Map properties to columns without prefix
+            computer.Property(c => c.ComputerInfoId).HasColumnName("ComputerInfoId");
+            computer.Property(c => c.OperatingSystemInfoId).HasColumnName("OperatingSystemInfoId");
+            computer.Property(c => c.MemoryDetailsId).HasColumnName("MemoryDetailsId");
+            computer.Property(c => c.ProcessorId).HasColumnName("ProcessorId");
+            computer.Property(c => c.HardDiskId).HasColumnName("HardDiskId");
+            computer.Property(c => c.KeyboardId).HasColumnName("KeyboardId");
+            computer.Property(c => c.MouseId).HasColumnName("MouseId");
+            computer.Property(c => c.MonitorId).HasColumnName("MonitorId");
+
             computer.HasOne(c => c.ComputerInfo)
                 .WithMany()
                 .HasForeignKey(c => c.ComputerInfoId)
@@ -553,6 +563,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Configure Server entity relationships
         builder.Entity<Server>(server =>
         {
+            // Map properties to columns without prefix
+            server.Property(s => s.ComputerInfoId).HasColumnName("ComputerInfoId");
+            server.Property(s => s.OperatingSystemInfoId).HasColumnName("OperatingSystemInfoId");
+            server.Property(s => s.MemoryDetailsId).HasColumnName("MemoryDetailsId");
+            server.Property(s => s.ProcessorId).HasColumnName("ProcessorId");
+            server.Property(s => s.HardDiskId).HasColumnName("HardDiskId");
+            server.Property(s => s.KeyboardId).HasColumnName("KeyboardId");
+            server.Property(s => s.MouseId).HasColumnName("MouseId");
+            server.Property(s => s.MonitorId).HasColumnName("MonitorId");
+
             server.HasOne(s => s.ComputerInfo)
                 .WithMany()
                 .HasForeignKey(s => s.ComputerInfoId)
@@ -599,6 +619,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             vh.Property(v => v.VMPlatform)
                 .HasMaxLength(100);
+
+            // Map properties to columns without prefix
+            vh.Property(v => v.ComputerInfoId).HasColumnName("ComputerInfoId");
+            vh.Property(v => v.OperatingSystemInfoId).HasColumnName("OperatingSystemInfoId");
+            vh.Property(v => v.MemoryDetailsId).HasColumnName("MemoryDetailsId");
+            vh.Property(v => v.ProcessorId).HasColumnName("ProcessorId");
+            vh.Property(v => v.HardDiskId).HasColumnName("HardDiskId");
+            vh.Property(v => v.KeyboardId).HasColumnName("KeyboardId");
+            vh.Property(v => v.MouseId).HasColumnName("MouseId");
+            vh.Property(v => v.MonitorId).HasColumnName("MonitorId");
 
             vh.HasOne(v => v.ComputerInfo)
                 .WithMany()
@@ -693,6 +723,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Configure Workstation entity relationships
         builder.Entity<Workstation>(ws =>
         {
+            // Map properties to columns without prefix
+            ws.Property(w => w.ComputerInfoId).HasColumnName("ComputerInfoId");
+            ws.Property(w => w.OperatingSystemInfoId).HasColumnName("OperatingSystemInfoId");
+            ws.Property(w => w.MemoryDetailsId).HasColumnName("MemoryDetailsId");
+            ws.Property(w => w.ProcessorId).HasColumnName("ProcessorId");
+            ws.Property(w => w.HardDiskId).HasColumnName("HardDiskId");
+            ws.Property(w => w.KeyboardId).HasColumnName("KeyboardId");
+            ws.Property(w => w.MouseId).HasColumnName("MouseId");
+            ws.Property(w => w.MonitorId).HasColumnName("MonitorId");
+
             ws.HasOne(w => w.ComputerInfo)
                 .WithMany()
                 .HasForeignKey(w => w.ComputerInfoId)

@@ -18,6 +18,14 @@
     </div>
 </div>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <style>
     .edit-mode-active {
         display: none;
@@ -259,7 +267,37 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="accessPointName"></strong>?
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                    All related information for this access point will be permanently deleted and cannot be recovered.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-times me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="submitDelete()">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form id="deleteForm" method="post" asp-action="DeleteAccessPoint" style="display: none;">
+    @Html.AntiForgeryToken()
     <input type="hidden" id="deleteId" name="id" />
 </form>
 
@@ -289,10 +327,18 @@
         }
 
         function confirmDelete(id, name) {
-            if (confirm(`Are you sure you want to delete "${name}"?\n\nThis action cannot be undone.`)) {
-                document.getElementById('deleteId').value = id;
-                document.getElementById('deleteForm').submit();
-            }
+            document.getElementById('deleteId').value = id;
+            document.getElementById('accessPointName').textContent = name;
+            deleteModal.show();
         }
+
+        function submitDelete() {
+            document.getElementById('deleteForm').submit();
+        }
+
+        var deleteModal;
+        document.addEventListener('DOMContentLoaded', function() {
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        });
     </script>
 }

@@ -338,8 +338,76 @@ using (var scope = app.Services.CreateScope())
                 NetworkDetailsId INT NULL,
                 CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
                 UpdatedAt DATETIME2 NULL,
-                CreatedById NVARCHAR(450) NULL
+                CreatedById NVARCHAR(450) NULL,
+                -- Workstation/Computer/Server/VirtualHost columns
+                ComputerInfoId INT NULL,
+                OperatingSystemInfoId INT NULL,
+                MemoryDetailsId INT NULL,
+                ProcessorId INT NULL,
+                HardDiskId INT NULL,
+                KeyboardId INT NULL,
+                MouseId INT NULL,
+                MonitorId INT NULL,
+                -- AccessPoint columns
+                APType NVARCHAR(50) NULL,
+                APDescription NVARCHAR(255) NULL,
+                APLocation NVARCHAR(255) NULL,
+                InstallationDate DATETIME2 NULL,
+                APModel NVARCHAR(50) NULL,
+                SupportedBands NVARCHAR(50) NULL,
+                Channel INT NULL,
+                -- MobileDevice columns
+                MobileDetailsId INT NULL,
+                -- VirtualHost columns
+                VMPlatform NVARCHAR(100) NULL,
+                StorageLocation NVARCHAR(200) NULL,
+                HostName NVARCHAR(100) NULL,
+                -- VirtualMachine columns
+                VirtualHostId INT NULL
             );
+        END
+        
+        -- إضافة الأعمدة إذا كان الجدول موجود لكن الأعمدة مفقودة
+        IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Assets')
+        BEGIN
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'ComputerInfoId')
+                ALTER TABLE Assets ADD ComputerInfoId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'OperatingSystemInfoId')
+                ALTER TABLE Assets ADD OperatingSystemInfoId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'MemoryDetailsId')
+                ALTER TABLE Assets ADD MemoryDetailsId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'ProcessorId')
+                ALTER TABLE Assets ADD ProcessorId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'HardDiskId')
+                ALTER TABLE Assets ADD HardDiskId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'KeyboardId')
+                ALTER TABLE Assets ADD KeyboardId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'MouseId')
+                ALTER TABLE Assets ADD MouseId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'MonitorId')
+                ALTER TABLE Assets ADD MonitorId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'MobileDetailsId')
+                ALTER TABLE Assets ADD MobileDetailsId INT NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'VMPlatform')
+                ALTER TABLE Assets ADD VMPlatform NVARCHAR(100) NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'StorageLocation')
+                ALTER TABLE Assets ADD StorageLocation NVARCHAR(200) NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'HostName')
+                ALTER TABLE Assets ADD HostName NVARCHAR(100) NULL;
+            
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Assets') AND name = 'VirtualHostId')
+                ALTER TABLE Assets ADD VirtualHostId INT NULL;
         END
         
         -- إضافة Foreign Keys إذا الجدول موجود لكن الـ Constraints مو موجودة

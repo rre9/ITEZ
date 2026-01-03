@@ -1,0 +1,1073 @@
+@model List<ITHelpDesk.Models.Assets.Workstation>
+@using ITHelpDesk.Models.Assets
+@{
+    ViewData["Title"] = "Computers";
+}
+
+<div class="computers-header mb-4">
+    <div class="container-fluid px-0">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mb-3 mb-lg-0">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="32" height="32">
+                            <path d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="page-title mb-1">Computers</h1>
+                        <p class="page-subtitle mb-0">
+                            <i class="fa-solid fa-chart-line me-2"></i>
+                            Manage and monitor <span class="fw-bold text-primary">@Model.Count</span> devices in your organization
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a asp-action="CreateComputer" class="btn btn-primary btn-add-new">
+                    <i class="fa-solid fa-plus-circle me-2"></i>Add New Computer
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fa-solid fa-desktop"></i>
+        </div>
+        <h3 class="empty-state-title">No Computers Found</h3>
+        <p class="empty-state-text">Get started by adding your first computer to manage your workstations.</p>
+        <a asp-action="CreateComputer" class="btn btn-primary btn-lg mt-3">
+            <i class="fa-solid fa-plus-circle me-2"></i>Add Your First Computer
+        </a>
+    </div>
+}
+else
+{
+    <div class="computers-grid">
+        @foreach (var item in Model)
+        {
+            <div class="computer-card">
+                <div class="computer-card-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="computer-info">
+                            <div class="computer-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="24" height="24">
+                                    <path d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="computer-name">@item.Name</h4>
+                                @if (item.Product != null)
+                                {
+                                    <div class="computer-model">
+                                        <i class="fa-solid fa-tag me-1"></i>
+                                        @item.Product.ProductName
+                                        @if (!string.IsNullOrEmpty(item.Product.Manufacturer))
+                                        {
+                                            <span class="text-muted">• @item.Product.Manufacturer</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="computer-actions">
+                            @if (item.AssetState != null)
+                            {
+                                var statusClass = item.AssetState.Status switch
+                                {
+                                    AssetStatusEnum.InStore => "status-in-store",
+                                    AssetStatusEnum.InUse => "status-in-use",
+                                    AssetStatusEnum.InRepair => "status-in-repair",
+                                    AssetStatusEnum.Expired => "status-expired",
+                                    AssetStatusEnum.Disposed => "status-disposed",
+                                    _ => "status-unknown"
+                                };
+                                var statusText = item.AssetState.Status switch
+                                {
+                                    AssetStatusEnum.InStore => "In Store",
+                                    AssetStatusEnum.InUse => "In Use",
+                                    AssetStatusEnum.InRepair => "In Repair",
+                                    AssetStatusEnum.Expired => "Expired",
+                                    AssetStatusEnum.Disposed => "Disposed",
+                                    _ => "Unknown"
+                                };
+                                var statusIcon = item.AssetState.Status switch
+                                {
+                                    AssetStatusEnum.InStore => "fa-box",
+                                    AssetStatusEnum.InUse => "fa-check-circle",
+                                    AssetStatusEnum.InRepair => "fa-wrench",
+                                    AssetStatusEnum.Expired => "fa-exclamation-triangle",
+                                    AssetStatusEnum.Disposed => "fa-trash",
+                                    _ => "fa-question-circle"
+                                };
+                                <span class="status-badge @statusClass">
+                                    <i class="fa-solid @statusIcon me-1"></i>@statusText
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="computer-card-body">
+                    <div class="specs-grid">
+                        <!-- Basic Info -->
+                        <div class="spec-item">
+                            <div class="spec-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                    <path d="M24 32C10.7 32 0 42.7 0 56V456c0 13.3 10.7 24 24 24H40c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H24zm88 0c-8.8 0-16 7.2-16 16V464c0 8.8 7.2 16 16 16s16-7.2 16-16V48c0-8.8-7.2-16-16-16zm72 0c-13.3 0-24 10.7-24 24V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H184zm96 0c-13.3 0-24 10.7-24 24V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H280zM448 56V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H472c-13.3 0-24 10.7-24 24zm-64-8V464c0 8.8 7.2 16 16 16s16-7.2 16-16V48c0-8.8-7.2-16-16-16s-16 7.2-16 16z"/>
+                                </svg>
+                            </div>
+                            <div class="spec-content">
+                                <div class="spec-label">Serial Number</div>
+                                <div class="spec-value">
+                                    <span class="badge-spec">@(item.SerialNumber ?? "—")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(item.AssetTag))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16">
+                                        <path d="M0 80V229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7H48C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Asset Tag</div>
+                                    <div class="spec-value">
+                                        <span class="badge-tag">@item.AssetTag</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Processor -->
+                        @if (item.Processor != null && !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                        <path d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c-35.3 0-64 28.7-64 64H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64c0 35.3 28.7 64 64 64v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448c35.3 0 64-28.7 64-64h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V280h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V176h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448c0-35.3-28.7-64-64-64V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H280V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H176V24zM160 128H352c17.7 0 32 14.3 32 32V352c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32zm192 32H160V352H352V160z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Processor</div>
+                                    <div class="spec-value">@item.Processor.ProcessorInfo</div>
+                                    @if (item.Processor.ClockSpeedMHz.HasValue && item.Processor.ClockSpeedMHz.Value > 0)
+                                    {
+                                        <div class="spec-badges mt-1">
+                                            <span class="badge-spec">@item.Processor.ClockSpeedMHz MHz</span>
+                                            @if (item.Processor.NumberOfCores.HasValue && item.Processor.NumberOfCores.Value > 0)
+                                            {
+                                                <span class="badge-spec">@item.Processor.NumberOfCores Cores</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- RAM -->
+                        @if (item.MemoryDetails != null && item.MemoryDetails.RAM > 0)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16" height="16">
+                                        <path d="M64 64C28.7 64 0 92.7 0 128v7.4c0 6.8 4.4 12.6 10.1 16.3C23.3 158.1 32 173.9 32 192s-8.7 33.9-21.9 40.3C4.4 235.9 0 241.7 0 248.6V320H576V248.6c0-6.8-4.4-12.6-10.1-16.3C552.7 225.9 544 210.1 544 192s8.7-33.9 21.9-40.3c5.7-3.7 10.1-9.5 10.1-16.3V128c0-35.3-28.7-64-64-64H64zM576 352H0v64c0 17.7 14.3 32 32 32H80V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h48c17.7 0 32-14.3 32-32V352zM192 160v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm128 0v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm128 0v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">RAM</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.MemoryDetails.RAM GB</span>
+                                    </div>
+                                    @if (item.MemoryDetails.VirtualMemory > 0)
+                                    {
+                                        <div class="spec-note">Virtual: @item.MemoryDetails.VirtualMemory GB</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Storage -->
+                        @if (item.HardDisk != null && item.HardDisk.CapacityGB.HasValue && item.HardDisk.CapacityGB.Value > 0)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                        <path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM64 160H224v96H64V160zm0 128H224v96H64V288zM352 160v96H256V160h96zM256 288h96v96H256V288zM448 160v96H384V160h64zM384 288h64v96H384V288z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Storage</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.HardDisk.CapacityGB GB</span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(item.HardDisk.Model))
+                                    {
+                                        <div class="spec-note">@item.HardDisk.Model</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Operating System -->
+                        @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16" height="16">
+                                        <path d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Operating System</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.OperatingSystemInfo.Name</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Network -->
+                        @if (item.NetworkDetails != null)
+                        {
+                            @if (!string.IsNullOrEmpty(item.NetworkDetails.IPAddress))
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16" height="16">
+                                            <path d="M256 64H384v64H256V64zM240 0c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48h48v32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v32H80c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H240c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H192V288H448v32H400c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H560c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H512V288h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V192h48c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H240zM96 448V384H224v64H96zm320-64H544v64H416V384z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">IP Address</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec code">@item.NetworkDetails.IPAddress</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(item.NetworkDetails.MACAddress))
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                            <path d="M64 32C28.7 32 0 60.7 0 96v32H512V96c0-35.3-28.7-64-64-64H64zM0 192V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384H512v32c0 17.7-14.3 32-32 32s-32-14.3-32-32V352c0-17.7 14.3-32 32-32s32 14.3 32 32v32h64V192H0zm144 96h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V304c0-8.8 7.2-16 16-16zm-16-48c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V240zm144 48h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V304c0-8.8 7.2-16 16-16zm-16-48c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">MAC Address</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec code">@item.NetworkDetails.MACAddress</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        <!-- User Info -->
+                        @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.AssociatedTo))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16">
+                                        <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Associated To</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.AssetState.AssociatedTo</span>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(item.AssetState.Department))
+                                    {
+                                        <div class="spec-note">@item.AssetState.Department</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Location -->
+                        @if (!string.IsNullOrEmpty(item.Location))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" width="16" height="16">
+                                        <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Location</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.Location</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Purchase Cost -->
+                        @if (item.PurchaseCost > 0)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" width="16" height="16">
+                                        <path d="M160 0c17.7 0 32 14.3 32 32V67.7c1.6 .2 3.1 .4 4.7 .7c.4 .1 .7 .1 1.1 .2l48 8.8c17.4 3.2 28.9 19.9 25.7 37.2s-19.9 28.9-37.2 25.7l-47.5-8.7c-31.3-4.6-58.9-1.5-78.3 6.2s-27.2 18.3-29 28.1c-2 10.7-.5 16.7 1.2 20.4c1.8 3.9 5.5 8.3 12.8 13.2c16.3 10.7 41.3 17.7 73.7 26.3l2.9 .8c28.6 7.6 63.6 16.8 89.6 33.8c14.2 9.3 27.6 21.9 35.9 39.5c8.5 17.9 10.3 37.9 6.4 59.2c-6.9 38-33.1 63.4-65.6 76.7c-13.7 5.6-28.6 9.2-44.4 11V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V445.1c-.4-.1-.9-.1-1.3-.2l-.2 0 0 0c-24.4-3.8-64.5-14.3-91.5-26.3c-16.1-7.2-23.4-26.1-16.2-42.2s26.1-23.4 42.2-16.2c20.9 9.3 55.3 18.5 75.2 21.6c31.9 4.7 58.2 2 76-5.3c16.9-6.9 24.6-16.9 26.8-28.9c1.9-10.6 .4-16.7-1.3-20.4c-1.9-4-5.6-8.4-13-13.3c-16.4-10.7-41.5-17.7-74-26.3l-2.8-.7 0 0C119.4 279.3 84.4 270 58.4 253c-14.2-9.3-27.5-22-35.8-39.6c-8.4-17.9-10.1-37.9-6.1-59.2C23.7 116 52.3 91.2 84.8 78.3c13.3-5.3 27.9-8.9 43.2-11V32c0-17.7 14.3-32 32-32z"/>
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Purchase Cost</div>
+                                    <div class="spec-value text-success fw-bold">@item.PurchaseCost.ToString("N2") SAR</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Expandable Details -->
+                    <div class="additional-details mt-3">
+                        <button class="btn-toggle-details" type="button" data-bs-toggle="collapse" data-bs-target="#details-@item.Id">
+                            <i class="fa-solid fa-chevron-down me-2"></i>View Additional Details
+                        </button>
+                        
+                        <div class="collapse" id="details-@item.Id">
+                            <div class="details-content">
+                                <div class="details-grid">
+                                    <!-- System Details -->
+                                    @if (item.ComputerInfo != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-cog me-2"></i>System Information
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.Manufacturer))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Manufacturer:</span>
+                                                        <span class="detail-val">@item.ComputerInfo.Manufacturer</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.Domain))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Domain:</span>
+                                                        <span class="detail-val">@item.ComputerInfo.Domain</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.ServiceTag))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Service Tag:</span>
+                                                        <span class="detail-val">@item.ComputerInfo.ServiceTag</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.BiosVersion))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">BIOS Version:</span>
+                                                        <span class="detail-val">@item.ComputerInfo.BiosVersion</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Peripherals -->
+                                    @if (item.Keyboard != null || item.Mouse != null || item.Monitor != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-keyboard me-2"></i>Peripherals
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.KeyboardType))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Keyboard:</span>
+                                                        <span class="detail-val">@item.Keyboard.KeyboardType @(item.Keyboard.Manufacturer != null ? $"({item.Keyboard.Manufacturer})" : "")</span>
+                                                    </div>
+                                                }
+                                                @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.MouseType))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Mouse:</span>
+                                                        <span class="detail-val">@item.Mouse.MouseType @(item.Mouse.Manufacturer != null ? $"({item.Mouse.Manufacturer})" : "")</span>
+                                                    </div>
+                                                }
+                                                @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.MonitorType))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Monitor:</span>
+                                                        <span class="detail-val">@item.Monitor.MonitorType @(item.Monitor.MaxResolution != null ? $"- {item.Monitor.MaxResolution}" : "")</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Network Details -->
+                                    @if (item.NetworkDetails != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-wifi me-2"></i>Network Configuration
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DefaultGateway))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Gateway:</span>
+                                                        <span class="detail-val code">@item.NetworkDetails.DefaultGateway</span>
+                                                    </div>
+                                                }
+                                                @if (item.NetworkDetails.DHCPEnabled)
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">DHCP:</span>
+                                                        <span class="detail-val">
+                                                            <span class="badge bg-success">Enabled</span>
+                                                            @if (!string.IsNullOrEmpty(item.NetworkDetails.DHCPServer))
+                                                            {
+                                                                <span class="ms-1">(@item.NetworkDetails.DHCPServer)</span>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DNSHostname))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">DNS Hostname:</span>
+                                                        <span class="detail-val">@item.NetworkDetails.DNSHostname</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Additional Info -->
+                                    <div class="detail-section">
+                                        <h6 class="detail-section-title">
+                                            <i class="fa-solid fa-info-circle me-2"></i>Additional Information
+                                        </h6>
+                                        <div class="detail-list">
+                                            <div class="detail-item">
+                                                <span class="detail-key">Created:</span>
+                                                <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</span>
+                                            </div>
+                                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.Site))
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Site:</span>
+                                                    <span class="detail-val">@item.AssetState.Site</span>
+                                                </div>
+                                            }
+                                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.StateComments))
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Comments:</span>
+                                                    <span class="detail-val">@item.AssetState.StateComments</span>
+                                                </div>
+                                            }
+                                            @if (item.Vendor != null)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Vendor:</span>
+                                                    <span class="detail-val">@item.Vendor.VendorName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="computer-card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="computer-meta">
+                            <i class="fa-solid fa-clock me-1"></i>
+                            <span>Added @item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                        </div>
+                        <div class="computer-buttons">
+                            <a class="btn-action btn-edit" asp-action="EditComputer" asp-route-id="@item.Id" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                    <path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/>
+                                </svg>
+                            </a>
+                            @if (User.IsInRole("Admin") || User.IsInRole("Support") || User.IsInRole("IT"))
+                            {
+                                <button type="button" class="btn-action btn-delete" onclick="confirmDelete(@item.Id, '@item.Name')" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16">
+                                        <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/>
+                                    </svg>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="computerName"></strong>?
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                    All related information for this computer will be permanently deleted and cannot be recovered.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-times me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="submitDelete()">
+                    <i class="fa-solid fa-trash me-1"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="deleteForm" method="post" asp-action="DeleteComputer" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="deleteId" name="id" />
+</form>
+
+@section Scripts {
+    <script>
+        var deleteModal;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        });
+
+        function confirmDelete(id, name) {
+            document.getElementById('deleteId').value = id;
+            document.getElementById('computerName').textContent = name;
+            deleteModal.show();
+        }
+
+        function submitDelete() {
+            document.getElementById('deleteForm').submit();
+        }
+    </script>
+}
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Header Styles */
+    .computers-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        margin-bottom: 2rem;
+    }
+
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        opacity: 0.95;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .btn-add-new {
+        background: white;
+        color: #3b82f6;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-new:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        color: #3b82f6;
+        background: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .empty-state-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3.5rem;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    }
+
+    .empty-state-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-text {
+        color: #6b7280;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    /* Grid Layout */
+    .computers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+        gap: 1.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .computers-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Computer Card */
+    .computer-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+    .computer-card:hover {
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-4px);
+        border-color: #3b82f6;
+    }
+
+    /* Card Header */
+    .computer-card-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .computer-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .computer-info {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+    .computer-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .computer-model {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-in-use {
+        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        color: #065f46;
+        box-shadow: 0 4px 15px rgba(132, 250, 176, 0.3);
+    }
+
+    .status-in-store {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #1e40af;
+        box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+    }
+
+    .status-in-repair {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        color: #92400e;
+        box-shadow: 0 4px 15px rgba(255, 234, 167, 0.3);
+    }
+
+    .status-expired, .status-disposed {
+        background: linear-gradient(135deg, #fab1a0 0%, #fd79a8 100%);
+        color: #7f1d1d;
+        box-shadow: 0 4px 15px rgba(250, 177, 160, 0.3);
+    }
+
+    /* Card Body */
+    .computer-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Specs Grid */
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .spec-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 10px;
+        border-left: 3px solid #3b82f6;
+        transition: all 0.2s ease;
+    }
+
+    .spec-item:hover {
+        background: #f3f4f6;
+        border-left-color: #2563eb;
+    }
+
+    .spec-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.875rem;
+        margin-right: 0.75rem;
+    }
+
+    .spec-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .spec-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .spec-value {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #1f2937;
+        word-wrap: break-word;
+    }
+
+    .spec-value.code {
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        background: #e5e7eb;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .spec-note {
+        font-size: 0.8125rem;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+    }
+
+    .spec-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .badge-spec {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Additional Details */
+    .additional-details {
+        border-top: 2px dashed #e5e7eb;
+        padding-top: 1rem;
+    }
+
+    .btn-toggle-details {
+        width: 100%;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.75rem;
+        color: #4b5563;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-toggle-details:hover {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    .details-content {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 10px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .detail-section {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .detail-section-title {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3b82f6;
+    }
+
+    .detail-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        font-size: 0.875rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-key {
+        font-weight: 600;
+        color: #6b7280;
+        min-width: 120px;
+    }
+
+    .detail-val {
+        color: #1f2937;
+        text-align: right;
+        flex: 1;
+    }
+
+    .detail-val.code {
+        font-family: 'Courier New', monospace;
+        background: #f3f4f6;
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+    }
+
+    /* Card Footer */
+    .computer-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .computer-meta {
+        font-size: 0.875rem;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+    }
+
+    .computer-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-edit {
+        background: white;
+        color: #3b82f6;
+        border: 2px solid #3b82f6;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #fa709a 0%, #fe5858 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+    }
+
+    .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(250, 112, 154, 0.4);
+    }
+
+    /* Modal Enhancements */
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Animations */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .computer-card {
+        animation: fadeInUp 0.5s ease;
+    }
+
+    .computer-card:nth-child(1) { animation-delay: 0.05s; }
+    .computer-card:nth-child(2) { animation-delay: 0.1s; }
+    .computer-card:nth-child(3) { animation-delay: 0.15s; }
+    .computer-card:nth-child(4) { animation-delay: 0.2s; }
+    .computer-card:nth-child(5) { animation-delay: 0.25s; }
+</style>
