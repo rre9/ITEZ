@@ -9,7 +9,7 @@
         display: flex;
         align-items: stretch;
     }
-    
+
     .select-with-add .form-select {
         flex: 1;
         border-top-right-radius: 0;
@@ -22,7 +22,7 @@
         background-position: right 0.75rem center;
         background-size: 16px 12px;
     }
-    
+
     .select-with-add .btn-add {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
@@ -38,13 +38,13 @@
         font-size: 1.2rem;
         font-weight: bold;
     }
-    
+
     .select-with-add .btn-add:hover {
         background: #0066cc;
         border-color: #0066cc;
         color: white;
     }
-    
+
     .select-with-add .btn-add::before {
         content: '+';
         font-size: 1.3rem;
@@ -86,25 +86,30 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
+                                        <label asp-for="Name" class="form-label">Name <span
+                                                class="text-danger">*</span></label>
                                         <input asp-for="Name" class="form-control" required />
                                         <span asp-validation-for="Name" class="text-danger"></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="ProductId" class="form-label">Product <span class="text-danger">*</span></label>
+                                        <label asp-for="ProductId" class="form-label">Product <span
+                                                class="text-danger">*</span></label>
                                         <div class="select-with-add">
                                             <select asp-for="ProductId" class="form-select" required>
                                                 <option value="">-- Select Product --</option>
                                                 @if (ViewBag.Products != null)
                                                 {
-                                                    @foreach (var product in ViewBag.Products as List<ITHelpDesk.Models.Assets.Product>)
+                                                    @foreach (var product in ViewBag.Products as
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
                                                     {
-                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer</option>
+                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer
+                                                        </option>
                                                     }
                                                 }
                                             </select>
-                                            <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addProductModal" title="Add New Product"></button>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addProductModal" title="Add New Product"></button>
                                         </div>
                                         <span asp-validation-for="ProductId" class="text-danger"></span>
                                     </div>
@@ -133,13 +138,15 @@
                                                 <option value="">-- Select Vendor --</option>
                                                 @if (ViewBag.Vendors != null)
                                                 {
-                                                    @foreach (var vendor in ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>)
+                                                    @foreach (var vendor in ViewBag.Vendors as
+                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
                                                     {
                                                         <option value="@vendor.Id">@vendor.VendorName</option>
                                                     }
                                                 }
                                             </select>
-                                            <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addVendorModal" title="Add New Vendor"></button>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addVendorModal" title="Add New Vendor"></button>
                                         </div>
                                         <span asp-validation-for="VendorId" class="text-danger"></span>
                                     </div>
@@ -169,7 +176,8 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date</label>
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
+                                            Date</label>
                                         <input asp-for="WarrantyExpiryDate" type="date" class="form-control" />
                                         <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
                                     </div>
@@ -677,8 +685,10 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
     <script>
         function saveVendor() {
             const form = document.getElementById('addVendorForm');

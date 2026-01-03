@@ -36,7 +36,7 @@ public class AssetsController : Controller
             var accessPointsInUse = await _context.AccessPoints.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var accessPointsInStore = await _context.AccessPoints.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var accessPointsInRepair = await _context.AccessPoints.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var accessPointsOthers = await _context.AccessPoints.CountAsync(a => a.AssetState != null && 
+            var accessPointsOthers = await _context.AccessPoints.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Computers
@@ -44,7 +44,7 @@ public class AssetsController : Controller
             var computersInUse = await _context.Workstations.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var computersInStore = await _context.Workstations.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var computersInRepair = await _context.Workstations.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var computersOthers = await _context.Workstations.CountAsync(a => a.AssetState != null && 
+            var computersOthers = await _context.Workstations.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Servers
@@ -52,7 +52,7 @@ public class AssetsController : Controller
             var serversInUse = await _context.Servers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var serversInStore = await _context.Servers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var serversInRepair = await _context.Servers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var serversOthers = await _context.Servers.CountAsync(a => a.AssetState != null && 
+            var serversOthers = await _context.Servers.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Smartphones
@@ -60,7 +60,7 @@ public class AssetsController : Controller
             var smartphonesInUse = await _context.Smartphones.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var smartphonesInStore = await _context.Smartphones.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var smartphonesInRepair = await _context.Smartphones.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var smartphonesOthers = await _context.Smartphones.CountAsync(a => a.AssetState != null && 
+            var smartphonesOthers = await _context.Smartphones.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Printers
@@ -68,7 +68,7 @@ public class AssetsController : Controller
             var printersInUse = await _context.Printers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var printersInStore = await _context.Printers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var printersInRepair = await _context.Printers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var printersOthers = await _context.Printers.CountAsync(a => a.AssetState != null && 
+            var printersOthers = await _context.Printers.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Routers (combined)
@@ -79,14 +79,14 @@ public class AssetsController : Controller
                                  await _context.CiscoRouters.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var routersInRepair = await _context.Routers.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair) +
                                   await _context.CiscoRouters.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var routersOthers = await _context.Routers.CountAsync(a => a.AssetState != null && 
+            var routersOthers = await _context.Routers.CountAsync(a => a.AssetState != null &&
                                     (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed)) +
-                                await _context.CiscoRouters.CountAsync(a => a.AssetState != null && 
+                                await _context.CiscoRouters.CountAsync(a => a.AssetState != null &&
                                     (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Switches (combined - all types)
-            var switchesTotal = await _context.Switches.CountAsync() + 
-                                await _context.CiscoSwitches.CountAsync() + 
+            var switchesTotal = await _context.Switches.CountAsync() +
+                                await _context.CiscoSwitches.CountAsync() +
                                 await _context.CiscoCatosSwitches.CountAsync();
             var switchesInUse = await _context.Switches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse) +
                                 await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse) +
@@ -97,11 +97,11 @@ public class AssetsController : Controller
             var switchesInRepair = await _context.Switches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair) +
                                    await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair) +
                                    await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var switchesOthers = await _context.Switches.CountAsync(a => a.AssetState != null && 
+            var switchesOthers = await _context.Switches.CountAsync(a => a.AssetState != null &&
                                      (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed)) +
-                                 await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && 
+                                 await _context.CiscoSwitches.CountAsync(a => a.AssetState != null &&
                                      (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed)) +
-                                 await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null && 
+                                 await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null &&
                                      (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Cisco Catos Switches
@@ -109,7 +109,7 @@ public class AssetsController : Controller
             var ciscoCatosSwitchesInUse = await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var ciscoCatosSwitchesInStore = await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var ciscoCatosSwitchesInRepair = await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var ciscoCatosSwitchesOthers = await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null && 
+            var ciscoCatosSwitchesOthers = await _context.CiscoCatosSwitches.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             // Cisco Switches
@@ -117,7 +117,7 @@ public class AssetsController : Controller
             var ciscoSwitchesInUse = await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InUse);
             var ciscoSwitchesInStore = await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InStore);
             var ciscoSwitchesInRepair = await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && a.AssetState.Status == AssetStatusEnum.InRepair);
-            var ciscoSwitchesOthers = await _context.CiscoSwitches.CountAsync(a => a.AssetState != null && 
+            var ciscoSwitchesOthers = await _context.CiscoSwitches.CountAsync(a => a.AssetState != null &&
                 (a.AssetState.Status == AssetStatusEnum.Expired || a.AssetState.Status == AssetStatusEnum.Disposed));
 
             var viewModel = new
@@ -343,7 +343,7 @@ public class AssetsController : Controller
             .Include(a => a.Product)
             .Include(a => a.Vendor)
             .FirstOrDefaultAsync(a => a.Id == id);
-            
+
         if (accessPoint == null)
             return NotFound();
 
@@ -844,11 +844,11 @@ public class AssetsController : Controller
         {
             _logger.LogError(ex, "Error creating computer");
             ModelState.AddModelError("", "An error occurred while creating the computer. Please try again.");
-            
+
             ViewBag.Products = await _context.Products.ToListAsync();
             ViewBag.Vendors = await _context.Vendors.ToListAsync();
             ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
-            
+
             return View(model);
         }
     }
@@ -957,7 +957,7 @@ public class AssetsController : Controller
             {
                 existingComputer.ComputerInfo.ServiceTag = Request.Form["ComputerInfo.ServiceTag"];
                 existingComputer.ComputerInfo.Manufacturer = Request.Form["ComputerInfo.Manufacturer"];
-                existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"]) 
+                existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"])
                     ? DateTime.Parse(Request.Form["ComputerInfo.BiosDate"]!) : null;
                 existingComputer.ComputerInfo.Domain = Request.Form["ComputerInfo.Domain"];
                 existingComputer.ComputerInfo.SMBiosVersion = Request.Form["ComputerInfo.SMBiosVersion"];
@@ -980,9 +980,9 @@ public class AssetsController : Controller
             // Update Memory Details
             if (existingComputer.MemoryDetails != null)
             {
-                existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"]) 
+                existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"])
                     ? int.Parse(Request.Form["MemoryDetails.RAM"]!) : null;
-                existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"]) 
+                existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"])
                     ? int.Parse(Request.Form["MemoryDetails.VirtualMemory"]!) : null;
                 existingComputer.MemoryDetails.UpdatedAt = DateTime.UtcNow;
             }
@@ -992,9 +992,9 @@ public class AssetsController : Controller
             {
                 existingComputer.Processor.ProcessorInfo = Request.Form["Processor.ProcessorInfo"];
                 existingComputer.Processor.Manufacturer = Request.Form["Processor.Manufacturer"];
-                existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"]) 
+                existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"])
                     ? int.Parse(Request.Form["Processor.ClockSpeedMHz"]!) : null;
-                existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"]) 
+                existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"])
                     ? int.Parse(Request.Form["Processor.NumberOfCores"]!) : null;
                 existingComputer.Processor.UpdatedAt = DateTime.UtcNow;
             }
@@ -1005,7 +1005,7 @@ public class AssetsController : Controller
                 existingComputer.HardDisk.Model = Request.Form["HardDisk.Model"];
                 existingComputer.HardDisk.SerialNumber = Request.Form["HardDisk.SerialNumber"];
                 existingComputer.HardDisk.Manufacturer = Request.Form["HardDisk.Manufacturer"];
-                existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"]) 
+                existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"])
                     ? int.Parse(Request.Form["HardDisk.CapacityGB"]!) : null;
                 existingComputer.HardDisk.UpdatedAt = DateTime.UtcNow;
             }
@@ -1024,7 +1024,7 @@ public class AssetsController : Controller
             {
                 existingComputer.Mouse.MouseType = Request.Form["Mouse.MouseType"];
                 existingComputer.Mouse.SerialNumber = Request.Form["Mouse.SerialNumber"];
-                existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"]) 
+                existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"])
                     ? int.Parse(Request.Form["Mouse.MouseButtons"]!) : null;
                 existingComputer.Mouse.Manufacturer = Request.Form["Mouse.Manufacturer"];
                 existingComputer.Mouse.UpdatedAt = DateTime.UtcNow;
@@ -1075,11 +1075,11 @@ public class AssetsController : Controller
         {
             _logger.LogError(ex, "Error updating computer");
             ModelState.AddModelError("", "An error occurred while updating the computer. Please try again.");
-            
+
             ViewBag.Products = await _context.Products.ToListAsync();
             ViewBag.Vendors = await _context.Vendors.ToListAsync();
             ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
-            
+
             return View(model);
         }
     }
@@ -1112,31 +1112,31 @@ public class AssetsController : Controller
             // Delete related records
             if (computer.NetworkDetails != null)
                 _context.NetworkDetails.Remove(computer.NetworkDetails);
-            
+
             if (computer.ComputerInfo != null)
                 _context.ComputerInfos.Remove(computer.ComputerInfo);
-            
+
             if (computer.OperatingSystemInfo != null)
                 _context.OperatingSystemInfos.Remove(computer.OperatingSystemInfo);
-            
+
             if (computer.MemoryDetails != null)
                 _context.MemoryDetails.Remove(computer.MemoryDetails);
-            
+
             if (computer.Processor != null)
                 _context.Processors.Remove(computer.Processor);
-            
+
             if (computer.HardDisk != null)
                 _context.HardDisks.Remove(computer.HardDisk);
-            
+
             if (computer.Keyboard != null)
                 _context.Keyboards.Remove(computer.Keyboard);
-            
+
             if (computer.Mouse != null)
                 _context.Mice.Remove(computer.Mouse);
-            
+
             if (computer.Monitor != null)
                 _context.Monitors.Remove(computer.Monitor);
-            
+
             if (computer.AssetState != null)
                 _context.AssetStates.Remove(computer.AssetState);
 

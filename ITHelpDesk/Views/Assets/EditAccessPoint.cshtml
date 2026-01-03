@@ -9,7 +9,7 @@
         display: flex;
         align-items: stretch;
     }
-    
+
     .select-with-add .form-select {
         flex: 1;
         border-top-right-radius: 0;
@@ -22,7 +22,7 @@
         background-position: right 0.75rem center;
         background-size: 16px 12px;
     }
-    
+
     .select-with-add .btn-add {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
@@ -38,13 +38,13 @@
         font-size: 1.2rem;
         font-weight: bold;
     }
-    
+
     .select-with-add .btn-add:hover {
         background: #0066cc;
         border-color: #0066cc;
         color: white;
     }
-    
+
     .select-with-add .btn-add::before {
         content: '+';
         font-size: 1.3rem;
@@ -84,7 +84,7 @@
                                 <input type="hidden" asp-for="CreatedAt" />
                                 <input type="hidden" asp-for="UpdatedAt" />
                                 <input type="hidden" asp-for="NetworkDetailsId" />
-                                
+
                                 <div class="row">
                                     <!-- Basic Information -->
                                     <div class="col-md-12">
@@ -92,19 +92,22 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
+                                        <label asp-for="Name" class="form-label">Name <span
+                                                class="text-danger">*</span></label>
                                         <input asp-for="Name" class="form-control" required />
                                         <span asp-validation-for="Name" class="text-danger"></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="ProductId" class="form-label">Product <span class="text-danger">*</span></label>
+                                        <label asp-for="ProductId" class="form-label">Product <span
+                                                class="text-danger">*</span></label>
                                         <div class="select-with-add">
                                             <select asp-for="ProductId" class="form-select" required>
                                                 <option value="">-- Select Product --</option>
                                                 @if (ViewBag.Products != null)
                                                 {
-                                                    @foreach (var product in ViewBag.Products as List<ITHelpDesk.Models.Assets.Product>)
+                                                    @foreach (var product in ViewBag.Products as
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
                                                     {
                                                         <option value="@product.Id" selected="@(product.Id == Model.ProductId)">
                                                             @product.ProductName - @product.Manufacturer
@@ -143,7 +146,8 @@
                                                 <option value="">-- Select Vendor --</option>
                                                 @if (ViewBag.Vendors != null)
                                                 {
-                                                    @foreach (var vendor in ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>)
+                                                    @foreach (var vendor in ViewBag.Vendors as
+                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
                                                     {
                                                         <option value="@vendor.Id" selected="@(vendor.Id == Model.VendorId)">
                                                             @vendor.VendorName
@@ -164,28 +168,31 @@
                                         <span asp-validation-for="PurchaseCost" class="text-danger"></span>
                                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
-                        <input asp-for="ExpiryDate" type="date" class="form-control" 
-                               value="@(Model.ExpiryDate.HasValue && Model.ExpiryDate.Value.Year >= 1900 && Model.ExpiryDate.Value.Year <= 2077 ? Model.ExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
-                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                    </div>                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+                                        <input asp-for="ExpiryDate" type="date" class="form-control"
+                                            value="@(Model.ExpiryDate.HasValue && Model.ExpiryDate.Value.Year >= 1900 && Model.ExpiryDate.Value.Year <= 2077 ? Model.ExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
                                         <label asp-for="Location" class="form-label">Location</label>
                                         <input asp-for="Location" class="form-control" />
                                         <span asp-validation-for="Location" class="text-danger"></span>
                                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
-                        <input asp-for="AcquisitionDate" type="date" class="form-control"
-                               value="@(Model.AcquisitionDate.HasValue && Model.AcquisitionDate.Value.Year >= 1900 && Model.AcquisitionDate.Value.Year <= 2077 ? Model.AcquisitionDate.Value.ToString("yyyy-MM-dd") : "")" />
-                        <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
-                    </div>                    <div class="col-md-6 mb-3">
-                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date</label>
-                        <input asp-for="WarrantyExpiryDate" type="date" class="form-control"
-                               value="@(Model.WarrantyExpiryDate.HasValue && Model.WarrantyExpiryDate.Value.Year >= 1900 && Model.WarrantyExpiryDate.Value.Year <= 2077 ? Model.WarrantyExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
-                        <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
-                    </div>                                    <!-- Asset State -->
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
+                                        <input asp-for="AcquisitionDate" type="date" class="form-control"
+                                            value="@(Model.AcquisitionDate.HasValue && Model.AcquisitionDate.Value.Year >= 1900 && Model.AcquisitionDate.Value.Year <= 2077 ? Model.AcquisitionDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                        <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
+                                            Date</label>
+                                        <input asp-for="WarrantyExpiryDate" type="date" class="form-control"
+                                            value="@(Model.WarrantyExpiryDate.HasValue && Model.WarrantyExpiryDate.Value.Year >= 1900 && Model.WarrantyExpiryDate.Value.Year <= 2077 ? Model.WarrantyExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                        <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                    </div> <!-- Asset State -->
                                     <div class="col-md-12 mt-3">
                                         <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
                                     </div>
@@ -196,7 +203,8 @@
                                             <option value="">Select Asset State...</option>
                                             @if (ViewBag.AssetStates != null)
                                             {
-                                                @foreach (var state in ViewBag.AssetStates as List<ITHelpDesk.Models.Assets.AssetState>)
+                                                @foreach (var state in ViewBag.AssetStates as
+                                                                                            List<ITHelpDesk.Models.Assets.AssetState>)
                                                 {
                                                     <option value="@state.Id" selected="@(state.Id == Model.AssetStateId)">
                                                         @state.Status - @state.AssociatedTo
@@ -214,62 +222,58 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">IP Address</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.IPAddress" 
-                                               name="NetworkDetails.IPAddress"
-                                               placeholder="192.168.1.1" />
+                                        <input type="text" class="form-control" value="@Model.NetworkDetails?.IPAddress"
+                                            name="NetworkDetails.IPAddress" placeholder="192.168.1.1" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">MAC Address</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.MACAddress"
-                                               name="NetworkDetails.MACAddress"
-                                               placeholder="00:00:00:00:00:00" />
+                                        <input type="text" class="form-control"
+                                            value="@Model.NetworkDetails?.MACAddress" name="NetworkDetails.MACAddress"
+                                            placeholder="00:00:00:00:00:00" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">NIC</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.NIC"
-                                               name="NetworkDetails.NIC" />
+                                        <input type="text" class="form-control" value="@Model.NetworkDetails?.NIC"
+                                            name="NetworkDetails.NIC" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Network</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.Network"
-                                               name="NetworkDetails.Network" />
+                                        <input type="text" class="form-control" value="@Model.NetworkDetails?.Network"
+                                            name="NetworkDetails.Network" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Default Gateway</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.DefaultGateway"
-                                               name="NetworkDetails.DefaultGateway"
-                                               placeholder="192.168.1.1" />
+                                        <input type="text" class="form-control"
+                                            value="@Model.NetworkDetails?.DefaultGateway"
+                                            name="NetworkDetails.DefaultGateway" placeholder="192.168.1.1" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">DHCP Enabled</label>
                                         <select class="form-select" name="NetworkDetails.DHCPEnabled">
-                                            <option value="false" selected="@(Model.NetworkDetails?.DHCPEnabled == false)">False</option>
-                                            <option value="true" selected="@(Model.NetworkDetails?.DHCPEnabled == true)">True</option>
+                                            <option value="false"
+                                                selected="@(Model.NetworkDetails?.DHCPEnabled == false)">False</option>
+                                            <option value="true"
+                                                selected="@(Model.NetworkDetails?.DHCPEnabled == true)">True</option>
                                         </select>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">DHCP Server</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.DHCPServer"
-                                               name="NetworkDetails.DHCPServer" />
+                                        <input type="text" class="form-control"
+                                            value="@Model.NetworkDetails?.DHCPServer"
+                                            name="NetworkDetails.DHCPServer" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">DNS Hostname</label>
-                                        <input type="text" class="form-control" 
-                                               value="@Model.NetworkDetails?.DNSHostname"
-                                               name="NetworkDetails.DNSHostname" />
+                                        <input type="text" class="form-control"
+                                            value="@Model.NetworkDetails?.DNSHostname"
+                                            name="NetworkDetails.DNSHostname" />
                                     </div>
                                 </div>
 
@@ -306,7 +310,8 @@
                 <form id="addVendorForm">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="vendorName" class="form-label">Vendor Name <span class="text-danger">*</span></label>
+                            <label for="vendorName" class="form-label">Vendor Name <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="vendorName" required>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -353,15 +358,18 @@
             <div class="modal-body">
                 <form id="addProductForm">
                     <div class="mb-3">
-                        <label for="productType" class="form-label">Product Type <span class="text-danger">*</span></label>
+                        <label for="productType" class="form-label">Product Type <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productType" value="Access Point" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productName" class="form-label">Product Name <span class="text-danger">*</span></label>
+                        <label for="productName" class="form-label">Product Name <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="manufacturer" class="form-label">Manufacturer <span class="text-danger">*</span></label>
+                        <label for="manufacturer" class="form-label">Manufacturer <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="manufacturer" required>
                     </div>
                     <div class="mb-3">

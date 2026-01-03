@@ -38,7 +38,8 @@
                                                         <option value="@product.Id">@product.ProductName</option>
                                                     }
                                                 </select>
-                                                <button type="button" class="btn btn-sm btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#addProductModal"></button>
+                                                <button type="button" class="btn btn-sm btn-primary btn-add"
+                                                    data-bs-toggle="modal" data-bs-target="#addProductModal"></button>
                                             </div>
                                             <span asp-validation-for="ProductId" class="text-danger"></span>
                                         </div>
@@ -77,7 +78,8 @@
                                                         <option value="@vendor.Id">@vendor.VendorName</option>
                                                     }
                                                 </select>
-                                                <button type="button" class="btn btn-sm btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#addVendorModal"></button>
+                                                <button type="button" class="btn btn-sm btn-primary btn-add"
+                                                    data-bs-toggle="modal" data-bs-target="#addVendorModal"></button>
                                             </div>
                                             <span asp-validation-for="VendorId" class="text-danger"></span>
                                         </div>
@@ -85,7 +87,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label asp-for="PurchaseCost" class="form-label">Purchase Cost</label>
-                                            <input asp-for="PurchaseCost" class="form-control" type="number" step="0.01" />
+                                            <input asp-for="PurchaseCost" class="form-control" type="number"
+                                                step="0.01" />
                                             <span asp-validation-for="PurchaseCost" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -98,7 +101,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date</label>
+                                            <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
+                                                Date</label>
                                             <input asp-for="WarrantyExpiryDate" class="form-control" type="date" />
                                             <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
                                         </div>
@@ -129,43 +133,55 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="ComputerInfo_ServiceTag" class="form-label">Service Tag</label>
-                                            <input name="ComputerInfo.ServiceTag" value="@Model.ComputerInfo?.ServiceTag" class="form-control" />
+                                            <input name="ComputerInfo.ServiceTag"
+                                                value="@Model.ComputerInfo?.ServiceTag" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_Manufacturer" class="form-label">Manufacturer</label>
-                                            <input name="ComputerInfo.Manufacturer" value="@Model.ComputerInfo?.Manufacturer" class="form-control" />
+                                            <label for="ComputerInfo_Manufacturer"
+                                                class="form-label">Manufacturer</label>
+                                            <input name="ComputerInfo.Manufacturer"
+                                                value="@Model.ComputerInfo?.Manufacturer" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="ComputerInfo_BiosDate" class="form-label">BIOS Date</label>
-                                            <input name="ComputerInfo.BiosDate" value="@Model.ComputerInfo?.BiosDate?.ToString("yyyy-MM-dd")" class="form-control" type="date" />
+                                            <input name="ComputerInfo.BiosDate"
+                                                value="@Model.ComputerInfo?.BiosDate?.ToString("yyyy-MM-dd")"
+                                                class="form-control" type="date" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="ComputerInfo_Domain" class="form-label">Domain</label>
-                                            <input name="ComputerInfo.Domain" value="@Model.ComputerInfo?.Domain" class="form-control" />
+                                            <input name="ComputerInfo.Domain" value="@Model.ComputerInfo?.Domain"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_SMBiosVersion" class="form-label">SMBios Version</label>
-                                            <input name="ComputerInfo.SMBiosVersion" value="@Model.ComputerInfo?.SMBiosVersion" class="form-control" />
+                                            <label for="ComputerInfo_SMBiosVersion" class="form-label">SMBios
+                                                Version</label>
+                                            <input name="ComputerInfo.SMBiosVersion"
+                                                value="@Model.ComputerInfo?.SMBiosVersion" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_BiosVersion" class="form-label">BIOS Version</label>
-                                            <input name="ComputerInfo.BiosVersion" value="@Model.ComputerInfo?.BiosVersion" class="form-control" />
+                                            <label for="ComputerInfo_BiosVersion" class="form-label">BIOS
+                                                Version</label>
+                                            <input name="ComputerInfo.BiosVersion"
+                                                value="@Model.ComputerInfo?.BiosVersion" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_BiosManufacturer" class="form-label">BIOS Manufacturer</label>
-                                            <input name="ComputerInfo.BiosManufacturer" value="@Model.ComputerInfo?.BiosManufacturer" class="form-control" />
+                                            <label for="ComputerInfo_BiosManufacturer" class="form-label">BIOS
+                                                Manufacturer</label>
+                                            <input name="ComputerInfo.BiosManufacturer"
+                                                value="@Model.ComputerInfo?.BiosManufacturer" class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -180,31 +196,39 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="OperatingSystemInfo_Name" class="form-label">OS Name</label>
-                                            <input name="OperatingSystemInfo.Name" value="@Model.OperatingSystemInfo?.Name" class="form-control" />
+                                            <input name="OperatingSystemInfo.Name"
+                                                value="@Model.OperatingSystemInfo?.Name" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="OperatingSystemInfo_Version" class="form-label">Version</label>
-                                            <input name="OperatingSystemInfo.Version" value="@Model.OperatingSystemInfo?.Version" class="form-control" />
+                                            <input name="OperatingSystemInfo.Version"
+                                                value="@Model.OperatingSystemInfo?.Version" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_BuildNumber" class="form-label">Build Number</label>
-                                            <input name="OperatingSystemInfo.BuildNumber" value="@Model.OperatingSystemInfo?.BuildNumber" class="form-control" />
+                                            <label for="OperatingSystemInfo_BuildNumber" class="form-label">Build
+                                                Number</label>
+                                            <input name="OperatingSystemInfo.BuildNumber"
+                                                value="@Model.OperatingSystemInfo?.BuildNumber" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_ServicePack" class="form-label">Service Pack</label>
-                                            <input name="OperatingSystemInfo.ServicePack" value="@Model.OperatingSystemInfo?.ServicePack" class="form-control" />
+                                            <label for="OperatingSystemInfo_ServicePack" class="form-label">Service
+                                                Pack</label>
+                                            <input name="OperatingSystemInfo.ServicePack"
+                                                value="@Model.OperatingSystemInfo?.ServicePack" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_ProductId" class="form-label">Product ID</label>
-                                            <input name="OperatingSystemInfo.ProductId" value="@Model.OperatingSystemInfo?.ProductId" class="form-control" />
+                                            <label for="OperatingSystemInfo_ProductId" class="form-label">Product
+                                                ID</label>
+                                            <input name="OperatingSystemInfo.ProductId"
+                                                value="@Model.OperatingSystemInfo?.ProductId" class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -219,13 +243,17 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="MemoryDetails_RAM" class="form-label">RAM (GB)</label>
-                                            <input name="MemoryDetails.RAM" value="@Model.MemoryDetails?.RAM" class="form-control" type="number" />
+                                            <input name="MemoryDetails.RAM" value="@Model.MemoryDetails?.RAM"
+                                                class="form-control" type="number" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="MemoryDetails_VirtualMemory" class="form-label">Virtual Memory (GB)</label>
-                                            <input name="MemoryDetails.VirtualMemory" value="@Model.MemoryDetails?.VirtualMemory" class="form-control" type="number" />
+                                            <label for="MemoryDetails_VirtualMemory" class="form-label">Virtual Memory
+                                                (GB)</label>
+                                            <input name="MemoryDetails.VirtualMemory"
+                                                value="@Model.MemoryDetails?.VirtualMemory" class="form-control"
+                                                type="number" />
                                         </div>
                                     </div>
                                 </div>
@@ -239,26 +267,35 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_ProcessorInfo" class="form-label">Processor Info</label>
-                                            <input name="Processor.ProcessorInfo" value="@Model.Processor?.ProcessorInfo" class="form-control" />
+                                            <label for="Processor_ProcessorInfo" class="form-label">Processor
+                                                Info</label>
+                                            <input name="Processor.ProcessorInfo"
+                                                value="@Model.Processor?.ProcessorInfo" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Processor_Manufacturer" class="form-label">Manufacturer</label>
-                                            <input name="Processor.Manufacturer" value="@Model.Processor?.Manufacturer" class="form-control" />
+                                            <input name="Processor.Manufacturer" value="@Model.Processor?.Manufacturer"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_ClockSpeedMHz" class="form-label">Clock Speed (MHz)</label>
-                                            <input name="Processor.ClockSpeedMHz" value="@Model.Processor?.ClockSpeedMHz" class="form-control" type="number" />
+                                            <label for="Processor_ClockSpeedMHz" class="form-label">Clock Speed
+                                                (MHz)</label>
+                                            <input name="Processor.ClockSpeedMHz"
+                                                value="@Model.Processor?.ClockSpeedMHz" class="form-control"
+                                                type="number" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_NumberOfCores" class="form-label">Number of Cores</label>
-                                            <input name="Processor.NumberOfCores" value="@Model.Processor?.NumberOfCores" class="form-control" type="number" />
+                                            <label for="Processor_NumberOfCores" class="form-label">Number of
+                                                Cores</label>
+                                            <input name="Processor.NumberOfCores"
+                                                value="@Model.Processor?.NumberOfCores" class="form-control"
+                                                type="number" />
                                         </div>
                                     </div>
                                 </div>
@@ -273,25 +310,29 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="HardDisk_Model" class="form-label">Model</label>
-                                            <input name="HardDisk.Model" value="@Model.HardDisk?.Model" class="form-control" />
+                                            <input name="HardDisk.Model" value="@Model.HardDisk?.Model"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="HardDisk_SerialNumber" class="form-label">Serial Number</label>
-                                            <input name="HardDisk.SerialNumber" value="@Model.HardDisk?.SerialNumber" class="form-control" />
+                                            <input name="HardDisk.SerialNumber" value="@Model.HardDisk?.SerialNumber"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="HardDisk_Manufacturer" class="form-label">Manufacturer</label>
-                                            <input name="HardDisk.Manufacturer" value="@Model.HardDisk?.Manufacturer" class="form-control" />
+                                            <input name="HardDisk.Manufacturer" value="@Model.HardDisk?.Manufacturer"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="HardDisk_CapacityGB" class="form-label">Capacity (GB)</label>
-                                            <input name="HardDisk.CapacityGB" value="@Model.HardDisk?.CapacityGB" class="form-control" type="number" />
+                                            <input name="HardDisk.CapacityGB" value="@Model.HardDisk?.CapacityGB"
+                                                class="form-control" type="number" />
                                         </div>
                                     </div>
                                 </div>
@@ -306,19 +347,22 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Keyboard_KeyboardType" class="form-label">Keyboard Type</label>
-                                            <input name="Keyboard.KeyboardType" value="@Model.Keyboard?.KeyboardType" class="form-control" />
+                                            <input name="Keyboard.KeyboardType" value="@Model.Keyboard?.KeyboardType"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Keyboard_Manufacturer" class="form-label">Manufacturer</label>
-                                            <input name="Keyboard.Manufacturer" value="@Model.Keyboard?.Manufacturer" class="form-control" />
+                                            <input name="Keyboard.Manufacturer" value="@Model.Keyboard?.Manufacturer"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Keyboard_SerialNumber" class="form-label">Serial Number</label>
-                                            <input name="Keyboard.SerialNumber" value="@Model.Keyboard?.SerialNumber" class="form-control" />
+                                            <input name="Keyboard.SerialNumber" value="@Model.Keyboard?.SerialNumber"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -333,25 +377,29 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Mouse_MouseType" class="form-label">Mouse Type</label>
-                                            <input name="Mouse.MouseType" value="@Model.Mouse?.MouseType" class="form-control" />
+                                            <input name="Mouse.MouseType" value="@Model.Mouse?.MouseType"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Mouse_SerialNumber" class="form-label">Serial Number</label>
-                                            <input name="Mouse.SerialNumber" value="@Model.Mouse?.SerialNumber" class="form-control" />
+                                            <input name="Mouse.SerialNumber" value="@Model.Mouse?.SerialNumber"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Mouse_MouseButtons" class="form-label">Mouse Buttons</label>
-                                            <input name="Mouse.MouseButtons" value="@Model.Mouse?.MouseButtons" class="form-control" type="number" />
+                                            <input name="Mouse.MouseButtons" value="@Model.Mouse?.MouseButtons"
+                                                class="form-control" type="number" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Mouse_Manufacturer" class="form-label">Manufacturer</label>
-                                            <input name="Mouse.Manufacturer" value="@Model.Mouse?.Manufacturer" class="form-control" />
+                                            <input name="Mouse.Manufacturer" value="@Model.Mouse?.Manufacturer"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -366,25 +414,29 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Monitor_MonitorType" class="form-label">Monitor Type</label>
-                                            <input name="Monitor.MonitorType" value="@Model.Monitor?.MonitorType" class="form-control" />
+                                            <input name="Monitor.MonitorType" value="@Model.Monitor?.MonitorType"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Monitor_SerialNumber" class="form-label">Serial Number</label>
-                                            <input name="Monitor.SerialNumber" value="@Model.Monitor?.SerialNumber" class="form-control" />
+                                            <input name="Monitor.SerialNumber" value="@Model.Monitor?.SerialNumber"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Monitor_Manufacturer" class="form-label">Manufacturer</label>
-                                            <input name="Monitor.Manufacturer" value="@Model.Monitor?.Manufacturer" class="form-control" />
+                                            <input name="Monitor.Manufacturer" value="@Model.Monitor?.Manufacturer"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="Monitor_MaxResolution" class="form-label">Max Resolution</label>
-                                            <input name="Monitor.MaxResolution" value="@Model.Monitor?.MaxResolution" class="form-control" />
+                                            <input name="Monitor.MaxResolution" value="@Model.Monitor?.MaxResolution"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -400,42 +452,59 @@
                                         <div class="form-group mb-3">
                                             <label for="AssetState_Status" class="form-label">Asset Status</label>
                                             <select name="AssetState.Status" class="form-select">
-                                                <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">In Use</option>
-                                                <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">In Store</option>
-                                                <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">In Repair</option>
-                                                <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">Expired</option>
-                                                <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">Disposed</option>
+                                                <option value="1"
+                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">
+                                                    In Use</option>
+                                                <option value="2"
+                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">
+                                                    In Store</option>
+                                                <option value="3"
+                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">
+                                                    In Repair</option>
+                                                <option value="4"
+                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">
+                                                    Expired</option>
+                                                <option value="5"
+                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">
+                                                    Disposed</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_AssociatedTo" class="form-label">Associated To</label>
-                                            <input name="AssetState.AssociatedTo" value="@Model.AssetState?.AssociatedTo" class="form-control" />
+                                            <label for="AssetState_AssociatedTo" class="form-label">Associated
+                                                To</label>
+                                            <input name="AssetState.AssociatedTo"
+                                                value="@Model.AssetState?.AssociatedTo" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="AssetState_Site" class="form-label">Site</label>
-                                            <input name="AssetState.Site" value="@Model.AssetState?.Site" class="form-control" />
+                                            <input name="AssetState.Site" value="@Model.AssetState?.Site"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_StateComments" class="form-label">State Comments</label>
-                                            <input name="AssetState.StateComments" value="@Model.AssetState?.StateComments" class="form-control" />
+                                            <label for="AssetState_StateComments" class="form-label">State
+                                                Comments</label>
+                                            <input name="AssetState.StateComments"
+                                                value="@Model.AssetState?.StateComments" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="AssetState_UserId" class="form-label">User ID</label>
-                                            <input name="AssetState.UserId" value="@Model.AssetState?.UserId" class="form-control" />
+                                            <input name="AssetState.UserId" value="@Model.AssetState?.UserId"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="AssetState_Department" class="form-label">Department</label>
-                                            <input name="AssetState.Department" value="@Model.AssetState?.Department" class="form-control" />
+                                            <input name="AssetState.Department" value="@Model.AssetState?.Department"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -450,52 +519,66 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="NetworkDetails_IPAddress" class="form-label">IP Address</label>
-                                            <input name="NetworkDetails.IPAddress" value="@Model.NetworkDetails?.IPAddress" class="form-control" />
+                                            <input name="NetworkDetails.IPAddress"
+                                                value="@Model.NetworkDetails?.IPAddress" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_MACAddress" class="form-label">MAC Address</label>
-                                            <input name="NetworkDetails.MACAddress" value="@Model.NetworkDetails?.MACAddress" class="form-control" />
+                                            <label for="NetworkDetails_MACAddress" class="form-label">MAC
+                                                Address</label>
+                                            <input name="NetworkDetails.MACAddress"
+                                                value="@Model.NetworkDetails?.MACAddress" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="NetworkDetails_NIC" class="form-label">NIC</label>
-                                            <input name="NetworkDetails.NIC" value="@Model.NetworkDetails?.NIC" class="form-control" />
+                                            <input name="NetworkDetails.NIC" value="@Model.NetworkDetails?.NIC"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="NetworkDetails_Network" class="form-label">Network</label>
-                                            <input name="NetworkDetails.Network" value="@Model.NetworkDetails?.Network" class="form-control" />
+                                            <input name="NetworkDetails.Network" value="@Model.NetworkDetails?.Network"
+                                                class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DefaultGateway" class="form-label">Default Gateway</label>
-                                            <input name="NetworkDetails.DefaultGateway" value="@Model.NetworkDetails?.DefaultGateway" class="form-control" />
+                                            <label for="NetworkDetails_DefaultGateway" class="form-label">Default
+                                                Gateway</label>
+                                            <input name="NetworkDetails.DefaultGateway"
+                                                value="@Model.NetworkDetails?.DefaultGateway" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DHCPEnabled" class="form-label">DHCP Enabled</label>
+                                            <label for="NetworkDetails_DHCPEnabled" class="form-label">DHCP
+                                                Enabled</label>
                                             <select name="NetworkDetails.DHCPEnabled" class="form-select">
-                                                <option value="true" selected="@(Model.NetworkDetails?.DHCPEnabled == true)">Yes</option>
-                                                <option value="false" selected="@(Model.NetworkDetails?.DHCPEnabled == false)">No</option>
+                                                <option value="true"
+                                                    selected="@(Model.NetworkDetails?.DHCPEnabled == true)">Yes</option>
+                                                <option value="false"
+                                                    selected="@(Model.NetworkDetails?.DHCPEnabled == false)">No</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DHCPServer" class="form-label">DHCP Server</label>
-                                            <input name="NetworkDetails.DHCPServer" value="@Model.NetworkDetails?.DHCPServer" class="form-control" />
+                                            <label for="NetworkDetails_DHCPServer" class="form-label">DHCP
+                                                Server</label>
+                                            <input name="NetworkDetails.DHCPServer"
+                                                value="@Model.NetworkDetails?.DHCPServer" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DNSHostname" class="form-label">DNS Hostname</label>
-                                            <input name="NetworkDetails.DNSHostname" value="@Model.NetworkDetails?.DNSHostname" class="form-control" />
+                                            <label for="NetworkDetails_DNSHostname" class="form-label">DNS
+                                                Hostname</label>
+                                            <input name="NetworkDetails.DNSHostname"
+                                                value="@Model.NetworkDetails?.DNSHostname" class="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -581,7 +664,8 @@
                 <form id="addVendorForm">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="vendorName" class="form-label">اسم المورد <span class="text-danger">*</span></label>
+                            <label for="vendorName" class="form-label">اسم المورد <span
+                                    class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="vendorName" required>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -664,15 +748,18 @@
             <div class="modal-body">
                 <form id="addProductForm">
                     <div class="mb-3">
-                        <label for="productType" class="form-label">نوع المنتج <span class="text-danger">*</span></label>
+                        <label for="productType" class="form-label">نوع المنتج <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productType" value="Computer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productName" class="form-label">اسم المنتج <span class="text-danger">*</span></label>
+                        <label for="productName" class="form-label">اسم المنتج <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="manufacturer" class="form-label">الشركة المصنعة <span class="text-danger">*</span></label>
+                        <label for="manufacturer" class="form-label">الشركة المصنعة <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="manufacturer" required>
                     </div>
                     <div class="mb-3">
@@ -704,8 +791,10 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
     <script>
         function saveVendor() {
             const form = document.getElementById('addVendorForm');

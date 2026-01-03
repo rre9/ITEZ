@@ -14,7 +14,7 @@
         position: relative;
         height: 100%;
     }
-    
+
     .asset-type-card::before {
         content: '';
         position: absolute;
@@ -26,31 +26,31 @@
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
+
     .asset-type-card:hover {
         transform: translateY(-12px) scale(1.02);
         box-shadow: 0 20px 40px rgba(0, 102, 204, 0.15);
         border-color: #0066cc;
     }
-    
+
     .asset-type-card:hover::before {
         opacity: 1;
     }
-    
+
     .asset-type-card .card-body {
         padding: 2rem 1.5rem;
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .asset-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
     }
-    
+
     .asset-icon-badge {
         width: 64px;
         height: 64px;
@@ -63,18 +63,18 @@
         flex-shrink: 0;
         transition: all 0.3s ease;
     }
-    
+
     .asset-type-card:hover .asset-icon-badge {
         background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
         transform: rotate(-5deg) scale(1.1);
     }
-    
+
     .asset-icon-badge i {
         font-size: 2rem;
         color: #0066cc;
         transition: all 0.3s ease;
     }
-    
+
     .asset-icon-badge img {
         width: 48px;
         height: 48px;
@@ -82,22 +82,22 @@
         transition: all 0.3s ease;
         filter: brightness(1) contrast(1.1);
     }
-    
+
     .asset-type-card:hover .asset-icon-badge img {
-        filter: brightness(1.2) contrast(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.3));
+        filter: brightness(1.2) contrast(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
         transform: scale(1.1);
     }
-    
+
     .asset-type-card:hover .asset-icon-badge i {
         color: white;
         transform: scale(1.1);
     }
-    
+
     .asset-info {
         flex: 1;
         min-width: 0;
     }
-    
+
     .asset-type-title {
         font-size: 1rem;
         font-weight: 700;
@@ -105,7 +105,7 @@
         margin: 0 0 0.25rem 0;
         letter-spacing: -0.01em;
     }
-    
+
     .asset-total-badge {
         display: inline-flex;
         align-items: center;
@@ -119,18 +119,18 @@
         box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
         transition: all 0.3s ease;
     }
-    
+
     .asset-type-card:hover .asset-total-badge {
         transform: scale(1.05);
         box-shadow: 0 6px 16px rgba(0, 102, 204, 0.35);
     }
-    
+
     .asset-total-badge small {
         font-size: 0.7rem;
         opacity: 0.9;
         font-weight: 600;
     }
-    
+
     .add-asset-btn {
         width: 40px;
         height: 40px;
@@ -145,7 +145,7 @@
         transition: all 0.3s ease;
         flex-shrink: 0;
     }
-    
+
     .add-asset-btn:hover {
         background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
         color: white;
@@ -153,14 +153,14 @@
         transform: rotate(90deg) scale(1.1);
         box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
     }
-    
+
     .asset-stats-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.75rem;
         margin: 0.5rem 0;
     }
-    
+
     .stat-box {
         padding: 0.75rem;
         background: white;
@@ -168,13 +168,13 @@
         border: 1px solid #e5e7eb;
         transition: all 0.2s ease;
     }
-    
+
     .stat-box:hover {
         border-color: #0066cc;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 102, 204, 0.1);
     }
-    
+
     .stat-label {
         font-size: 0.75rem;
         font-weight: 600;
@@ -183,18 +183,29 @@
         letter-spacing: 0.05em;
         margin-bottom: 0.25rem;
     }
-    
+
     .stat-value {
         font-size: 1.5rem;
         font-weight: 800;
         color: #1e293b;
     }
-    
-    .stat-box.in-use .stat-value { color: #10b981; }
-    .stat-box.in-store .stat-value { color: #3b82f6; }
-    .stat-box.in-repair .stat-value { color: #f59e0b; }
-    .stat-box.others .stat-value { color: #6b7280; }
-    
+
+    .stat-box.in-use .stat-value {
+        color: #10b981;
+    }
+
+    .stat-box.in-store .stat-value {
+        color: #3b82f6;
+    }
+
+    .stat-box.in-repair .stat-value {
+        color: #f59e0b;
+    }
+
+    .stat-box.others .stat-value {
+        color: #6b7280;
+    }
+
     .view-all-btn {
         margin-top: auto;
         padding: 0.65rem 1rem;
@@ -206,7 +217,7 @@
         background: white;
         color: #0066cc;
     }
-    
+
     .view-all-btn:hover {
         background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
         border-color: #0066cc;
@@ -214,11 +225,11 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 16px rgba(0, 102, 204, 0.2);
     }
-    
+
     .view-all-btn i {
         transition: transform 0.3s ease;
     }
-    
+
     .view-all-btn:hover i {
         transform: translateX(4px);
     }
@@ -242,14 +253,15 @@
         <div class="container-xl">
             <!-- Assets Grid -->
             <div class="row row-deck row-cards g-4">
-                
+
                 <!-- Access Points -->
                 <div class="col-sm-6 col-lg-4 col-xl-3">
                     <div class="card asset-type-card">
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/AccessPoint.png" alt="Access Point" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/AccessPoint.png" alt="Access Point"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Access Point</h3>
@@ -258,11 +270,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreateAccessPoint", "Assets")" class="add-asset-btn" title="Add Access Point">
+                                <a href="@Url.Action("CreateAccessPoint", "Assets")" class="add-asset-btn"
+                                    title="Add Access Point">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -281,7 +294,7 @@
                                     <div class="stat-value">@Model.AccessPoints.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("AccessPoints", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -295,7 +308,8 @@
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/pc.png" alt="Computer" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/pc.png" alt="Computer"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Computer</h3>
@@ -304,11 +318,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreateComputer", "Assets")" class="add-asset-btn" title="Add Computer">
+                                <a href="@Url.Action("CreateComputer", "Assets")" class="add-asset-btn"
+                                    title="Add Computer">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -327,7 +342,7 @@
                                     <div class="stat-value">@Model.Computers.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("Computers", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -341,7 +356,8 @@
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/server.png" alt="Server" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/server.png" alt="Server"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Server</h3>
@@ -350,11 +366,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreateServer", "Assets")" class="add-asset-btn" title="Add Server">
+                                <a href="@Url.Action("CreateServer", "Assets")" class="add-asset-btn"
+                                    title="Add Server">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -373,7 +390,7 @@
                                     <div class="stat-value">@Model.Servers.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("Servers", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -387,7 +404,8 @@
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/iphone.png" alt="Mobile" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/iphone.png" alt="Mobile"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Mobile</h3>
@@ -396,11 +414,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreateSmartphone", "Assets")" class="add-asset-btn" title="Add Mobile">
+                                <a href="@Url.Action("CreateSmartphone", "Assets")" class="add-asset-btn"
+                                    title="Add Mobile">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -419,7 +438,7 @@
                                     <div class="stat-value">@Model.Smartphones.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("Smartphones", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -433,7 +452,8 @@
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/printer.png" alt="Printer" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/printer.png" alt="Printer"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Printer</h3>
@@ -442,11 +462,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreatePrinter", "Assets")" class="add-asset-btn" title="Add Printer">
+                                <a href="@Url.Action("CreatePrinter", "Assets")" class="add-asset-btn"
+                                    title="Add Printer">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -465,7 +486,7 @@
                                     <div class="stat-value">@Model.Printers.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("Printers", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -479,7 +500,8 @@
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/wifi-router.png" alt="Router" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/wifi-router.png" alt="Router"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Router</h3>
@@ -488,11 +510,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreateRouter", "Assets")" class="add-asset-btn" title="Add Router">
+                                <a href="@Url.Action("CreateRouter", "Assets")" class="add-asset-btn"
+                                    title="Add Router">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -511,7 +534,7 @@
                                     <div class="stat-value">@Model.Routers.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("Routers", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
@@ -525,7 +548,8 @@
                         <div class="card-body">
                             <div class="asset-header">
                                 <div class="asset-icon-badge">
-                                    <img src="~/images/assets/network.png" alt="Switch" style="width: 48px; height: 48px; object-fit: contain;" />
+                                    <img src="~/images/assets/network.png" alt="Switch"
+                                        style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
                                     <h3 class="asset-type-title">Switch</h3>
@@ -534,11 +558,12 @@
                                         <small>Total</small>
                                     </div>
                                 </div>
-                                <a href="@Url.Action("CreateSwitch", "Assets")" class="add-asset-btn" title="Add Switch">
+                                <a href="@Url.Action("CreateSwitch", "Assets")" class="add-asset-btn"
+                                    title="Add Switch">
                                     <img src="~/images/assets/add.png" alt="Add" style="width: 20px; height: 20px;" />
                                 </a>
                             </div>
-                            
+
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
                                     <div class="stat-label">In Use</div>
@@ -557,7 +582,7 @@
                                     <div class="stat-value">@Model.Switches.Others</div>
                                 </div>
                             </div>
-                            
+
                             <a href="@Url.Action("Switches", "Assets")" class="btn view-all-btn w-100">
                                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
