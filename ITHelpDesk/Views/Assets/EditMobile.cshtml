@@ -149,7 +149,9 @@
                                         <div class="select-with-add">
                                             <select asp-for="VendorId" class="form-select">
                                                 <option value="">-- Select Vendor --</option>
-                                                @foreach (var vendor in (ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>) ?? new List<ITHelpDesk.Models.Assets.Vendor>())
+                                                @foreach (var vendor in (ViewBag.Vendors as
+                                                                                                List<ITHelpDesk.Models.Assets.Vendor>) ?? new
+                                                                                                List<ITHelpDesk.Models.Assets.Vendor>())
                                                 {
                                                     <option value="@vendor.Id">@vendor.VendorName</option>
                                                 }

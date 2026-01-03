@@ -105,9 +105,12 @@
                                         <div class="select-with-add">
                                             <select asp-for="ProductId" class="form-select" required>
                                                 <option value="">-- Select Product --</option>
-                                                @foreach (var product in (ViewBag.Products as List<ITHelpDesk.Models.Assets.Product>) ?? new List<ITHelpDesk.Models.Assets.Product>())
+                                                @foreach (var product in (ViewBag.Products as
+                                                                                                List<ITHelpDesk.Models.Assets.Product>) ?? new
+                                                                                                List<ITHelpDesk.Models.Assets.Product>())
                                                 {
-                                                    <option value="@product.Id">@product.ProductName - @product.Manufacturer</option>
+                                                    <option value="@product.Id">@product.ProductName - @product.Manufacturer
+                                                    </option>
                                                 }
                                             </select>
                                             <button type="button" class="btn btn-add" data-bs-toggle="modal"
@@ -138,7 +141,9 @@
                                         <div class="select-with-add">
                                             <select asp-for="VendorId" class="form-select">
                                                 <option value="">-- Select Vendor --</option>
-                                                @foreach (var vendor in (ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>) ?? new List<ITHelpDesk.Models.Assets.Vendor>())
+                                                @foreach (var vendor in (ViewBag.Vendors as
+                                                                                                List<ITHelpDesk.Models.Assets.Vendor>) ?? new
+                                                                                                List<ITHelpDesk.Models.Assets.Vendor>())
                                                 {
                                                     <option value="@vendor.Id">@vendor.VendorName</option>
                                                 }
@@ -191,11 +196,21 @@
                                         <label class="form-label">Asset Status</label>
                                         <select name="AssetState.Status" class="form-select">
                                             <option value="">Select Status...</option>
-                                            <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">In Store</option>
-                                            <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">In Use</option>
-                                            <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">In Repair</option>
-                                            <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">Expired</option>
-                                            <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">Disposed</option>
+                                            <option value="1"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">
+                                                In Store</option>
+                                            <option value="2"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">
+                                                In Use</option>
+                                            <option value="3"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">
+                                                In Repair</option>
+                                            <option value="4"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">
+                                                Expired</option>
+                                            <option value="5"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">
+                                                Disposed</option>
                                         </select>
                                     </div>
 

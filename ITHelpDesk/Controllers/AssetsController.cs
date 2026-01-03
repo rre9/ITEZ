@@ -2492,7 +2492,7 @@ public class AssetsController : Controller
                         CreatedAt = DateTime.UtcNow
                     };
                 }
-                
+
                 existingPrinter.AssetState.Status = model.AssetState.Status;
                 existingPrinter.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
                 existingPrinter.AssetState.Site = model.AssetState.Site;
@@ -2512,7 +2512,7 @@ public class AssetsController : Controller
                         CreatedAt = DateTime.UtcNow
                     };
                 }
-                
+
                 existingPrinter.NetworkDetails.IPAddress = model.NetworkDetails.IPAddress;
                 existingPrinter.NetworkDetails.MACAddress = model.NetworkDetails.MACAddress;
                 existingPrinter.NetworkDetails.NIC = model.NetworkDetails.NIC;

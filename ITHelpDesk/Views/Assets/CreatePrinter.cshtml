@@ -81,39 +81,40 @@
                             <form asp-action="CreatePrinter" method="post" class="needs-validation" novalidate>
                                 @Html.AntiForgeryToken()
 
-                        <div class="row">
-                            <!-- Basic Information -->
-                            <div class="col-md-12">
-                                <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
-                            </div>
+                                <div class="row">
+                                    <!-- Basic Information -->
+                                    <div class="col-md-12">
+                                        <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
+                                    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Name" class="form-label">Name <span class="text-danger">*</span></label>
-                                <input asp-for="Name" class="form-control" required />
-                                <span asp-validation-for="Name" class="text-danger"></span>
-                            </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Name" class="form-label">Name <span
+                                                class="text-danger">*</span></label>
+                                        <input asp-for="Name" class="form-control" required />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ProductId" class="form-label">Product <span
-                                        class="text-danger">*</span></label>
-                                <div class="select-with-add">
-                                    <select asp-for="ProductId" class="form-select" required>
-                                        <option value="">-- Select Product --</option>
-                                        @if (ViewBag.Products != null)
-                                        {
-                                            @foreach (var product in ViewBag.Products as
-                                                                                    List<ITHelpDesk.Models.Assets.Product>)
-                                            {
-                                                <option value="@product.Id">@product.ProductName - @product.Manufacturer
-                                                </option>
-                                            }
-                                        }
-                                    </select>
-                                    <button type="button" class="btn btn-add" data-bs-toggle="modal"
-                                        data-bs-target="#addProductModal" title="Add New Product"></button>
-                                </div>
-                                <span asp-validation-for="ProductId" class="text-danger"></span>
-                            </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ProductId" class="form-label">Product <span
+                                                class="text-danger">*</span></label>
+                                        <div class="select-with-add">
+                                            <select asp-for="ProductId" class="form-select" required>
+                                                <option value="">-- Select Product --</option>
+                                                @if (ViewBag.Products != null)
+                                                {
+                                                    @foreach (var product in ViewBag.Products as
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
+                                                    {
+                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addProductModal" title="Add New Product"></button>
+                                        </div>
+                                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                                    </div>
 
                                     <!-- Asset Details -->
                                     <div class="col-md-12 mt-3">
@@ -139,7 +140,8 @@
                                                 <option value="">-- Select Vendor --</option>
                                                 @if (ViewBag.Vendors != null)
                                                 {
-                                                    @foreach (var vendor in ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>)
+                                                    @foreach (var vendor in ViewBag.Vendors as
+                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
                                                     {
                                                         <option value="@vendor.Id">@vendor.VendorName</option>
                                                     }
@@ -149,7 +151,8 @@
                                                 data-bs-target="#addVendorModal" title="Add New Vendor"></button>
                                         </div>
                                         <span asp-validation-for="VendorId" class="text-danger"></span>
-                                    </div>                                    <div class="col-md-6 mb-3">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
                                         <label asp-for="PurchaseCost" class="form-label">Purchase Cost</label>
                                         <input asp-for="PurchaseCost" class="form-control" type="number" step="0.01" />
                                         <span asp-validation-for="PurchaseCost" class="text-danger"></span>
@@ -174,7 +177,8 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date</label>
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
+                                            Date</label>
                                         <input asp-for="WarrantyExpiryDate" class="form-control" type="date" />
                                         <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
                                     </div>
