@@ -1155,6 +1155,645 @@ public class AssetsController : Controller
 
     #endregion
 
+    #region Servers
+
+    // GET: Assets/Servers
+    public async Task<IActionResult> Servers()
+    {
+        var servers = await _context.Servers
+            .Include(s => s.Product)
+            .Include(s => s.Vendor)
+            .Include(s => s.AssetState)
+            .Include(s => s.NetworkDetails)
+            .Include(s => s.ComputerInfo)
+            .Include(s => s.OperatingSystemInfo)
+            .Include(s => s.MemoryDetails)
+            .Include(s => s.Processor)
+            .Include(s => s.HardDisk)
+            .Include(s => s.Keyboard)
+            .Include(s => s.Mouse)
+            .Include(s => s.Monitor)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return View(servers);
+    }
+
+    // GET: Assets/CreateServer
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> CreateServer()
+    {
+        ViewBag.Products = await _context.Products.ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+        return View();
+    }
+
+    // POST: Assets/CreateServer
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateServer(ServerCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(model);
+        }
+
+        try
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Create Computer Info
+            ComputerInfo? computerInfo = null;
+            if (!string.IsNullOrEmpty(model.ServiceTag) || !string.IsNullOrEmpty(model.ComputerManufacturer))
+            {
+                computerInfo = new ComputerInfo
+                {
+                    ServiceTag = model.ServiceTag,
+                    Manufacturer = model.ComputerManufacturer,
+                    BiosDate = model.BiosDate,
+                    Domain = model.Domain,
+                    SMBiosVersion = model.SMBiosVersion,
+                    BiosVersion = model.BiosVersion,
+                    BiosManufacturer = model.BiosManufacturer,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ComputerInfos.Add(computerInfo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Operating System Info
+            OperatingSystemInfo? osInfo = null;
+            if (!string.IsNullOrEmpty(model.OSName))
+            {
+                osInfo = new OperatingSystemInfo
+                {
+                    Name = model.OSName,
+                    Version = model.OSVersion,
+                    BuildNumber = model.BuildNumber,
+                    ServicePack = model.ServicePack,
+                    ProductId = model.OSProductId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.OperatingSystemInfos.Add(osInfo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Memory Details
+            MemoryDetails? memoryDetails = null;
+            if (model.RAM.HasValue || model.VirtualMemory.HasValue)
+            {
+                memoryDetails = new MemoryDetails
+                {
+                    RAM = model.RAM,
+                    VirtualMemory = model.VirtualMemory,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.MemoryDetails.Add(memoryDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Processor
+            Processor? processor = null;
+            if (!string.IsNullOrEmpty(model.ProcessorInfo))
+            {
+                processor = new Processor
+                {
+                    ProcessorInfo = model.ProcessorInfo,
+                    Manufacturer = model.ProcessorManufacturer,
+                    ClockSpeedMHz = model.ClockSpeedMHz,
+                    NumberOfCores = model.NumberOfCores,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Processors.Add(processor);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Hard Disk
+            HardDisk? hardDisk = null;
+            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            {
+                hardDisk = new HardDisk
+                {
+                    Model = model.HardDiskModel,
+                    SerialNumber = model.HardDiskSerialNumber,
+                    Manufacturer = model.HardDiskManufacturer,
+                    CapacityGB = model.CapacityGB,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.HardDisks.Add(hardDisk);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Keyboard
+            Keyboard? keyboard = null;
+            if (!string.IsNullOrEmpty(model.KeyboardType))
+            {
+                keyboard = new Keyboard
+                {
+                    KeyboardType = model.KeyboardType,
+                    Manufacturer = model.KeyboardManufacturer,
+                    SerialNumber = model.KeyboardSerialNumber,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Keyboards.Add(keyboard);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Mouse
+            Mouse? mouse = null;
+            if (!string.IsNullOrEmpty(model.MouseType))
+            {
+                mouse = new Mouse
+                {
+                    MouseType = model.MouseType,
+                    SerialNumber = model.MouseSerialNumber,
+                    MouseButtons = model.MouseButtons,
+                    Manufacturer = model.MouseManufacturer,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Mice.Add(mouse);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Monitor
+            ITHelpDesk.Models.Assets.Monitor? monitor = null;
+            if (!string.IsNullOrEmpty(model.MonitorType))
+            {
+                monitor = new ITHelpDesk.Models.Assets.Monitor
+                {
+                    MonitorType = model.MonitorType,
+                    SerialNumber = model.MonitorSerialNumber,
+                    Manufacturer = model.MonitorManufacturer,
+                    MaxResolution = model.MaxResolution,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.Monitors.Add(monitor);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Asset State
+            var assetState = new AssetState
+            {
+                Status = model.Status,
+                AssociatedTo = model.AssociatedTo,
+                Site = model.Site,
+                StateComments = model.StateComments,
+                UserId = model.UserId,
+                Department = model.Department,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.AssetStates.Add(assetState);
+            await _context.SaveChangesAsync();
+
+            // Create Network Details
+            NetworkDetails? networkDetails = null;
+            if (!string.IsNullOrEmpty(model.IPAddress) || !string.IsNullOrEmpty(model.MACAddress))
+            {
+                networkDetails = new NetworkDetails
+                {
+                    IPAddress = model.IPAddress,
+                    MACAddress = model.MACAddress,
+                    NIC = model.NIC,
+                    Network = model.Network,
+                    DefaultGateway = model.DefaultGateway,
+                    DHCPEnabled = model.DHCPEnabled,
+                    DHCPServer = model.DHCPServer,
+                    DNSHostname = model.DNSHostname,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.NetworkDetails.Add(networkDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // Create Server
+            var server = new Server
+            {
+                Name = model.Name,
+                ProductId = model.ProductId,
+                SerialNumber = model.SerialNumber,
+                AssetTag = model.AssetTag,
+                VendorId = model.VendorId,
+                PurchaseCost = model.PurchaseCost ?? 0,
+                ExpiryDate = model.ExpiryDate,
+                Location = model.Location,
+                AcquisitionDate = model.AcquisitionDate,
+                WarrantyExpiryDate = model.WarrantyExpiryDate,
+                AssetStateId = assetState.Id,
+                NetworkDetailsId = networkDetails?.Id,
+                ComputerInfoId = computerInfo?.Id,
+                OperatingSystemInfoId = osInfo?.Id,
+                MemoryDetailsId = memoryDetails?.Id,
+                ProcessorId = processor?.Id,
+                HardDiskId = hardDisk?.Id,
+                KeyboardId = keyboard?.Id,
+                MouseId = mouse?.Id,
+                MonitorId = monitor?.Id,
+                CreatedAt = DateTime.UtcNow,
+                CreatedById = user?.Id
+            };
+
+            _context.Servers.Add(server);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Server created successfully!";
+            return RedirectToAction(nameof(Servers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating server");
+            ModelState.AddModelError("", "An error occurred while creating the server. Please try again.");
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(model);
+        }
+    }
+
+    // GET: Assets/EditServer/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> EditServer(int id)
+    {
+        var server = await _context.Servers
+            .Include(s => s.Product)
+            .Include(s => s.Vendor)
+            .Include(s => s.AssetState)
+            .Include(s => s.NetworkDetails)
+            .Include(s => s.ComputerInfo)
+            .Include(s => s.OperatingSystemInfo)
+            .Include(s => s.MemoryDetails)
+            .Include(s => s.Processor)
+            .Include(s => s.HardDisk)
+            .Include(s => s.Keyboard)
+            .Include(s => s.Mouse)
+            .Include(s => s.Monitor)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (server == null)
+        {
+            return NotFound();
+        }
+
+        var model = new ServerCreateViewModel
+        {
+            Id = server.Id,
+            Name = server.Name,
+            ProductId = server.ProductId,
+            SerialNumber = server.SerialNumber,
+            AssetTag = server.AssetTag,
+            VendorId = server.VendorId,
+            PurchaseCost = server.PurchaseCost,
+            ExpiryDate = server.ExpiryDate,
+            Location = server.Location,
+            AcquisitionDate = server.AcquisitionDate,
+            WarrantyExpiryDate = server.WarrantyExpiryDate,
+            Status = server.AssetState?.Status ?? AssetStatusEnum.InStore,
+            AssociatedTo = server.AssetState?.AssociatedTo,
+            Site = server.AssetState?.Site,
+            StateComments = server.AssetState?.StateComments,
+            UserId = server.AssetState?.UserId,
+            Department = server.AssetState?.Department,
+            IPAddress = server.NetworkDetails?.IPAddress,
+            MACAddress = server.NetworkDetails?.MACAddress,
+            NIC = server.NetworkDetails?.NIC,
+            Network = server.NetworkDetails?.Network,
+            DefaultGateway = server.NetworkDetails?.DefaultGateway,
+            DHCPEnabled = server.NetworkDetails?.DHCPEnabled ?? false,
+            DHCPServer = server.NetworkDetails?.DHCPServer,
+            DNSHostname = server.NetworkDetails?.DNSHostname,
+            ServiceTag = server.ComputerInfo?.ServiceTag,
+            ComputerManufacturer = server.ComputerInfo?.Manufacturer,
+            BiosDate = server.ComputerInfo?.BiosDate,
+            Domain = server.ComputerInfo?.Domain,
+            SMBiosVersion = server.ComputerInfo?.SMBiosVersion,
+            BiosVersion = server.ComputerInfo?.BiosVersion,
+            BiosManufacturer = server.ComputerInfo?.BiosManufacturer,
+            OSName = server.OperatingSystemInfo?.Name,
+            OSVersion = server.OperatingSystemInfo?.Version,
+            BuildNumber = server.OperatingSystemInfo?.BuildNumber,
+            ServicePack = server.OperatingSystemInfo?.ServicePack,
+            OSProductId = server.OperatingSystemInfo?.ProductId,
+            RAM = server.MemoryDetails?.RAM,
+            VirtualMemory = server.MemoryDetails?.VirtualMemory,
+            ProcessorInfo = server.Processor?.ProcessorInfo,
+            ProcessorManufacturer = server.Processor?.Manufacturer,
+            ClockSpeedMHz = server.Processor?.ClockSpeedMHz,
+            NumberOfCores = server.Processor?.NumberOfCores,
+            HardDiskModel = server.HardDisk?.Model,
+            HardDiskSerialNumber = server.HardDisk?.SerialNumber,
+            HardDiskManufacturer = server.HardDisk?.Manufacturer,
+            CapacityGB = server.HardDisk?.CapacityGB,
+            KeyboardType = server.Keyboard?.KeyboardType,
+            KeyboardManufacturer = server.Keyboard?.Manufacturer,
+            KeyboardSerialNumber = server.Keyboard?.SerialNumber,
+            MouseType = server.Mouse?.MouseType,
+            MouseSerialNumber = server.Mouse?.SerialNumber,
+            MouseButtons = server.Mouse?.MouseButtons,
+            MouseManufacturer = server.Mouse?.Manufacturer,
+            MonitorType = server.Monitor?.MonitorType,
+            MonitorSerialNumber = server.Monitor?.SerialNumber,
+            MonitorManufacturer = server.Monitor?.Manufacturer,
+            MaxResolution = server.Monitor?.MaxResolution
+        };
+
+        ViewBag.Products = await _context.Products.ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+        return View(model);
+    }
+
+    // POST: Assets/EditServer/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditServer(int id, ServerCreateViewModel model)
+    {
+        if (id != model.Id)
+        {
+            return NotFound();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            return View(model);
+        }
+
+        try
+        {
+            var server = await _context.Servers
+                .Include(s => s.NetworkDetails)
+                .Include(s => s.ComputerInfo)
+                .Include(s => s.OperatingSystemInfo)
+                .Include(s => s.MemoryDetails)
+                .Include(s => s.Processor)
+                .Include(s => s.HardDisk)
+                .Include(s => s.Keyboard)
+                .Include(s => s.Mouse)
+                .Include(s => s.Monitor)
+                .Include(s => s.AssetState)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (server == null)
+            {
+                return NotFound();
+            }
+
+            // Update Computer Info
+            if (!string.IsNullOrEmpty(model.ServiceTag) || !string.IsNullOrEmpty(model.ComputerManufacturer))
+            {
+                if (server.ComputerInfo == null)
+                {
+                    server.ComputerInfo = new ComputerInfo { CreatedAt = DateTime.UtcNow };
+                    _context.ComputerInfos.Add(server.ComputerInfo);
+                }
+                server.ComputerInfo.ServiceTag = model.ServiceTag;
+                server.ComputerInfo.Manufacturer = model.ComputerManufacturer;
+                server.ComputerInfo.BiosDate = model.BiosDate;
+                server.ComputerInfo.Domain = model.Domain;
+                server.ComputerInfo.SMBiosVersion = model.SMBiosVersion;
+                server.ComputerInfo.BiosVersion = model.BiosVersion;
+                server.ComputerInfo.BiosManufacturer = model.BiosManufacturer;
+            }
+
+            // Update Operating System Info
+            if (!string.IsNullOrEmpty(model.OSName))
+            {
+                if (server.OperatingSystemInfo == null)
+                {
+                    server.OperatingSystemInfo = new OperatingSystemInfo { CreatedAt = DateTime.UtcNow };
+                    _context.OperatingSystemInfos.Add(server.OperatingSystemInfo);
+                }
+                server.OperatingSystemInfo.Name = model.OSName;
+                server.OperatingSystemInfo.Version = model.OSVersion;
+                server.OperatingSystemInfo.BuildNumber = model.BuildNumber;
+                server.OperatingSystemInfo.ServicePack = model.ServicePack;
+                server.OperatingSystemInfo.ProductId = model.OSProductId;
+            }
+
+            // Update Memory Details
+            if (model.RAM.HasValue || model.VirtualMemory.HasValue)
+            {
+                if (server.MemoryDetails == null)
+                {
+                    server.MemoryDetails = new MemoryDetails { CreatedAt = DateTime.UtcNow };
+                    _context.MemoryDetails.Add(server.MemoryDetails);
+                }
+                server.MemoryDetails.RAM = model.RAM;
+                server.MemoryDetails.VirtualMemory = model.VirtualMemory;
+            }
+
+            // Update Processor
+            if (!string.IsNullOrEmpty(model.ProcessorInfo))
+            {
+                if (server.Processor == null)
+                {
+                    server.Processor = new Processor { CreatedAt = DateTime.UtcNow };
+                    _context.Processors.Add(server.Processor);
+                }
+                server.Processor.ProcessorInfo = model.ProcessorInfo;
+                server.Processor.Manufacturer = model.ProcessorManufacturer;
+                server.Processor.ClockSpeedMHz = model.ClockSpeedMHz;
+                server.Processor.NumberOfCores = model.NumberOfCores;
+            }
+
+            // Update Hard Disk
+            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            {
+                if (server.HardDisk == null)
+                {
+                    server.HardDisk = new HardDisk { CreatedAt = DateTime.UtcNow };
+                    _context.HardDisks.Add(server.HardDisk);
+                }
+                server.HardDisk.Model = model.HardDiskModel;
+                server.HardDisk.SerialNumber = model.HardDiskSerialNumber;
+                server.HardDisk.Manufacturer = model.HardDiskManufacturer;
+                server.HardDisk.CapacityGB = model.CapacityGB;
+            }
+
+            // Update Keyboard
+            if (!string.IsNullOrEmpty(model.KeyboardType))
+            {
+                if (server.Keyboard == null)
+                {
+                    server.Keyboard = new Keyboard { CreatedAt = DateTime.UtcNow };
+                    _context.Keyboards.Add(server.Keyboard);
+                }
+                server.Keyboard.KeyboardType = model.KeyboardType;
+                server.Keyboard.Manufacturer = model.KeyboardManufacturer;
+                server.Keyboard.SerialNumber = model.KeyboardSerialNumber;
+            }
+
+            // Update Mouse
+            if (!string.IsNullOrEmpty(model.MouseType))
+            {
+                if (server.Mouse == null)
+                {
+                    server.Mouse = new Mouse { CreatedAt = DateTime.UtcNow };
+                    _context.Mice.Add(server.Mouse);
+                }
+                server.Mouse.MouseType = model.MouseType;
+                server.Mouse.SerialNumber = model.MouseSerialNumber;
+                server.Mouse.MouseButtons = model.MouseButtons;
+                server.Mouse.Manufacturer = model.MouseManufacturer;
+            }
+
+            // Update Monitor
+            if (!string.IsNullOrEmpty(model.MonitorType))
+            {
+                if (server.Monitor == null)
+                {
+                    server.Monitor = new ITHelpDesk.Models.Assets.Monitor { CreatedAt = DateTime.UtcNow };
+                    _context.Monitors.Add(server.Monitor);
+                }
+                server.Monitor.MonitorType = model.MonitorType;
+                server.Monitor.SerialNumber = model.MonitorSerialNumber;
+                server.Monitor.Manufacturer = model.MonitorManufacturer;
+                server.Monitor.MaxResolution = model.MaxResolution;
+            }
+
+            // Update Asset State
+            if (server.AssetState != null)
+            {
+                server.AssetState.Status = model.Status;
+                server.AssetState.AssociatedTo = model.AssociatedTo;
+                server.AssetState.Site = model.Site;
+                server.AssetState.StateComments = model.StateComments;
+                server.AssetState.UserId = model.UserId;
+                server.AssetState.Department = model.Department;
+            }
+
+            // Update Network Details
+            if (!string.IsNullOrEmpty(model.IPAddress) || !string.IsNullOrEmpty(model.MACAddress))
+            {
+                if (server.NetworkDetails == null)
+                {
+                    server.NetworkDetails = new NetworkDetails { CreatedAt = DateTime.UtcNow };
+                    _context.NetworkDetails.Add(server.NetworkDetails);
+                }
+                server.NetworkDetails.IPAddress = model.IPAddress;
+                server.NetworkDetails.MACAddress = model.MACAddress;
+                server.NetworkDetails.NIC = model.NIC;
+                server.NetworkDetails.Network = model.Network;
+                server.NetworkDetails.DefaultGateway = model.DefaultGateway;
+                server.NetworkDetails.DHCPEnabled = model.DHCPEnabled;
+                server.NetworkDetails.DHCPServer = model.DHCPServer;
+                server.NetworkDetails.DNSHostname = model.DNSHostname;
+            }
+
+            // Update Server
+            server.Name = model.Name;
+            server.ProductId = model.ProductId;
+            server.SerialNumber = model.SerialNumber;
+            server.AssetTag = model.AssetTag;
+            server.VendorId = model.VendorId;
+            server.PurchaseCost = model.PurchaseCost ?? 0;
+            server.ExpiryDate = model.ExpiryDate;
+            server.Location = model.Location;
+            server.AcquisitionDate = model.AcquisitionDate;
+            server.WarrantyExpiryDate = model.WarrantyExpiryDate;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Server updated successfully!";
+            return RedirectToAction(nameof(Servers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating server");
+            ModelState.AddModelError("", "An error occurred while updating the server. Please try again.");
+
+            ViewBag.Products = await _context.Products.ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+
+            return View(model);
+        }
+    }
+
+    // POST: Assets/DeleteServer/5
+    [Authorize(Roles = "Admin,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteServer(int id)
+    {
+        try
+        {
+            var server = await _context.Servers
+                .Include(s => s.NetworkDetails)
+                .Include(s => s.ComputerInfo)
+                .Include(s => s.OperatingSystemInfo)
+                .Include(s => s.MemoryDetails)
+                .Include(s => s.Processor)
+                .Include(s => s.HardDisk)
+                .Include(s => s.Keyboard)
+                .Include(s => s.Mouse)
+                .Include(s => s.Monitor)
+                .Include(s => s.AssetState)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (server == null)
+            {
+                return NotFound();
+            }
+
+            // Delete related records
+            if (server.NetworkDetails != null)
+                _context.NetworkDetails.Remove(server.NetworkDetails);
+
+            if (server.ComputerInfo != null)
+                _context.ComputerInfos.Remove(server.ComputerInfo);
+
+            if (server.OperatingSystemInfo != null)
+                _context.OperatingSystemInfos.Remove(server.OperatingSystemInfo);
+
+            if (server.MemoryDetails != null)
+                _context.MemoryDetails.Remove(server.MemoryDetails);
+
+            if (server.Processor != null)
+                _context.Processors.Remove(server.Processor);
+
+            if (server.HardDisk != null)
+                _context.HardDisks.Remove(server.HardDisk);
+
+            if (server.Keyboard != null)
+                _context.Keyboards.Remove(server.Keyboard);
+
+            if (server.Mouse != null)
+                _context.Mice.Remove(server.Mouse);
+
+            if (server.Monitor != null)
+                _context.Monitors.Remove(server.Monitor);
+
+            if (server.AssetState != null)
+                _context.AssetStates.Remove(server.AssetState);
+
+            _context.Servers.Remove(server);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Server deleted successfully!";
+            return RedirectToAction(nameof(Servers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting server");
+            TempData["ErrorMessage"] = "An error occurred while deleting the server.";
+            return RedirectToAction(nameof(Servers));
+        }
+    }
+
+    #endregion
+
     // DTO class for Product creation
     public class ProductDto
     {
