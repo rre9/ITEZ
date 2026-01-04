@@ -117,6 +117,46 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
             if (isAccessRequestInITStage || isServiceRequestInITStage)
             {
                 context.Succeed(requirement);
+                return;
+            }
+        }
+
+        // Allow Manager, Security, and IT to view System Change Requests
+        // - Manager: Can view if their ManagerId is in the description
+        // - Security: Can view all System Change Requests (Department=Security)
+        // - IT: Can view System Change Requests assigned to them or approved by Security
+        if (resource.Title != null && resource.Title.StartsWith("System Change Request", StringComparison.OrdinalIgnoreCase))
+        {
+            if (context.User.IsInRole("Manager"))
+            {
+                // Manager can view if their ID is in the description (they were involved in approval)
+                if (resource.Description != null && resource.Description.Contains($"ManagerId={userId}"))
+                {
+                    context.Succeed(requirement);
+                    return;
+                }
+            }
+            
+            if (context.User.IsInRole("Security"))
+            {
+                // Security can view all System Change Requests with Security department
+                if (resource.Department == "Security")
+                {
+                    context.Succeed(requirement);
+                    return;
+                }
+            }
+            
+            if (context.User.IsInRole("IT"))
+            {
+                // IT can view System Change Requests assigned to them or after Security approval
+                var isApproved = resource.Description != null && 
+                                resource.Description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
+                if (isApproved || resource.AssignedToId == userId)
+                {
+                    context.Succeed(requirement);
+                    return;
+                }
             }
         }
     }

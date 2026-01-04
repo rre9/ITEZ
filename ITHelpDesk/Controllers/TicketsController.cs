@@ -463,10 +463,36 @@ public class TicketsController : Controller
             .OrderByDescending(ar => ar.CreatedAt)
             .ToListAsync();
 
-        // Include system change tickets assigned to this user (created with title prefix)
-        var systemChangeTickets = await _context.Tickets
-            .Where(t => t.AssignedToId == currentUser.Id && t.Title.StartsWith("System Change Request"))
+        // Include system change tickets with smart filtering:
+        // - Security role: Show ALL tickets with Department=Security OR assigned to them (keeps tickets visible during forward/approve cycles)
+        // - Manager role: Show tickets currently assigned to them OR tickets where they are the selected manager
+        // - Other roles: Only show tickets directly assigned to them
+        IQueryable<Ticket> systemChangeQuery = _context.Tickets
+            .Where(t => t.Title.StartsWith("System Change Request"));
+
+        if (User.IsInRole("Security"))
+        {
+            // Security sees all System Change tickets in Security department OR directly assigned
+            systemChangeQuery = systemChangeQuery.Where(t => 
+                t.Department == "Security" || t.AssignedToId == currentUser.Id);
+        }
+        else if (User.IsInRole("Manager"))
+        {
+            // Manager sees tickets assigned to them OR tickets that have their ManagerId in description
+            var managerId = currentUser.Id;
+            systemChangeQuery = systemChangeQuery.Where(t => 
+                t.AssignedToId == currentUser.Id || 
+                t.Description.Contains("ManagerId=" + managerId));
+        }
+        else
+        {
+            // Default: only assigned tickets
+            systemChangeQuery = systemChangeQuery.Where(t => t.AssignedToId == currentUser.Id);
+        }
+
+        var systemChangeTickets = await systemChangeQuery
             .Include(t => t.CreatedBy)
+            .Include(t => t.AssignedTo)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 

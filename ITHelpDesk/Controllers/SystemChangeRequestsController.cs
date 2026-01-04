@@ -97,7 +97,21 @@ namespace ITHelpDesk.Controllers
 
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser is null) return Challenge();
-            if (ticket.AssignedToId != currentUser.Id && !User.IsInRole("Admin")) return Forbid();
+            
+            // Check if ticket is already approved by checking description
+            var isAlreadyApproved = ticket.Description != null && 
+                                   ticket.Description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
+            
+            if (ticket.AssignedToId != currentUser.Id && !User.IsInRole("Admin"))
+            {
+                // If manager already approved this ticket, show friendly message
+                if (isAlreadyApproved && User.IsInRole("Manager"))
+                {
+                    TempData["Toast"] = "⚠️ This request has already been approved and forwarded to Security.";
+                    return RedirectToAction("TeamRequests", "Tickets");
+                }
+                return Forbid();
+            }
 
             return View(ticket);
         }
@@ -208,6 +222,12 @@ namespace ITHelpDesk.Controllers
             if (managerUser != null)
             {
                 ticket.AssignedToId = managerUser.Id;
+                
+                // Add ManagerId to description so we can track it later
+                if (!ticket.Description.Contains("ManagerId="))
+                {
+                    ticket.Description = $"ManagerId={managerUser.Id}\n" + ticket.Description;
+                }
             }
 
             var notes = $"Security forwarded to manager {managerUser?.FullName ?? "Abeer Finance"} for review.";
@@ -249,6 +269,17 @@ namespace ITHelpDesk.Controllers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Helper: Check if manager has approved from Description
+        /// </summary>
+        private static bool IsManagerApproved(string? description)
+        {
+            if (string.IsNullOrWhiteSpace(description))
+                return false;
+
+            return description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
         }
 
         [HttpPost]
