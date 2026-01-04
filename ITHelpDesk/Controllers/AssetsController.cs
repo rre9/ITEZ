@@ -571,6 +571,352 @@ public class AssetsController : Controller
 
     // #endregion
 
+    // #region Routers Management
+
+    // GET: Assets/Routers - عرض جميع أجهزة الراوتر
+    public async Task<IActionResult> Routers()
+    {
+        var routers = await _context.Routers
+            .Include(r => r.Product)
+            .Include(r => r.Vendor)
+            .Include(r => r.AssetState)
+            .Include(r => r.NetworkDetails)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+
+        return View(routers);
+    }
+
+    // GET: Assets/ExportRoutersToExcel
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> ExportRoutersToExcel()
+    {
+        try
+        {
+            var routers = await _context.Routers
+                .Include(r => r.Product)
+                .Include(r => r.Vendor)
+                .Include(r => r.AssetState)
+                .Include(r => r.NetworkDetails)
+                .OrderBy(r => r.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Routers");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Name";
+            worksheet.Cells[1, 3].Value = "Serial Number";
+            worksheet.Cells[1, 4].Value = "Asset Tag";
+            worksheet.Cells[1, 5].Value = "Product";
+            worksheet.Cells[1, 6].Value = "Vendor";
+            worksheet.Cells[1, 7].Value = "Location";
+            worksheet.Cells[1, 8].Value = "IP Address";
+            worksheet.Cells[1, 9].Value = "MAC Address";
+            worksheet.Cells[1, 10].Value = "Default Gateway";
+            worksheet.Cells[1, 11].Value = "DHCP Enabled";
+            worksheet.Cells[1, 12].Value = "Status";
+            worksheet.Cells[1, 13].Value = "Associated To";
+            worksheet.Cells[1, 14].Value = "Site";
+            worksheet.Cells[1, 15].Value = "Department";
+            worksheet.Cells[1, 16].Value = "Purchase Cost";
+            worksheet.Cells[1, 17].Value = "Acquisition Date";
+            worksheet.Cells[1, 18].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 18])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var router in routers)
+            {
+                worksheet.Cells[row, 1].Value = router.Id;
+                worksheet.Cells[row, 2].Value = router.Name;
+                worksheet.Cells[row, 3].Value = router.SerialNumber;
+                worksheet.Cells[row, 4].Value = router.AssetTag;
+                worksheet.Cells[row, 5].Value = router.Product?.ProductName;
+                worksheet.Cells[row, 6].Value = router.Vendor?.VendorName;
+                worksheet.Cells[row, 7].Value = router.Location;
+                worksheet.Cells[row, 8].Value = router.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 9].Value = router.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 10].Value = router.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 11].Value = router.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 12].Value = router.AssetState?.Status.ToString();
+                worksheet.Cells[row, 13].Value = router.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 14].Value = router.AssetState?.Site;
+                worksheet.Cells[row, 15].Value = router.AssetState?.Department;
+                worksheet.Cells[row, 16].Value = router.PurchaseCost;
+                worksheet.Cells[row, 17].Value = router.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 18].Value = router.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"Routers_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting routers to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(Routers));
+        }
+    }
+
+    // GET: Assets/CreateRouter
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> CreateRouter()
+    {
+        ViewBag.Products = await _context.Products
+            .Where(p => p.ProductType == "Router")
+            .ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+
+        return View();
+    }
+
+    // POST: Assets/CreateRouter
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateRouter(RouterCreateViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Router")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            return View(viewModel);
+        }
+
+        try
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            // 1. Create AssetState
+            var assetState = new AssetState
+            {
+                Status = viewModel.AssetStatus,
+                AssociatedTo = viewModel.AssociatedTo,
+                Site = viewModel.Site,
+                UserId = viewModel.UserId,
+                Department = viewModel.Department,
+                StateComments = viewModel.StateComments,
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.AssetStates.Add(assetState);
+            await _context.SaveChangesAsync();
+
+            // 2. Create NetworkDetails (if any network field is provided)
+            NetworkDetails? networkDetails = null;
+            if (!string.IsNullOrWhiteSpace(viewModel.IPAddress) ||
+                !string.IsNullOrWhiteSpace(viewModel.MACAddress) ||
+                !string.IsNullOrWhiteSpace(viewModel.NIC) ||
+                !string.IsNullOrWhiteSpace(viewModel.Network) ||
+                !string.IsNullOrWhiteSpace(viewModel.DefaultGateway) ||
+                viewModel.DHCPEnabled ||
+                !string.IsNullOrWhiteSpace(viewModel.DHCPServer) ||
+                !string.IsNullOrWhiteSpace(viewModel.DNSHostname))
+            {
+                networkDetails = new NetworkDetails
+                {
+                    IPAddress = viewModel.IPAddress,
+                    MACAddress = viewModel.MACAddress,
+                    NIC = viewModel.NIC,
+                    Network = viewModel.Network,
+                    DefaultGateway = viewModel.DefaultGateway,
+                    DHCPEnabled = viewModel.DHCPEnabled,
+                    DHCPServer = viewModel.DHCPServer,
+                    DNSHostname = viewModel.DNSHostname,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.NetworkDetails.Add(networkDetails);
+                await _context.SaveChangesAsync();
+            }
+
+            // 3. Create Router
+            var router = new Router
+            {
+                Name = viewModel.Name,
+                ProductId = viewModel.ProductId,
+                SerialNumber = viewModel.SerialNumber,
+                AssetTag = viewModel.AssetTag,
+                VendorId = viewModel.VendorId,
+                PurchaseCost = viewModel.PurchaseCost,
+                ExpiryDate = viewModel.ExpiryDate,
+                Location = viewModel.Location,
+                AcquisitionDate = viewModel.AcquisitionDate,
+                WarrantyExpiryDate = viewModel.WarrantyExpiryDate,
+                AssetStateId = assetState.Id,
+                NetworkDetailsId = networkDetails?.Id,
+                CreatedById = currentUser?.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Routers.Add(router);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Router created successfully!";
+            return RedirectToAction(nameof(Routers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating router");
+            ModelState.AddModelError("", "Error saving data. Please try again.");
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Router")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            return View(viewModel);
+        }
+    }
+
+    // GET: Assets/EditRouter/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> EditRouter(int id)
+    {
+        var router = await _context.Routers
+            .Include(r => r.NetworkDetails)
+            .Include(r => r.AssetState)
+            .Include(r => r.Product)
+            .Include(r => r.Vendor)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (router == null)
+            return NotFound();
+
+        ViewBag.Products = await _context.Products
+            .Where(p => p.ProductType == "Router")
+            .ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+
+        return View(router);
+    }
+
+    // POST: Assets/EditRouter/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditRouter(int id, Router model)
+    {
+        if (id != model.Id)
+            return NotFound();
+
+        // Remove validation errors for navigation properties
+        ModelState.Remove("Product");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("AssetState");
+        ModelState.Remove("NetworkDetails");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Router")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+            return View(model);
+        }
+
+        try
+        {
+            var existingRouter = await _context.Routers
+                .Include(r => r.NetworkDetails)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (existingRouter == null)
+                return NotFound();
+
+            // Update basic properties
+            existingRouter.Name = model.Name;
+            existingRouter.ProductId = model.ProductId;
+            existingRouter.SerialNumber = model.SerialNumber;
+            existingRouter.AssetTag = model.AssetTag;
+            existingRouter.VendorId = model.VendorId;
+            existingRouter.PurchaseCost = model.PurchaseCost;
+            existingRouter.ExpiryDate = model.ExpiryDate;
+            existingRouter.Location = model.Location;
+            existingRouter.AcquisitionDate = model.AcquisitionDate;
+            existingRouter.WarrantyExpiryDate = model.WarrantyExpiryDate;
+            existingRouter.AssetStateId = model.AssetStateId;
+            existingRouter.UpdatedAt = DateTime.UtcNow;
+
+            // Update NetworkDetails if exists
+            if (existingRouter.NetworkDetails != null && model.NetworkDetails != null)
+            {
+                existingRouter.NetworkDetails.IPAddress = model.NetworkDetails.IPAddress;
+                existingRouter.NetworkDetails.MACAddress = model.NetworkDetails.MACAddress;
+                existingRouter.NetworkDetails.NIC = model.NetworkDetails.NIC;
+                existingRouter.NetworkDetails.Network = model.NetworkDetails.Network;
+                existingRouter.NetworkDetails.DefaultGateway = model.NetworkDetails.DefaultGateway;
+                existingRouter.NetworkDetails.DHCPEnabled = model.NetworkDetails.DHCPEnabled;
+                existingRouter.NetworkDetails.DHCPServer = model.NetworkDetails.DHCPServer;
+                existingRouter.NetworkDetails.DNSHostname = model.NetworkDetails.DNSHostname;
+                existingRouter.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Router updated successfully!";
+            return RedirectToAction(nameof(Routers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating router");
+            ModelState.AddModelError("", "Error updating data. Please try again.");
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Router")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+            return View(model);
+        }
+    }
+
+    // POST: Assets/DeleteRouter/5
+    [Authorize(Roles = "Admin,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteRouter(int id)
+    {
+        var router = await _context.Routers.FindAsync(id);
+        if (router == null)
+            return NotFound();
+
+        try
+        {
+            _context.Routers.Remove(router);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Routers));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting router");
+            return RedirectToAction(nameof(Routers));
+        }
+    }
+
+    // #endregion
+
     // #region Products Management
 
     // API: Get products by type
