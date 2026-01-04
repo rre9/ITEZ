@@ -36,6 +36,8 @@ public class Ticket
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public CloseReason? CloseReason { get; set; }
+
     public ICollection<TicketAttachment> Attachments { get; set; } = new List<TicketAttachment>();
 
     public ICollection<TicketLog> Logs { get; set; } = new List<TicketLog>();

@@ -8,15 +8,15 @@
     <div class="col-12 col-xl-10 col-xxl-9">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4 p-lg-5">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-5">
                     <div>
-                        <h1 class="h3 fw-semibold text-primary mb-1">
+                        <h1 class="h2 fw-bold text-primary mb-2">
                             <i class="fa-solid fa-key me-2"></i>Access Request
                         </h1>
-                        <p class="text-secondary mb-0">Submit a request for system or application access.</p>
+                        <p class="text-muted mb-0 fs-5">Submit a request for system or application access.</p>
                     </div>
                     <a asp-action="SelectRequestType" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Request Types
+                        <i class="fa-solid fa-arrow-left-long me-2"></i>Back
                     </a>
                 </div>
 
@@ -25,14 +25,21 @@
                     
                     <!-- Section 1: Applicant Information -->
                     <div class="mb-5">
-                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-user me-2 text-primary"></i>Applicant Information
-                        </h5>
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                                <i class="fa-solid fa-user text-primary fa-lg"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-0">
+                                Applicant Information
+                            </h5>
+                        </div>
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label asp-for="FullName" class="form-label fw-semibold"></label>
-                                <input asp-for="FullName" class="form-control" />
-                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                                <label asp-for="FullName" class="form-label">
+                                    <i class="fa-solid fa-user me-1 text-muted"></i>Full Name
+                                </label>
+                                <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                                <span asp-validation-for="FullName" class="text-danger small d-block mt-1"></span>
                             </div>
 
                             <div class="col-md-6">
@@ -141,13 +148,13 @@
 
                             <div class="col-md-6">
                                 <label asp-for="StartDate" class="form-label fw-semibold"></label>
-                                <input asp-for="StartDate" type="date" class="form-control" />
+                                <input asp-for="StartDate" type="date" class="form-control" value="@(Model.StartDate != default(DateTime) ? Model.StartDate.ToString("yyyy-MM-dd") : "")" />
                                 <span asp-validation-for="StartDate" class="text-danger small"></span>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="EndDate" class="form-label fw-semibold"></label>
-                                <input asp-for="EndDate" type="date" class="form-control" />
+                                <input asp-for="EndDate" type="date" class="form-control" value="@(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("yyyy-MM-dd") : "")" />
                                 <small class="form-text text-muted">Leave empty for permanent access.</small>
                                 <span asp-validation-for="EndDate" class="text-danger small"></span>
                             </div>
@@ -228,8 +235,8 @@
         })();
 
         // Validate end date is after start date
-        const startDate = document.getElementById('AccessStartDate');
-        const endDate = document.getElementById('AccessEndDate');
+        const startDate = document.getElementById('StartDate');
+        const endDate = document.getElementById('EndDate');
         
         if (startDate && endDate) {
             startDate.addEventListener('change', function() {

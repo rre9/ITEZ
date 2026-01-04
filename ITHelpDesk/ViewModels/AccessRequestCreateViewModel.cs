@@ -58,10 +58,12 @@ public class AccessRequestCreateViewModel
 
     [Required]
     [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     [Display(Name = "Access Start Date")]
     public DateTime StartDate { get; set; }
 
     [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     [Display(Name = "Access End Date")]
     public DateTime? EndDate { get; set; }
 

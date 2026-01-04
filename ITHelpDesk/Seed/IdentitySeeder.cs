@@ -9,7 +9,7 @@ namespace ITHelpDesk.Seed;
 
 public static class IdentitySeeder
 {
-    private static readonly string[] Roles = { "Manager", "Security", "IT" };
+    private static readonly string[] Roles = { "Employee", "Manager", "Security", "IT" };
     private const string DefaultPassword = "Test@123"; // Temporary password for development only
 
     public static async Task SeedAsync(IServiceProvider serviceProvider)
@@ -75,7 +75,52 @@ public static class IdentitySeeder
             }
             else
             {
-                Console.WriteLine($"User already exists: {userInfo.FullName} ({userInfo.Email})");
+                // User exists - reset password to default and ensure role is correct
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(existingUser);
+                var resetResult = await userManager.ResetPasswordAsync(existingUser, resetToken, DefaultPassword);
+                
+                if (resetResult.Succeeded)
+                {
+                    Console.WriteLine($"Password reset for existing user: {userInfo.FullName} ({userInfo.Email})");
+                }
+                else
+                {
+                    var errors = string.Join(", ", resetResult.Errors.Select(e => e.Description));
+                    Console.WriteLine($"Warning: Failed to reset password for '{userInfo.Email}': {errors}");
+                }
+
+                // Ensure user has the correct role
+                var userRoles = await userManager.GetRolesAsync(existingUser);
+                if (!userRoles.Contains(userInfo.Role))
+                {
+                    // Remove from other roles and add to correct role
+                    if (userRoles.Any())
+                    {
+                        await userManager.RemoveFromRolesAsync(existingUser, userRoles);
+                    }
+                    var addToRoleResult = await userManager.AddToRoleAsync(existingUser, userInfo.Role);
+                    if (addToRoleResult.Succeeded)
+                    {
+                        Console.WriteLine($"Role updated for {userInfo.FullName} ({userInfo.Email}) to {userInfo.Role}");
+                    }
+                }
+
+                // Update FullName if it's different
+                if (existingUser.FullName != userInfo.FullName)
+                {
+                    existingUser.FullName = userInfo.FullName;
+                    await userManager.UpdateAsync(existingUser);
+                    Console.WriteLine($"FullName updated for {userInfo.Email}");
+                }
+
+                // Ensure EmailConfirmed is true
+                if (!existingUser.EmailConfirmed)
+                {
+                    existingUser.EmailConfirmed = true;
+                    await userManager.UpdateAsync(existingUser);
+                }
+
+                Console.WriteLine($"User already exists: {userInfo.FullName} ({userInfo.Email}) - Role: {userInfo.Role}");
             }
         }
     }

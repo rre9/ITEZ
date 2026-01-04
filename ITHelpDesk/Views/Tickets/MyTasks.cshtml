@@ -17,23 +17,31 @@
         TicketStatus.InProgress => "bg-info text-dark",
         TicketStatus.Resolved => "bg-success",
         TicketStatus.Rejected => "bg-secondary",
+        TicketStatus.Closed => "bg-dark",
         _ => "bg-light text-dark"
     };
 }
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
-        <h1 class="display-6 fw-semibold text-primary mb-1">
+        <h1 class="display-6 fw-bold text-primary mb-2">
             <i class="fa-solid fa-tasks me-2"></i>Tasks
         </h1>
-        <p class="text-secondary mb-0">Tickets assigned to you.</p>
+        <p class="text-muted mb-0">
+            <i class="fa-solid fa-info-circle me-1"></i>Tickets assigned to you for review or action.
+        </p>
     </div>
 </div>
 
 <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-list-check me-2 text-primary"></i>Assigned Tickets
+        </h5>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th scope="col">Ticket #</th>
@@ -50,10 +58,12 @@
                 @if (!Model.Tickets.Any())
                 {
                     <tr>
-                        <td colspan="8" class="py-5 text-center text-secondary">
-                            <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
-                            <div class="fw-semibold">No tickets assigned to you.</div>
-                            <p class="mb-0">All tickets assigned to you will appear here.</p>
+                        <td colspan="8" class="py-5 text-center">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-inbox fa-4x mb-4 text-muted opacity-50"></i>
+                                <h5 class="fw-semibold text-dark mb-2">No tasks assigned</h5>
+                                <p class="text-muted mb-0">All tickets assigned to you will appear here.</p>
+                            </div>
                         </td>
                     </tr>
                 }

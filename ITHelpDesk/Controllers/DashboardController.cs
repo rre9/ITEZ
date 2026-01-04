@@ -159,17 +159,29 @@ public class DashboardController : Controller
 
         // Get all access requests where manager approved (similar to TeamRequests behavior)
         // This allows Security to see all requests they've reviewed, not just pending ones
+        // Order by ticket creation date (newest first)
         var accessRequests = await _context.AccessRequests
             .Include(ar => ar.Ticket)
                 .ThenInclude(t => t!.CreatedBy)
             .Include(ar => ar.SelectedManager)
             .Where(ar => ar.ManagerApprovalStatus == ApprovalStatus.Approved)
-            .OrderByDescending(ar => ar.ManagerApprovalDate)
+            .OrderByDescending(ar => ar.Ticket != null ? ar.Ticket.CreatedAt : ar.CreatedAt)
+            .ToListAsync();
+
+        // Get all service requests where manager approved (same behavior as Access Requests)
+        // Order by ticket creation date (newest first)
+        var serviceRequests = await _context.ServiceRequests
+            .Include(sr => sr.Ticket)
+                .ThenInclude(t => t!.CreatedBy)
+            .Include(sr => sr.SelectedManager)
+            .Where(sr => sr.ManagerApprovalStatus == ApprovalStatus.Approved)
+            .OrderByDescending(sr => sr.Ticket != null ? sr.Ticket.CreatedAt : sr.CreatedAt)
             .ToListAsync();
 
         var viewModel = new SecurityDashboardViewModel
         {
-            PendingRequests = accessRequests
+            PendingRequests = accessRequests,
+            PendingServiceRequests = serviceRequests
         };
 
         return View(viewModel);

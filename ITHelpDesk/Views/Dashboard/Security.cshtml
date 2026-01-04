@@ -7,26 +7,37 @@
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
-        <h1 class="display-6 fw-semibold text-primary mb-1">
+        <h1 class="display-6 fw-bold text-primary mb-2">
             <i class="fa-solid fa-shield-halved me-2"></i>Security Dashboard
         </h1>
-        <p class="text-secondary mb-0">Review access requests approved by managers. Review pending requests or view previously reviewed requests.</p>
+        <p class="text-muted mb-0">
+            <i class="fa-solid fa-info-circle me-1"></i>Review access requests and service requests approved by managers.
+        </p>
     </div>
     @{
-        var pendingCount = Model.PendingRequests.Count(ar => ar.SecurityApprovalStatus == ApprovalStatus.Pending);
-    }
-    @if (pendingCount > 0)
-    {
-        <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-            <i class="fa-solid fa-exclamation-circle me-2"></i>@pendingCount Pending
-        </span>
+        var pendingAccessCount = Model.PendingRequests.Count(ar => ar.SecurityApprovalStatus == ApprovalStatus.Pending);
+        var pendingServiceCount = Model.PendingServiceRequests.Count(sr => sr.SecurityApprovalStatus == ApprovalStatus.Pending);
+        var pendingCount = pendingAccessCount + pendingServiceCount;
     }
 </div>
 
 <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-semibold">
+                <i class="fa-solid fa-list-check me-2 text-primary"></i>Requests for Review
+            </h5>
+            @if (pendingCount > 0)
+            {
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                    <i class="fa-solid fa-exclamation-circle me-2"></i>@pendingCount Pending
+                </span>
+            }
+        </div>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th scope="col">Ticket #</th>
@@ -38,23 +49,76 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.PendingRequests.Any())
+                    @if (!Model.PendingRequests.Any() && !Model.PendingServiceRequests.Any())
                     {
                         <tr>
-                            <td colspan="6" class="py-5 text-center text-secondary">
-                                <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
-                                <div class="fw-semibold">No access requests found</div>
-                                <p class="mb-0">Access requests approved by managers will appear here.</p>
+                            <td colspan="6" class="py-5 text-center">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-inbox fa-4x mb-4 text-muted opacity-50"></i>
+                                    <h5 class="fw-semibold text-dark mb-2">No requests found</h5>
+                                    <p class="text-muted mb-0">Access requests and service requests approved by managers will appear here.</p>
+                                </div>
                             </td>
                         </tr>
                     }
                     else
                     {
-                        foreach (var request in Model.PendingRequests)
+                        @* Merge and sort Access Requests and Service Requests by creation date (newest first) *@
+                        var accessRequestItems = Model.PendingRequests
+                            .Select(ar => new
+                            {
+                                TicketId = ar.TicketId,
+                                CreatedAt = ar.Ticket?.CreatedAt ?? ar.CreatedAt,
+                                Type = "Access",
+                                Request = (object)ar
+                            });
+                        
+                        var serviceRequestItems = Model.PendingServiceRequests
+                            .Select(sr => new
+                            {
+                                TicketId = sr.TicketId,
+                                CreatedAt = sr.Ticket?.CreatedAt ?? sr.CreatedAt,
+                                Type = "Service",
+                                Request = (object)sr
+                            });
+                        
+                        var allRequests = accessRequestItems
+                            .Concat(serviceRequestItems)
+                            .OrderByDescending(r => r.CreatedAt)
+                            .ToList();
+                        
+                        @foreach (var item in allRequests)
                         {
-                            var ticketNumber = $"HD-{request.TicketId:D6}";
-                            var isPending = request.SecurityApprovalStatus == ApprovalStatus.Pending;
-                            var statusBadgeClass = request.SecurityApprovalStatus switch
+                            var ticketNumber = $"HD-{item.TicketId:D6}";
+                            ApprovalStatus securityStatus;
+                            bool isPending;
+                            string employeeName;
+                            string systemName;
+                            string reviewAction;
+                            string managerName;
+                            
+                            if (item.Type == "Access")
+                            {
+                                var request = (AccessRequest)item.Request;
+                                securityStatus = request.SecurityApprovalStatus;
+                                isPending = securityStatus == ApprovalStatus.Pending;
+                                employeeName = request.FullName;
+                                systemName = request.SystemName;
+                                reviewAction = "ApproveSecurityAccess";
+                                managerName = request.SelectedManager?.FullName ?? "Unknown";
+                            }
+                            else
+                            {
+                                var request = (ServiceRequest)item.Request;
+                                securityStatus = request.SecurityApprovalStatus;
+                                isPending = securityStatus == ApprovalStatus.Pending;
+                                employeeName = request.EmployeeName;
+                                systemName = "Social Media Access";
+                                reviewAction = "ApproveSecurityService";
+                                managerName = request.SelectedManager?.FullName ?? "Unknown";
+                            }
+                            
+                            var statusBadgeClass = securityStatus switch
                             {
                                 ApprovalStatus.Pending => "bg-warning text-dark",
                                 ApprovalStatus.Approved => "bg-success",
@@ -64,24 +128,24 @@
                             
                             <tr>
                                 <td class="fw-semibold text-secondary">@ticketNumber</td>
-                                <td>@request.FullName</td>
-                                <td>@(request.SelectedManager?.FullName ?? "Unknown")</td>
-                                <td>@request.SystemName</td>
+                                <td>@employeeName</td>
+                                <td>@managerName</td>
+                                <td>@systemName</td>
                                 <td>
                                     <span class="badge rounded-pill @statusBadgeClass">
-                                        @request.SecurityApprovalStatus
+                                        @securityStatus
                                     </span>
                                 </td>
                                 <td class="text-nowrap text-end">
                                     @if (isPending)
                                     {
-                                        <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="ApproveSecurityAccess" asp-route-id="@request.TicketId">
+                                        <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="@reviewAction" asp-route-id="@item.TicketId">
                                             <i class="fa-solid fa-shield-halved me-1"></i>Review
                                         </a>
                                     }
                                     else
                                     {
-                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details" asp-route-id="@request.TicketId">
+                                        <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details" asp-route-id="@item.TicketId">
                                             <i class="fa-solid fa-eye me-1"></i>View
                                         </a>
                                     }

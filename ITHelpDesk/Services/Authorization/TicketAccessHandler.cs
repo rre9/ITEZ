@@ -45,43 +45,55 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
             return;
         }
 
-        // Allow if user is the selected manager for an Access Request associated with this ticket
+        // Allow if user is the selected manager for an Access Request or Service Request associated with this ticket
         // This works for both pending and approved states (Manager can always view their assigned requests)
-        var isSelectedManager = await _context.AccessRequests
+        var isSelectedManagerForAccess = await _context.AccessRequests
             .AnyAsync(ar => ar.TicketId == resource.Id && ar.SelectedManagerId == userId);
         
-        if (isSelectedManager)
+        var isSelectedManagerForService = await _context.ServiceRequests
+            .AnyAsync(sr => sr.TicketId == resource.Id && sr.SelectedManagerId == userId);
+        
+        if (isSelectedManagerForAccess || isSelectedManagerForService)
         {
             context.Succeed(requirement);
             return;
         }
 
-        // Allow if user is Manager who has approved/rejected an Access Request for this ticket
+        // Allow if user is Manager who has approved/rejected an Access Request or Service Request for this ticket
         // This ensures Manager can always view tickets they've reviewed, even after reassignment to Security
         if (context.User.IsInRole("Manager"))
         {
-            var hasManagerReviewed = await _context.AccessRequests
+            var hasManagerReviewedAccess = await _context.AccessRequests
                 .AnyAsync(ar => ar.TicketId == resource.Id && 
                                ar.SelectedManagerId == userId &&
                                ar.ManagerApprovalStatus != Models.ApprovalStatus.Pending);
             
-            if (hasManagerReviewed)
+            var hasManagerReviewedService = await _context.ServiceRequests
+                .AnyAsync(sr => sr.TicketId == resource.Id && 
+                               sr.SelectedManagerId == userId &&
+                               sr.ManagerApprovalStatus != Models.ApprovalStatus.Pending);
+            
+            if (hasManagerReviewedAccess || hasManagerReviewedService)
             {
                 context.Succeed(requirement);
                 return;
             }
         }
 
-        // Allow if user is Security who has approved/rejected an Access Request for this ticket
+        // Allow if user is Security who has approved/rejected an Access Request or Service Request for this ticket
         // This ensures Security can always view tickets they've reviewed, even after reassignment to IT
         // Note: Security viewing tickets pending their review is already handled by the assignee check above
         if (context.User.IsInRole("Security"))
         {
-            var hasSecurityReviewed = await _context.AccessRequests
+            var hasSecurityReviewedAccess = await _context.AccessRequests
                 .AnyAsync(ar => ar.TicketId == resource.Id && 
                                ar.SecurityApprovalStatus != Models.ApprovalStatus.Pending);
             
-            if (hasSecurityReviewed)
+            var hasSecurityReviewedService = await _context.ServiceRequests
+                .AnyAsync(sr => sr.TicketId == resource.Id && 
+                               sr.SecurityApprovalStatus != Models.ApprovalStatus.Pending);
+            
+            if (hasSecurityReviewedAccess || hasSecurityReviewedService)
             {
                 context.Succeed(requirement);
                 return;

@@ -25,10 +25,12 @@
                 <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tasks
             </a>
         }
-        <h1 class="display-6 fw-semibold text-primary mb-1 mt-2">
+        <h1 class="display-6 fw-bold text-primary mb-2 mt-2">
             <i class="fa-solid fa-ticket me-2"></i>@ticketNumber
         </h1>
-        <p class="text-secondary mb-0">Opened @Model.CreatedAt.ToLocalTime():f by @Model.CreatedBy?.FullName</p>
+        <p class="text-muted mb-0">
+            <i class="fa-solid fa-clock me-1"></i>Opened @Model.CreatedAt.ToLocalTime():f by <strong>@Model.CreatedBy?.FullName</strong>
+        </p>
     </div>
 </div>
 
@@ -67,47 +69,64 @@
 <div class="row g-4">
     <div class="col-12 col-xl-7">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 pb-0">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="badge rounded-pill bg-primary text-uppercase">@Model.Status</span>
-                    <span class="badge rounded-pill @(Model.Priority == TicketPriority.High ? "bg-danger" : Model.Priority == TicketPriority.Medium ? "bg-warning text-dark" : "bg-success") text-uppercase">
-                        @Model.Priority
-                    </span>
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-file-lines me-2 text-primary"></i>Ticket Details
+                    </h5>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="badge rounded-pill bg-primary text-uppercase">@Model.Status</span>
+                        <span class="badge rounded-pill @(Model.Priority == TicketPriority.High ? "bg-danger" : Model.Priority == TicketPriority.Medium ? "bg-warning text-dark" : "bg-success") text-uppercase">
+                            @Model.Priority
+                        </span>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
-                <h2 class="h4 fw-semibold mb-3">@Model.Title</h2>
+                <h2 class="h4 fw-bold mb-4">@Model.Title</h2>
                 <div class="mb-4">
-                    <h3 class="h6 text-uppercase text-secondary fw-semibold">Department</h3>
-                    <p class="mb-0">@Model.Department</p>
+                    <h3 class="h6 text-uppercase text-muted fw-bold mb-2">
+                        <i class="fa-solid fa-building me-1"></i>Department
+                    </h3>
+                    <p class="mb-0 fs-5">@Model.Department</p>
                 </div>
                 <div class="mb-4">
-                    <h3 class="h6 text-uppercase text-secondary fw-semibold">Description</h3>
-                    <p class="mb-0">@Model.Description</p>
+                    <h3 class="h6 text-uppercase text-muted fw-bold mb-2">
+                        <i class="fa-solid fa-align-left me-1"></i>Description
+                    </h3>
+                    <p class="mb-0 text-dark">@Model.Description</p>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="border rounded-3 p-3 bg-light">
-                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Created By</div>
-                            <div class="fw-semibold">@Model.CreatedBy?.FullName</div>
+                        <div class="border rounded-3 p-3 bg-light h-100">
+                            <div class="text-muted small text-uppercase fw-bold mb-2">
+                                <i class="fa-solid fa-user me-1"></i>Created By
+                            </div>
+                            <div class="fw-semibold fs-6">@Model.CreatedBy?.FullName</div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="border rounded-3 p-3 bg-light">
-                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Assigned To</div>
-                            <div class="fw-semibold">@(Model.AssignedTo?.FullName ?? "Unassigned")</div>
+                        <div class="border rounded-3 p-3 bg-light h-100">
+                            <div class="text-muted small text-uppercase fw-bold mb-2">
+                                <i class="fa-solid fa-user-check me-1"></i>Assigned To
+                            </div>
+                            <div class="fw-semibold fs-6">@(Model.AssignedTo?.FullName ?? "Unassigned")</div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="border rounded-3 p-3 bg-light">
-                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Created At</div>
-                            <div class="fw-semibold">@Model.CreatedAt.ToLocalTime():g</div>
+                        <div class="border rounded-3 p-3 bg-light h-100">
+                            <div class="text-muted small text-uppercase fw-bold mb-2">
+                                <i class="fa-solid fa-calendar-plus me-1"></i>Created At
+                            </div>
+                            <div class="fw-semibold fs-6">@Model.CreatedAt.ToLocalTime():g</div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="border rounded-3 p-3 bg-light">
-                            <div class="text-secondary small text-uppercase fw-semibold mb-1">Last Updated</div>
-                            <div class="fw-semibold">
+                        <div class="border rounded-3 p-3 bg-light h-100">
+                            <div class="text-muted small text-uppercase fw-bold mb-2">
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i>Last Updated
+                            </div>
+                            <div class="fw-semibold fs-6">
                                 @(Model.Logs.OrderByDescending(l => l.Timestamp).FirstOrDefault()?.Timestamp.ToLocalTime().ToString("g") ?? "No updates yet")
                             </div>
                         </div>
@@ -117,8 +136,47 @@
         </div>
     </div>
     <div class="col-12 col-xl-5">
+        @* IT Execution Section - Only visible for IT users in IT Execution stage *@
+        @if (ViewBag.CanITExecute == true)
+        {
+            <div class="card border-0 shadow-sm mb-4 border-primary">
+                <div class="card-header bg-primary text-white border-0">
+                    <h2 class="h5 fw-semibold mb-0">
+                        <i class="fa-solid fa-server me-2"></i>IT Execution
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-secondary mb-4">Final decision for this request. This action will close the ticket.</p>
+                    
+                    <div class="d-flex flex-column gap-3">
+                        <form asp-action="CompleteAndClose" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label for="completionNotes" class="form-label fw-semibold">Completion Notes</label>
+                                <textarea id="completionNotes" name="notes" class="form-control" rows="3" placeholder="Enter completion notes..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fa-solid fa-check-circle me-2"></i>Complete & Close
+                            </button>
+                        </form>
+                        
+                        <form asp-action="RejectAndClose" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label for="rejectionNotes" class="form-label fw-semibold">Rejection Reason</label>
+                                <textarea id="rejectionNotes" name="notes" class="form-control" rows="3" placeholder="Enter rejection reason..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fa-solid fa-times-circle me-2"></i>Reject & Close
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-0 pb-0">
+            <div class="card-header bg-white border-bottom">
                 <h2 class="h5 fw-semibold mb-0">
                     <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
                 </h2>
@@ -152,7 +210,7 @@
         </div>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pb-0">
+            <div class="card-header bg-white border-bottom">
                 <h2 class="h5 fw-semibold mb-0">
                     <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Activity Log
                 </h2>
@@ -161,27 +219,31 @@
                 @if (Model.Logs?.Any() ?? false)
                 {
                     <div class="timeline position-relative ps-4">
-                        <div class="timeline-line"></div>
+                        <div class="timeline-line position-absolute" style="left: 0.5rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--primary-color) 0%, #e9ecef 100%);"></div>
                         @foreach (var log in Model.Logs.OrderByDescending(l => l.Timestamp))
                         {
-                            <div class="timeline-entry mb-4">
-                                <div class="timeline-dot bg-primary"></div>
-                                <div class="timeline-content border rounded-3 bg-light p-3">
-                                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-1">
-                                        <span class="fw-semibold text-uppercase small text-secondary">@log.Action</span>
-                                        <span class="text-secondary small">@log.Timestamp.ToLocalTime():g</span>
+                            <div class="timeline-entry mb-4 position-relative">
+                                <div class="timeline-dot position-absolute bg-primary rounded-circle" style="left: -1.5rem; top: 0.5rem; width: 12px; height: 12px; border: 3px solid white; box-shadow: 0 0 0 2px var(--primary-color);"></div>
+                                <div class="timeline-content border rounded-3 bg-white p-3 shadow-sm">
+                                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                                        <span class="badge bg-primary text-uppercase small">@log.Action</span>
+                                        <span class="text-muted small">
+                                            <i class="fa-solid fa-clock me-1"></i>@log.Timestamp.ToLocalTime():g
+                                        </span>
                                     </div>
-                                    <p class="mb-2">@log.Notes</p>
+                                    <p class="mb-2 text-dark">@log.Notes</p>
                                     @if (log.PerformedBy != null && !string.IsNullOrWhiteSpace(log.PerformedBy.FullName))
                                     {
-                                        <div class="text-secondary small">
-                                            <i class="fa-solid fa-user-circle me-1"></i>@log.PerformedBy.FullName
+                                        <div class="text-muted small d-flex align-items-center">
+                                            <i class="fa-solid fa-user-circle me-2"></i>
+                                            <strong>@log.PerformedBy.FullName</strong>
                                         </div>
                                     }
                                     else
                                     {
-                                        <div class="text-secondary small">
-                                            <i class="fa-solid fa-cog me-1"></i>System
+                                        <div class="text-muted small d-flex align-items-center">
+                                            <i class="fa-solid fa-cog me-2"></i>
+                                            <strong>System</strong>
                                         </div>
                                     }
                                 </div>
@@ -191,7 +253,10 @@
                 }
                 else
                 {
-                    <div class="text-secondary small">No activity logged yet.</div>
+                    <div class="text-center py-4">
+                        <i class="fa-solid fa-clock-rotate-left fa-3x text-muted opacity-25 mb-3"></i>
+                        <p class="text-muted mb-0">No activity logged yet.</p>
+                    </div>
                 }
             </div>
         </div>
@@ -200,22 +265,21 @@
 
 @section Styles {
     <style>
-        .timeline-line {
-            position: absolute;
-            top: 0.5rem;
-            bottom: 0.5rem;
-            left: 0.5rem;
-            width: 2px;
-            background-color: rgba(0, 0, 0, 0.1);
+        .timeline-entry {
+            transition: transform 0.2s ease;
         }
-
-        .timeline-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            position: absolute;
-            left: -0.1rem;
-            top: 0.5rem;
+        
+        .timeline-entry:hover {
+            transform: translateX(5px);
+        }
+        
+        .timeline-content {
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-entry:hover .timeline-content {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            border-color: var(--primary-color) !important;
         }
     </style>
 }
