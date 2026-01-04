@@ -107,7 +107,7 @@
                                                 @if (ViewBag.Products != null)
                                                 {
                                                     @foreach (var product in ViewBag.Products as
-                                                    List<ITHelpDesk.Models.Assets.Product>)
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
                                                     {
                                                         <option value="@product.Id">@product.ProductName - @product.Manufacturer
                                                         </option>
@@ -146,7 +146,7 @@
                                                 @if (ViewBag.Vendors != null)
                                                 {
                                                     @foreach (var vendor in ViewBag.Vendors as
-                                                    List<ITHelpDesk.Models.Assets.Vendor>)
+                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
                                                     {
                                                         <option value="@vendor.Id">@vendor.VendorName</option>
                                                     }

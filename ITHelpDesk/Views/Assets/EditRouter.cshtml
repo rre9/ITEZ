@@ -107,7 +107,7 @@
                                                 @if (ViewBag.Products != null)
                                                 {
                                                     @foreach (var product in ViewBag.Products as
-                                                    List<ITHelpDesk.Models.Assets.Product>)
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
                                                     {
                                                         <option value="@product.Id" selected="@(product.Id == Model.ProductId)">
                                                             @product.ProductName - @product.Manufacturer
@@ -147,7 +147,7 @@
                                                 @if (ViewBag.Vendors != null)
                                                 {
                                                     @foreach (var vendor in ViewBag.Vendors as
-                                                    List<ITHelpDesk.Models.Assets.Vendor>)
+                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
                                                     {
                                                         <option value="@vendor.Id" selected="@(vendor.Id == Model.VendorId)">
                                                             @vendor.VendorName
@@ -208,7 +208,7 @@
                                             @if (ViewBag.AssetStates != null)
                                             {
                                                 @foreach (var state in ViewBag.AssetStates as
-                                                List<ITHelpDesk.Models.Assets.AssetState>)
+                                                                                            List<ITHelpDesk.Models.Assets.AssetState>)
                                                 {
                                                     <option value="@state.Id" selected="@(state.Id == Model.AssetStateId)">
                                                         @state.Status - @state.AssociatedTo
