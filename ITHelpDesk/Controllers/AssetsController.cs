@@ -917,6 +917,342 @@ public class AssetsController : Controller
 
     // #endregion
 
+    // #region Switches Management
+
+    // GET: Assets/Switches - عرض جميع أجهزة السويتش
+    public async Task<IActionResult> Switches()
+    {
+        var switches = await _context.Switches
+            .Include(s => s.Product)
+            .Include(s => s.Vendor)
+            .Include(s => s.AssetState)
+            .Include(s => s.NetworkDetails)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return View(switches);
+    }
+
+    // GET: Assets/ExportSwitchesToExcel
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> ExportSwitchesToExcel()
+    {
+        try
+        {
+            var switches = await _context.Switches
+                .Include(s => s.Product)
+                .Include(s => s.Vendor)
+                .Include(s => s.AssetState)
+                .Include(s => s.NetworkDetails)
+                .OrderBy(s => s.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Switches");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Name";
+            worksheet.Cells[1, 3].Value = "Serial Number";
+            worksheet.Cells[1, 4].Value = "Asset Tag";
+            worksheet.Cells[1, 5].Value = "Product";
+            worksheet.Cells[1, 6].Value = "Vendor";
+            worksheet.Cells[1, 7].Value = "Location";
+            worksheet.Cells[1, 8].Value = "IP Address";
+            worksheet.Cells[1, 9].Value = "MAC Address";
+            worksheet.Cells[1, 10].Value = "Default Gateway";
+            worksheet.Cells[1, 11].Value = "DHCP Enabled";
+            worksheet.Cells[1, 12].Value = "Status";
+            worksheet.Cells[1, 13].Value = "Associated To";
+            worksheet.Cells[1, 14].Value = "Site";
+            worksheet.Cells[1, 15].Value = "Department";
+            worksheet.Cells[1, 16].Value = "Purchase Cost";
+            worksheet.Cells[1, 17].Value = "Acquisition Date";
+            worksheet.Cells[1, 18].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 18])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var switchItem in switches)
+            {
+                worksheet.Cells[row, 1].Value = switchItem.Id;
+                worksheet.Cells[row, 2].Value = switchItem.Name;
+                worksheet.Cells[row, 3].Value = switchItem.SerialNumber;
+                worksheet.Cells[row, 4].Value = switchItem.AssetTag;
+                worksheet.Cells[row, 5].Value = switchItem.Product?.ProductName;
+                worksheet.Cells[row, 6].Value = switchItem.Vendor?.VendorName;
+                worksheet.Cells[row, 7].Value = switchItem.Location;
+                worksheet.Cells[row, 8].Value = switchItem.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 9].Value = switchItem.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 10].Value = switchItem.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 11].Value = switchItem.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 12].Value = switchItem.AssetState?.Status.ToString();
+                worksheet.Cells[row, 13].Value = switchItem.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 14].Value = switchItem.AssetState?.Site;
+                worksheet.Cells[row, 15].Value = switchItem.AssetState?.Department;
+                worksheet.Cells[row, 16].Value = switchItem.PurchaseCost;
+                worksheet.Cells[row, 17].Value = switchItem.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 18].Value = switchItem.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"Switches_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting switches to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(Switches));
+        }
+    }
+
+    // GET: Assets/CreateSwitch
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> CreateSwitch()
+    {
+        ViewBag.Products = await _context.Products
+            .Where(p => p.ProductType == "Switch")
+            .ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+
+        return View();
+    }
+
+    // POST: Assets/CreateSwitch
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateSwitch(SwitchCreateViewModel viewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Switch")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            return View(viewModel);
+        }
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            // إنشاء AssetState
+            var assetState = new AssetState
+            {
+                Status = viewModel.AssetStatus,
+                AssociatedTo = viewModel.AssociatedTo,
+                Site = viewModel.Site,
+                UserId = viewModel.UserId,
+                Department = viewModel.Department,
+                StateComments = viewModel.StateComments
+            };
+            _context.AssetStates.Add(assetState);
+            await _context.SaveChangesAsync();
+
+            // إنشاء NetworkDetails
+            var networkDetails = new NetworkDetails
+            {
+                IPAddress = viewModel.IPAddress,
+                MACAddress = viewModel.MACAddress,
+                NIC = viewModel.NIC,
+                Network = viewModel.Network,
+                DefaultGateway = viewModel.DefaultGateway,
+                DHCPEnabled = viewModel.DHCPEnabled,
+                DHCPServer = viewModel.DHCPServer,
+                DNSHostname = viewModel.DNSHostname
+            };
+            _context.NetworkDetails.Add(networkDetails);
+            await _context.SaveChangesAsync();
+
+            // إنشاء Switch
+            var switchItem = new Switch
+            {
+                Name = viewModel.Name,
+                ProductId = viewModel.ProductId,
+                SerialNumber = viewModel.SerialNumber,
+                AssetTag = viewModel.AssetTag,
+                VendorId = viewModel.VendorId,
+                PurchaseCost = viewModel.PurchaseCost,
+                ExpiryDate = viewModel.ExpiryDate,
+                Location = viewModel.Location,
+                AcquisitionDate = viewModel.AcquisitionDate,
+                WarrantyExpiryDate = viewModel.WarrantyExpiryDate,
+                AssetStateId = assetState.Id,
+                NetworkDetailsId = networkDetails.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Switches.Add(switchItem);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] = "Switch created successfully!";
+            return RedirectToAction(nameof(Switches));
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Error creating switch");
+            ModelState.AddModelError("", "An error occurred while creating the switch.");
+
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Switch")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            return View(viewModel);
+        }
+    }
+
+    // GET: Assets/EditSwitch/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> EditSwitch(int id)
+    {
+        var switchItem = await _context.Switches
+            .Include(s => s.Product)
+            .Include(s => s.Vendor)
+            .Include(s => s.AssetState)
+            .Include(s => s.NetworkDetails)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (switchItem == null)
+            return NotFound();
+
+        ViewBag.Products = await _context.Products
+            .Where(p => p.ProductType == "Switch")
+            .ToListAsync();
+        ViewBag.Vendors = await _context.Vendors.ToListAsync();
+        ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+        ViewBag.SwitchId = id;
+
+        return View(switchItem);
+    }
+
+    // POST: Assets/EditSwitch/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditSwitch(int id, Switch model)
+    {
+        if (id != model.Id)
+            return NotFound();
+
+        // Remove validation errors for navigation properties
+        ModelState.Remove("Product");
+        ModelState.Remove("Vendor");
+        ModelState.Remove("AssetState");
+        ModelState.Remove("NetworkDetails");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Switch")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+            return View(model);
+        }
+
+        try
+        {
+            var existingSwitch = await _context.Switches
+                .Include(s => s.NetworkDetails)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (existingSwitch == null)
+                return NotFound();
+
+            // Update basic properties
+            existingSwitch.Name = model.Name;
+            existingSwitch.ProductId = model.ProductId;
+            existingSwitch.SerialNumber = model.SerialNumber;
+            existingSwitch.AssetTag = model.AssetTag;
+            existingSwitch.VendorId = model.VendorId;
+            existingSwitch.PurchaseCost = model.PurchaseCost;
+            existingSwitch.ExpiryDate = model.ExpiryDate;
+            existingSwitch.Location = model.Location;
+            existingSwitch.AcquisitionDate = model.AcquisitionDate;
+            existingSwitch.WarrantyExpiryDate = model.WarrantyExpiryDate;
+            existingSwitch.AssetStateId = model.AssetStateId;
+            existingSwitch.UpdatedAt = DateTime.UtcNow;
+
+            // Update NetworkDetails if exists
+            if (existingSwitch.NetworkDetails != null && model.NetworkDetails != null)
+            {
+                existingSwitch.NetworkDetails.IPAddress = model.NetworkDetails.IPAddress;
+                existingSwitch.NetworkDetails.MACAddress = model.NetworkDetails.MACAddress;
+                existingSwitch.NetworkDetails.NIC = model.NetworkDetails.NIC;
+                existingSwitch.NetworkDetails.Network = model.NetworkDetails.Network;
+                existingSwitch.NetworkDetails.DefaultGateway = model.NetworkDetails.DefaultGateway;
+                existingSwitch.NetworkDetails.DHCPEnabled = model.NetworkDetails.DHCPEnabled;
+                existingSwitch.NetworkDetails.DHCPServer = model.NetworkDetails.DHCPServer;
+                existingSwitch.NetworkDetails.DNSHostname = model.NetworkDetails.DNSHostname;
+                existingSwitch.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Switch updated successfully!";
+            return RedirectToAction(nameof(Switches));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating switch");
+            ModelState.AddModelError("", "Error updating data. Please try again.");
+            ViewBag.Products = await _context.Products
+                .Where(p => p.ProductType == "Switch")
+                .ToListAsync();
+            ViewBag.Vendors = await _context.Vendors.ToListAsync();
+            ViewBag.AssetStates = await _context.AssetStates.ToListAsync();
+            return View(model);
+        }
+    }
+
+    // POST: Assets/DeleteSwitch/5
+    [Authorize(Roles = "Admin,Support,IT")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteSwitch(int id)
+    {
+        var switchItem = await _context.Switches.FindAsync(id);
+        if (switchItem == null)
+            return NotFound();
+
+        try
+        {
+            _context.Switches.Remove(switchItem);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Switches));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting switch");
+            return RedirectToAction(nameof(Switches));
+        }
+    }
+
+    // #endregion
+
     // #region Products Management
 
     // API: Get products by type
