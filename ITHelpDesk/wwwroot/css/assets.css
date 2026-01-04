@@ -1,3 +1,132 @@
 /* Assets Page Custom Styles */
 
 /* Add any custom styles for Assets pages here */
+
+/* Excel Export Button Styles */
+.btn-excel {
+    background: linear-gradient(135deg, #1d6f42 0%, #28a745 100%);
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(29, 111, 66, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.btn-excel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-excel:hover::before {
+    left: 100%;
+}
+
+.btn-excel:hover {
+    background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(29, 111, 66, 0.4);
+    color: white;
+}
+
+.btn-excel:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(29, 111, 66, 0.3);
+}
+
+.btn-excel i {
+    font-size: 1.1rem;
+    animation: excelPulse 2s ease-in-out infinite;
+}
+
+@keyframes excelPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.btn-excel:hover i {
+    animation: excelBounce 0.6s ease;
+}
+
+@keyframes excelBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-4px);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+
+    75% {
+        transform: translateY(-6px);
+    }
+}
+
+/* Badge for Excel icon */
+.btn-excel .fa-file-excel {
+    color: #ffffff;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Counter badge in Excel button */
+.btn-excel .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-excel {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-excel span {
+        display: none;
+    }
+
+    .btn-excel i {
+        margin: 0 !important;
+    }
+}

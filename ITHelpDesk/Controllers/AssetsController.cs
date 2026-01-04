@@ -239,6 +239,97 @@ public class AssetsController : Controller
         return View(accessPoints);
     }
 
+    // GET: Assets/ExportAccessPointsToExcel
+    [Authorize(Roles = "Admin,Support,IT")]
+    public async Task<IActionResult> ExportAccessPointsToExcel()
+    {
+        try
+        {
+            var accessPoints = await _context.AccessPoints
+                .Include(a => a.Product)
+                .Include(a => a.Vendor)
+                .Include(a => a.AssetState)
+                .Include(a => a.NetworkDetails)
+                .OrderBy(a => a.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Access Points");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Name";
+            worksheet.Cells[1, 3].Value = "Serial Number";
+            worksheet.Cells[1, 4].Value = "Asset Tag";
+            worksheet.Cells[1, 5].Value = "Product";
+            worksheet.Cells[1, 6].Value = "Vendor";
+            worksheet.Cells[1, 7].Value = "Location";
+            worksheet.Cells[1, 8].Value = "IP Address";
+            worksheet.Cells[1, 9].Value = "MAC Address";
+            worksheet.Cells[1, 10].Value = "Default Gateway";
+            worksheet.Cells[1, 11].Value = "DHCP Enabled";
+            worksheet.Cells[1, 12].Value = "Status";
+            worksheet.Cells[1, 13].Value = "Associated To";
+            worksheet.Cells[1, 14].Value = "Site";
+            worksheet.Cells[1, 15].Value = "Department";
+            worksheet.Cells[1, 16].Value = "Purchase Cost";
+            worksheet.Cells[1, 17].Value = "Acquisition Date";
+            worksheet.Cells[1, 18].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 18])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var ap in accessPoints)
+            {
+                worksheet.Cells[row, 1].Value = ap.Id;
+                worksheet.Cells[row, 2].Value = ap.Name;
+                worksheet.Cells[row, 3].Value = ap.SerialNumber;
+                worksheet.Cells[row, 4].Value = ap.AssetTag;
+                worksheet.Cells[row, 5].Value = ap.Product?.ProductName;
+                worksheet.Cells[row, 6].Value = ap.Vendor?.VendorName;
+                worksheet.Cells[row, 7].Value = ap.Location;
+                worksheet.Cells[row, 8].Value = ap.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 9].Value = ap.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 10].Value = ap.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 11].Value = ap.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 12].Value = ap.AssetState?.Status.ToString();
+                worksheet.Cells[row, 13].Value = ap.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 14].Value = ap.AssetState?.Site;
+                worksheet.Cells[row, 15].Value = ap.AssetState?.Department;
+                worksheet.Cells[row, 16].Value = ap.PurchaseCost;
+                worksheet.Cells[row, 17].Value = ap.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 18].Value = ap.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"AccessPoints_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting access points to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(AccessPoints));
+        }
+    }
+
     // GET: Assets/CreateAccessPoint
     [Authorize(Roles = "Admin,Support,IT")]
     public async Task<IActionResult> CreateAccessPoint()
@@ -631,6 +722,108 @@ public class AssetsController : Controller
             .ToListAsync();
 
         return View(computers);
+    }
+
+    // GET: Assets/ExportComputersToExcel
+    public async Task<IActionResult> ExportComputersToExcel()
+    {
+        try
+        {
+            var computers = await _context.Workstations
+                .Include(c => c.Product)
+                .Include(c => c.Vendor)
+                .Include(c => c.AssetState)
+                .Include(c => c.NetworkDetails)
+                .Include(c => c.ComputerInfo)
+                .Include(c => c.OperatingSystemInfo)
+                .Include(c => c.MemoryDetails)
+                .Include(c => c.Processor)
+                .Include(c => c.HardDisk)
+                .Include(c => c.Keyboard)
+                .Include(c => c.Mouse)
+                .Include(c => c.Monitor)
+                .OrderBy(c => c.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Computers");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Serial Number";
+            worksheet.Cells[1, 3].Value = "Asset Number";
+            worksheet.Cells[1, 4].Value = "Product";
+            worksheet.Cells[1, 5].Value = "Vendor";
+            worksheet.Cells[1, 6].Value = "Computer Type";
+            worksheet.Cells[1, 7].Value = "Hostname";
+            worksheet.Cells[1, 8].Value = "OS";
+            worksheet.Cells[1, 9].Value = "OS Version";
+            worksheet.Cells[1, 10].Value = "RAM (GB)";
+            worksheet.Cells[1, 11].Value = "Processor";
+            worksheet.Cells[1, 12].Value = "Hard Disk";
+            worksheet.Cells[1, 13].Value = "IP Address";
+            worksheet.Cells[1, 14].Value = "MAC Address";
+            worksheet.Cells[1, 15].Value = "Status";
+            worksheet.Cells[1, 16].Value = "Associated To";
+            worksheet.Cells[1, 17].Value = "Site";
+            worksheet.Cells[1, 18].Value = "Department";
+            worksheet.Cells[1, 19].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 19])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var computer in computers)
+            {
+                worksheet.Cells[row, 1].Value = computer.Id;
+                worksheet.Cells[row, 2].Value = computer.SerialNumber;
+                worksheet.Cells[row, 3].Value = computer.AssetTag;
+                worksheet.Cells[row, 4].Value = computer.Product?.ProductName;
+                worksheet.Cells[row, 5].Value = computer.Vendor?.VendorName;
+                worksheet.Cells[row, 6].Value = computer.ComputerInfo?.Manufacturer;
+                worksheet.Cells[row, 7].Value = computer.ComputerInfo?.Domain;
+                worksheet.Cells[row, 8].Value = computer.OperatingSystemInfo?.Name;
+                worksheet.Cells[row, 9].Value = computer.OperatingSystemInfo?.Version;
+                worksheet.Cells[row, 10].Value = computer.MemoryDetails?.RAM;
+                worksheet.Cells[row, 11].Value = computer.Processor?.ProcessorInfo;
+                worksheet.Cells[row, 12].Value = computer.HardDisk != null
+                    ? $"{computer.HardDisk.Model} {computer.HardDisk.CapacityGB}GB"
+                    : null;
+                worksheet.Cells[row, 13].Value = computer.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 14].Value = computer.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 15].Value = computer.AssetState?.Status.ToString();
+                worksheet.Cells[row, 16].Value = computer.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 17].Value = computer.AssetState?.Site;
+                worksheet.Cells[row, 18].Value = computer.AssetState?.Department;
+                worksheet.Cells[row, 19].Value = computer.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"Computers_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting computers to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(Computers));
+        }
     }
 
     // GET: Assets/CreateComputer
@@ -1193,6 +1386,108 @@ public class AssetsController : Controller
             .ToListAsync();
 
         return View(servers);
+    }
+
+    // GET: Assets/ExportServersToExcel
+    public async Task<IActionResult> ExportServersToExcel()
+    {
+        try
+        {
+            var servers = await _context.Servers
+                .Include(s => s.Product)
+                .Include(s => s.Vendor)
+                .Include(s => s.AssetState)
+                .Include(s => s.NetworkDetails)
+                .Include(s => s.ComputerInfo)
+                .Include(s => s.OperatingSystemInfo)
+                .Include(s => s.MemoryDetails)
+                .Include(s => s.Processor)
+                .Include(s => s.HardDisk)
+                .Include(s => s.Keyboard)
+                .Include(s => s.Mouse)
+                .Include(s => s.Monitor)
+                .OrderBy(s => s.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Servers");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Serial Number";
+            worksheet.Cells[1, 3].Value = "Asset Number";
+            worksheet.Cells[1, 4].Value = "Product";
+            worksheet.Cells[1, 5].Value = "Vendor";
+            worksheet.Cells[1, 6].Value = "Computer Type";
+            worksheet.Cells[1, 7].Value = "Hostname";
+            worksheet.Cells[1, 8].Value = "OS";
+            worksheet.Cells[1, 9].Value = "OS Version";
+            worksheet.Cells[1, 10].Value = "RAM (GB)";
+            worksheet.Cells[1, 11].Value = "Processor";
+            worksheet.Cells[1, 12].Value = "Hard Disk";
+            worksheet.Cells[1, 13].Value = "IP Address";
+            worksheet.Cells[1, 14].Value = "MAC Address";
+            worksheet.Cells[1, 15].Value = "Status";
+            worksheet.Cells[1, 16].Value = "Associated To";
+            worksheet.Cells[1, 17].Value = "Site";
+            worksheet.Cells[1, 18].Value = "Department";
+            worksheet.Cells[1, 19].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 19])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var server in servers)
+            {
+                worksheet.Cells[row, 1].Value = server.Id;
+                worksheet.Cells[row, 2].Value = server.SerialNumber;
+                worksheet.Cells[row, 3].Value = server.AssetTag;
+                worksheet.Cells[row, 4].Value = server.Product?.ProductName;
+                worksheet.Cells[row, 5].Value = server.Vendor?.VendorName;
+                worksheet.Cells[row, 6].Value = server.ComputerInfo?.Manufacturer;
+                worksheet.Cells[row, 7].Value = server.ComputerInfo?.Domain;
+                worksheet.Cells[row, 8].Value = server.OperatingSystemInfo?.Name;
+                worksheet.Cells[row, 9].Value = server.OperatingSystemInfo?.Version;
+                worksheet.Cells[row, 10].Value = server.MemoryDetails?.RAM;
+                worksheet.Cells[row, 11].Value = server.Processor?.ProcessorInfo;
+                worksheet.Cells[row, 12].Value = server.HardDisk != null
+                    ? $"{server.HardDisk.Model} {server.HardDisk.CapacityGB}GB"
+                    : null;
+                worksheet.Cells[row, 13].Value = server.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 14].Value = server.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 15].Value = server.AssetState?.Status.ToString();
+                worksheet.Cells[row, 16].Value = server.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 17].Value = server.AssetState?.Site;
+                worksheet.Cells[row, 18].Value = server.AssetState?.Department;
+                worksheet.Cells[row, 19].Value = server.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"Servers_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting servers to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(Servers));
+        }
     }
 
     // GET: Assets/CreateServer
@@ -1827,6 +2122,98 @@ public class AssetsController : Controller
         return View(mobiles);
     }
 
+    // GET: Assets/ExportMobilesToExcel
+    public async Task<IActionResult> ExportMobilesToExcel()
+    {
+        try
+        {
+            var mobiles = await _context.MobileDevices
+                .Include(m => m.Product)
+                .Include(m => m.Vendor)
+                .Include(m => m.AssetState)
+                .Include(m => m.NetworkDetails)
+                .Include(m => m.MobileDetails)
+                .Include(m => m.OperatingSystemInfo)
+                .OrderBy(m => m.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Mobile Devices");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Serial Number";
+            worksheet.Cells[1, 3].Value = "Asset Number";
+            worksheet.Cells[1, 4].Value = "Product";
+            worksheet.Cells[1, 5].Value = "Vendor";
+            worksheet.Cells[1, 6].Value = "IMEI";
+            worksheet.Cells[1, 7].Value = "Model Number";
+            worksheet.Cells[1, 8].Value = "Model";
+            worksheet.Cells[1, 9].Value = "Total Capacity (GB)";
+            worksheet.Cells[1, 10].Value = "OS";
+            worksheet.Cells[1, 11].Value = "OS Version";
+            worksheet.Cells[1, 12].Value = "IP Address";
+            worksheet.Cells[1, 13].Value = "MAC Address";
+            worksheet.Cells[1, 14].Value = "Status";
+            worksheet.Cells[1, 15].Value = "Associated To";
+            worksheet.Cells[1, 16].Value = "Site";
+            worksheet.Cells[1, 17].Value = "Department";
+            worksheet.Cells[1, 18].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 18])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var mobile in mobiles)
+            {
+                worksheet.Cells[row, 1].Value = mobile.Id;
+                worksheet.Cells[row, 2].Value = mobile.SerialNumber;
+                worksheet.Cells[row, 3].Value = mobile.AssetTag;
+                worksheet.Cells[row, 4].Value = mobile.Product?.ProductName;
+                worksheet.Cells[row, 5].Value = mobile.Vendor?.VendorName;
+                worksheet.Cells[row, 6].Value = mobile.MobileDetails?.IMEI;
+                worksheet.Cells[row, 7].Value = mobile.MobileDetails?.ModelNo;
+                worksheet.Cells[row, 8].Value = mobile.MobileDetails?.Model;
+                worksheet.Cells[row, 9].Value = mobile.MobileDetails?.TotalCapacityGB;
+                worksheet.Cells[row, 10].Value = mobile.OperatingSystemInfo?.Name;
+                worksheet.Cells[row, 11].Value = mobile.OperatingSystemInfo?.Version;
+                worksheet.Cells[row, 12].Value = mobile.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 13].Value = mobile.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 14].Value = mobile.AssetState?.Status.ToString();
+                worksheet.Cells[row, 15].Value = mobile.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 16].Value = mobile.AssetState?.Site;
+                worksheet.Cells[row, 17].Value = mobile.AssetState?.Department;
+                worksheet.Cells[row, 18].Value = mobile.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"MobileDevices_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting mobile devices to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(Mobiles));
+        }
+    }
+
     // GET: Assets/CreateMobile
     public async Task<IActionResult> CreateMobile()
     {
@@ -2258,6 +2645,93 @@ public class AssetsController : Controller
             _logger.LogError(ex, "Error loading printers");
             TempData["Toast"] = "حدث خطأ في تحميل الطابعات";
             return RedirectToAction("Dashboard");
+        }
+    }
+
+    // GET: Assets/ExportPrintersToExcel
+    [Authorize(Roles = "Admin,IT")]
+    public async Task<IActionResult> ExportPrintersToExcel()
+    {
+        try
+        {
+            var printers = await _context.Printers
+                .Include(p => p.Product)
+                .Include(p => p.Vendor)
+                .Include(p => p.AssetState)
+                .Include(p => p.NetworkDetails)
+                .OrderBy(p => p.Id)
+                .ToListAsync();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Printers");
+
+            // Add Headers
+            worksheet.Cells[1, 1].Value = "ID";
+            worksheet.Cells[1, 2].Value = "Serial Number";
+            worksheet.Cells[1, 3].Value = "Asset Number";
+            worksheet.Cells[1, 4].Value = "Product";
+            worksheet.Cells[1, 5].Value = "Vendor";
+            worksheet.Cells[1, 6].Value = "IP Address";
+            worksheet.Cells[1, 7].Value = "MAC Address";
+            worksheet.Cells[1, 8].Value = "Default Gateway";
+            worksheet.Cells[1, 9].Value = "Network";
+            worksheet.Cells[1, 10].Value = "DNS Hostname";
+            worksheet.Cells[1, 11].Value = "DHCP Server";
+            worksheet.Cells[1, 12].Value = "Status";
+            worksheet.Cells[1, 13].Value = "Associated To";
+            worksheet.Cells[1, 14].Value = "Site";
+            worksheet.Cells[1, 15].Value = "Department";
+            worksheet.Cells[1, 16].Value = "Created Date";
+
+            // Style Headers
+            using (var range = worksheet.Cells[1, 1, 1, 16])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(79, 129, 189));
+                range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Add Data
+            int row = 2;
+            foreach (var printer in printers)
+            {
+                worksheet.Cells[row, 1].Value = printer.Id;
+                worksheet.Cells[row, 2].Value = printer.SerialNumber;
+                worksheet.Cells[row, 3].Value = printer.AssetTag;
+                worksheet.Cells[row, 4].Value = printer.Product?.ProductName;
+                worksheet.Cells[row, 5].Value = printer.Vendor?.VendorName;
+                worksheet.Cells[row, 6].Value = printer.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 7].Value = printer.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 8].Value = printer.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 9].Value = printer.NetworkDetails?.Network;
+                worksheet.Cells[row, 10].Value = printer.NetworkDetails?.DNSHostname;
+                worksheet.Cells[row, 11].Value = printer.NetworkDetails?.DHCPServer;
+                worksheet.Cells[row, 12].Value = printer.AssetState?.Status.ToString();
+                worksheet.Cells[row, 13].Value = printer.AssetState?.AssociatedTo;
+                worksheet.Cells[row, 14].Value = printer.AssetState?.Site;
+                worksheet.Cells[row, 15].Value = printer.AssetState?.Department;
+                worksheet.Cells[row, 16].Value = printer.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                row++;
+            }
+
+            // Auto-fit columns
+            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+            // Generate file
+            var stream = new System.IO.MemoryStream(package.GetAsByteArray());
+            var fileName = $"Printers_Export_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error exporting printers to Excel");
+            TempData["Toast"] = "⚠️ Error exporting data to Excel.";
+            return RedirectToAction(nameof(Printers));
         }
     }
 

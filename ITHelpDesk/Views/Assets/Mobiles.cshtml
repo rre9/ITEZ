@@ -4,6 +4,10 @@
     ViewData["Title"] = "Mobile Devices";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/assets.css" />
+}
+
 <div class="computers-header mb-4">
     <div class="container-fluid px-0">
         <div class="row align-items-center">
@@ -28,6 +32,11 @@
                 </div>
             </div>
             <div class="col-lg-4 text-lg-end">
+                <a asp-action="ExportMobilesToExcel" class="btn btn-excel me-2"
+                    title="Export all mobile devices to Excel file">
+                    <i class="fa-solid fa-file-excel me-2"></i>
+                    <span>Export to Excel</span>
+                </a>
                 <a asp-action="CreateMobile" class="btn btn-primary btn-add-new">
                     <i class="fa-solid fa-plus-circle me-2"></i>Add New Mobile Device
                 </a>
