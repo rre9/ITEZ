@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ITHelpDesk.Controllers;
 
-[Authorize] // allow any authenticated user to access assets to avoid Access Denied during navigation
+[Authorize(Roles = "Admin,Support,IT")] // Assets restricted to IT team only
 public class AssetsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -27,6 +27,7 @@ public class AssetsController : Controller
     }
 
     // Dashboard - عرض ملخص جميع الأصول
+    [Authorize(Roles = "Admin,Support,IT")]
     public async Task<IActionResult> Dashboard()
     {
         try
@@ -574,6 +575,7 @@ public class AssetsController : Controller
     // #region Routers Management
 
     // GET: Assets/Routers - عرض جميع أجهزة الراوتر
+    [Authorize(Roles = "Admin,Support,IT")]
     public async Task<IActionResult> Routers()
     {
         var routers = await _context.Routers
@@ -920,6 +922,7 @@ public class AssetsController : Controller
     // #region Switches Management
 
     // GET: Assets/Switches - عرض جميع أجهزة السويتش
+    [Authorize(Roles = "Admin,Support,IT")]
     public async Task<IActionResult> Switches()
     {
         var switches = await _context.Switches
@@ -1386,6 +1389,7 @@ public class AssetsController : Controller
     #region Computers
 
     // GET: Assets/Computers
+    [Authorize(Roles = "Admin,Support,IT")]
     public async Task<IActionResult> Computers()
     {
         var computers = await _context.Workstations
@@ -2790,6 +2794,7 @@ public class AssetsController : Controller
     #region Mobile Devices
 
     // GET: Assets/Mobiles
+    [Authorize(Roles = "Admin,Support,IT")]
     public async Task<IActionResult> Mobiles()
     {
         var mobiles = await _context.MobileDevices

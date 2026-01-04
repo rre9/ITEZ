@@ -67,7 +67,7 @@
                                     </a>
                                 </li>
                             }
-                            @if (User.Identity?.IsAuthenticated ?? false)
+                            @if (User.IsInRole("Admin") || User.IsInRole("Support") || User.IsInRole("IT"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-controller="Assets" asp-action="Dashboard">
