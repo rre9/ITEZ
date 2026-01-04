@@ -1,0 +1,416 @@
+@model ITHelpDesk.Models.Assets.MobileDevice
+@{
+    ViewData["Title"] = "Edit Mobile Device";
+}
+
+<style>
+    .select-with-add {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .select-with-add .form-select {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        padding-right: 2.5rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+    }
+
+    .select-with-add .btn-add {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        padding: 0.5rem 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #495057;
+        transition: all 0.2s ease;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .select-with-add .btn-add:hover {
+        background: #0066cc;
+        border-color: #0066cc;
+        color: white;
+    }
+
+    .select-with-add .btn-add::before {
+        content: '+';
+        font-size: 1.3rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        <i class="fa-solid fa-edit me-2"></i>Edit Mobile Device
+                    </h2>
+                </div>
+                <div class="col-auto">
+                    <a asp-action="Mobiles" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left me-1"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-action="EditMobile" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="Id" />
+                                <input type="hidden" name="AssetStateId" value="@Model.AssetStateId" />
+                                <input type="hidden" name="AssetState.Id" value="@Model.AssetState?.Id" />
+                                <input type="hidden" name="MobileDetailsId" value="@Model.MobileDetailsId" />
+                                <input type="hidden" name="MobileDetails.Id" value="@Model.MobileDetails?.Id" />
+                                <input type="hidden" name="OperatingSystemInfoId"
+                                    value="@Model.OperatingSystemInfoId" />
+                                <input type="hidden" name="OperatingSystemInfo.Id"
+                                    value="@Model.OperatingSystemInfo?.Id" />
+                                <input type="hidden" name="NetworkDetailsId" value="@Model.NetworkDetailsId" />
+                                <input type="hidden" name="NetworkDetails.Id" value="@Model.NetworkDetails?.Id" />
+
+                                <div class="row">
+                                    <!-- Basic Information -->
+                                    <div class="col-md-12">
+                                        <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Name" class="form-label">Name <span
+                                                class="text-danger">*</span></label>
+                                        <input asp-for="Name" class="form-control" required />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ProductId" class="form-label">Product <span
+                                                class="text-danger">*</span></label>
+                                        <div class="select-with-add">
+                                            <select asp-for="ProductId" class="form-select" required>
+                                                <option value="">-- Select Product --</option>
+                                                @if (ViewBag.Products != null)
+                                                {
+                                                    @foreach (var product in ViewBag.Products as
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
+                                                    {
+                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addProductModal" title="Add New Product"></button>
+                                        </div>
+                                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- Asset Details -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Asset Details</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="SerialNumber" class="form-label">Serial Number</label>
+                                        <input asp-for="SerialNumber" class="form-control" />
+                                        <span asp-validation-for="SerialNumber" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AssetTag" class="form-label">Asset Tag</label>
+                                        <input asp-for="AssetTag" class="form-control" />
+                                        <span asp-validation-for="AssetTag" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="VendorId" class="form-label">Vendor</label>
+                                        <div class="select-with-add">
+                                            <select asp-for="VendorId" class="form-select">
+                                                <option value="">-- Select Vendor --</option>
+                                                @foreach (var vendor in (ViewBag.Vendors as
+                                                                                                List<ITHelpDesk.Models.Assets.Vendor>) ?? new
+                                                                                                List<ITHelpDesk.Models.Assets.Vendor>())
+                                                {
+                                                    <option value="@vendor.Id">@vendor.VendorName</option>
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addVendorModal" title="Add New Vendor"></button>
+                                        </div>
+                                        <span asp-validation-for="VendorId" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="PurchaseCost" class="form-label">Purchase Cost (SAR)</label>
+                                        <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control" />
+                                        <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+                                        <input asp-for="ExpiryDate" type="date" class="form-control" />
+                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Location" class="form-label">Location</label>
+                                        <input asp-for="Location" class="form-control" />
+                                        <span asp-validation-for="Location" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
+                                        <input asp-for="AcquisitionDate" type="date" class="form-control" />
+                                        <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
+                                            Date</label>
+                                        <input asp-for="WarrantyExpiryDate" type="date" class="form-control" />
+                                        <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- Mobile Details -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Mobile Device Information</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">IMEI</label>
+                                        <input type="text" name="MobileDetails.IMEI" value="@Model.MobileDetails?.IMEI"
+                                            class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Model</label>
+                                        <input type="text" name="MobileDetails.Model"
+                                            value="@Model.MobileDetails?.Model" class="form-control"
+                                            style="border: 3px solid #0066cc !important; background-color: #e8f4ff !important; box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25) !important;" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Model Number</label>
+                                        <input type="text" name="MobileDetails.ModelNo"
+                                            value="@Model.MobileDetails?.ModelNo" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Total Capacity (GB)</label>
+                                        <input type="number" name="MobileDetails.TotalCapacityGB"
+                                            value="@Model.MobileDetails?.TotalCapacityGB" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Available Capacity (GB)</label>
+                                        <input type="number" name="MobileDetails.AvailableCapacityGB"
+                                            value="@Model.MobileDetails?.AvailableCapacityGB" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Modem Firmware Version</label>
+                                        <input type="text" name="MobileDetails.ModemFirmwareVersion"
+                                            value="@Model.MobileDetails?.ModemFirmwareVersion" class="form-control" />
+                                    </div>
+
+                                    <!-- Operating System Info -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Operating System Info</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">OS Name</label>
+                                        <input type="text" name="OperatingSystemInfo.Name"
+                                            value="@Model.OperatingSystemInfo?.Name" class="form-control"
+                                            placeholder="e.g., iOS, Android" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">OS Version</label>
+                                        <input type="text" name="OperatingSystemInfo.Version"
+                                            value="@Model.OperatingSystemInfo?.Version" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Build Number</label>
+                                        <input type="text" name="OperatingSystemInfo.BuildNumber"
+                                            value="@Model.OperatingSystemInfo?.BuildNumber" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Service Pack</label>
+                                        <input type="text" name="OperatingSystemInfo.ServicePack"
+                                            value="@Model.OperatingSystemInfo?.ServicePack" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Product ID</label>
+                                        <input type="text" name="OperatingSystemInfo.ProductId"
+                                            value="@Model.OperatingSystemInfo?.ProductId" class="form-control" />
+                                    </div>
+
+                                    <!-- Asset State -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Asset Status</label>
+                                        <select name="AssetState.Status" class="form-select">
+                                            <option value="">Select Status...</option>
+                                            <option value="1"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">
+                                                In Use</option>
+                                            <option value="2"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">
+                                                In Store</option>
+                                            <option value="3"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">
+                                                In Repair</option>
+                                            <option value="4"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">
+                                                Expired</option>
+                                            <option value="5"
+                                                selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">
+                                                Disposed</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Associated To</label>
+                                        <input type="text" name="AssetState.AssociatedTo"
+                                            value="@Model.AssetState?.AssociatedTo" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Site</label>
+                                        <input type="text" name="AssetState.Site" value="@Model.AssetState?.Site"
+                                            class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">State Comments</label>
+                                        <textarea name="AssetState.StateComments" class="form-control"
+                                            rows="2">@Model.AssetState?.StateComments</textarea>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">User ID</label>
+                                        <input type="text" name="AssetState.UserId" value="@Model.AssetState?.UserId"
+                                            class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Department</label>
+                                        <input type="text" name="AssetState.Department"
+                                            value="@Model.AssetState?.Department" class="form-control" />
+                                    </div>
+
+                                    <!-- Network Details -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">IP Address</label>
+                                        <input type="text" name="NetworkDetails.IPAddress"
+                                            value="@Model.NetworkDetails?.IPAddress" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">MAC Address</label>
+                                        <input type="text" name="NetworkDetails.MACAddress"
+                                            value="@Model.NetworkDetails?.MACAddress" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">NIC</label>
+                                        <input type="text" name="NetworkDetails.NIC" value="@Model.NetworkDetails?.NIC"
+                                            class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Network</label>
+                                        <input type="text" name="NetworkDetails.Network"
+                                            value="@Model.NetworkDetails?.Network" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Default Gateway</label>
+                                        <input type="text" name="NetworkDetails.DefaultGateway"
+                                            value="@Model.NetworkDetails?.DefaultGateway" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check mt-4">
+                                            <input type="checkbox" name="NetworkDetails.DHCPEnabled" value="true"
+                                                @(Model.NetworkDetails?.DHCPEnabled == true ? "checked" : "")
+                                                class="form-check-input" />
+                                            <label class="form-check-label">
+                                                DHCP Enabled
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">DHCP Server</label>
+                                        <input type="text" name="NetworkDetails.DHCPServer"
+                                            value="@Model.NetworkDetails?.DHCPServer" class="form-control" />
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">DNS Hostname</label>
+                                        <input type="text" name="NetworkDetails.DNSHostname"
+                                            value="@Model.NetworkDetails?.DNSHostname" class="form-control" />
+                                    </div>
+                                </div>
+
+                                <!-- Submit Buttons -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a asp-action="Mobiles" class="btn btn-secondary">
+                                                <i class="fa-solid fa-times me-1"></i>Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fa-solid fa-save me-1"></i>Update Mobile Device
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

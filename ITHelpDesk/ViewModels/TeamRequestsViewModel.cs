@@ -17,22 +17,22 @@ namespace ITHelpDesk.ViewModels
             get
             {
                 var combined = new List<(DateTime Date, object Item)>();
-                
+
                 foreach (var ar in AccessRequests)
                 {
                     combined.Add((ar.CreatedAt, ar));
                 }
-                
+
                 foreach (var ticket in SystemChangeTickets)
                 {
                     combined.Add((ticket.CreatedAt, ticket));
                 }
-                
+
                 foreach (var sr in ServiceRequests)
                 {
                     combined.Add((sr.CreatedAt, sr));
                 }
-                
+
                 return combined.OrderByDescending(x => x.Date).Select(x => x.Item);
             }
         }
