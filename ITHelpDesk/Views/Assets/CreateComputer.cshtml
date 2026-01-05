@@ -631,41 +631,41 @@
     </div>
 </div>
 
-<!-- Modal إضافة منتج جديد -->
+<!-- Modal Add New Product -->
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addProductModalLabel">إضافة منتج جديد</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addProductForm">
                     <div class="mb-3">
-                        <label for="productType" class="form-label">نوع المنتج <span
+                        <label for="productType" class="form-label">Product Type <span
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productType" value="Computer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productName" class="form-label">اسم المنتج <span
+                        <label for="productName" class="form-label">Product Name <span
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="manufacturer" class="form-label">الشركة المصنعة <span
+                        <label for="manufacturer" class="form-label">Manufacturer <span
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="manufacturer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="partNo" class="form-label">رقم القطعة</label>
+                        <label for="partNo" class="form-label">Part No.</label>
                         <input type="text" class="form-control" id="partNo">
                     </div>
                     <div class="mb-3">
-                        <label for="cost" class="form-label">التكلفة (ريال)</label>
+                        <label for="cost" class="form-label">Cost (SAR)</label>
                         <input type="number" step="0.01" class="form-control" id="cost" value="0">
                     </div>
                     <div class="mb-3">
-                        <label for="description" class="form-label">الوصف</label>
+                        <label for="description" class="form-label">Description</label>
                         <textarea class="form-control" id="description" rows="3"></textarea>
                     </div>
                 </form>
@@ -673,11 +673,11 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
-                    إلغاء
+                    Cancel
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveProduct()">
                     <i class="fas fa-save me-1"></i>
-                    حفظ
+                    Save
                 </button>
             </div>
         </div>
@@ -812,15 +812,15 @@
                         form.reset();
                         document.getElementById('productType').value = 'Computer';
 
-                        // عرض رسالة نجاح
-                        alert('✅ تم إضافة المنتج بنجاح');
+                        // Show success message
+                        alert('✅ Product added successfully');
                     } else {
-                        alert('❌ حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                        alert('❌ Error: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('❌ حدث خطأ أثناء حفظ المنتج: ' + error.message);
+                    alert('❌ Error saving product: ' + error.message);
                 });
         }
     </script>
