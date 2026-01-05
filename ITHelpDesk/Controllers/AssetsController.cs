@@ -494,6 +494,7 @@ public class AssetsController : Controller
         {
             var existingAccessPoint = await _context.AccessPoints
                 .Include(a => a.NetworkDetails)
+                .Include(a => a.AssetState)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (existingAccessPoint == null)
@@ -510,8 +511,27 @@ public class AssetsController : Controller
             existingAccessPoint.Location = model.Location;
             existingAccessPoint.AcquisitionDate = model.AcquisitionDate;
             existingAccessPoint.WarrantyExpiryDate = model.WarrantyExpiryDate;
-            existingAccessPoint.AssetStateId = model.AssetStateId;
             existingAccessPoint.UpdatedAt = DateTime.UtcNow;
+
+            // Update AssetState
+            var assetStateForm = Request.Form;
+            if (existingAccessPoint.AssetState == null)
+            {
+                existingAccessPoint.AssetState = new AssetState();
+                _context.AssetStates.Add(existingAccessPoint.AssetState);
+            }
+
+            // Update AssetState properties from form
+            if (Enum.TryParse<AssetStatusEnum>(assetStateForm["AssetState.Status"], out var status))
+            {
+                existingAccessPoint.AssetState.Status = status;
+            }
+            existingAccessPoint.AssetState.AssociatedTo = assetStateForm["AssetState.AssociatedTo"];
+            existingAccessPoint.AssetState.Site = assetStateForm["AssetState.Site"];
+            existingAccessPoint.AssetState.StateComments = assetStateForm["AssetState.StateComments"];
+            existingAccessPoint.AssetState.UserId = assetStateForm["AssetState.UserId"];
+            existingAccessPoint.AssetState.Department = assetStateForm["AssetState.Department"];
+            existingAccessPoint.AssetState.UpdatedAt = DateTime.UtcNow;
 
             // Update NetworkDetails
             if (existingAccessPoint.NetworkDetails == null)
@@ -519,15 +539,15 @@ public class AssetsController : Controller
                 existingAccessPoint.NetworkDetails = new NetworkDetails();
             }
 
-            var networkDetailsForm = Request.Form;
-            existingAccessPoint.NetworkDetails.IPAddress = networkDetailsForm["NetworkDetails.IPAddress"];
-            existingAccessPoint.NetworkDetails.MACAddress = networkDetailsForm["NetworkDetails.MACAddress"];
-            existingAccessPoint.NetworkDetails.NIC = networkDetailsForm["NetworkDetails.NIC"];
-            existingAccessPoint.NetworkDetails.Network = networkDetailsForm["NetworkDetails.Network"];
-            existingAccessPoint.NetworkDetails.DefaultGateway = networkDetailsForm["NetworkDetails.DefaultGateway"];
-            existingAccessPoint.NetworkDetails.DHCPEnabled = networkDetailsForm["NetworkDetails.DHCPEnabled"] == "true";
-            existingAccessPoint.NetworkDetails.DHCPServer = networkDetailsForm["NetworkDetails.DHCPServer"];
-            existingAccessPoint.NetworkDetails.DNSHostname = networkDetailsForm["NetworkDetails.DNSHostname"];
+            existingAccessPoint.NetworkDetails.IPAddress = assetStateForm["NetworkDetails.IPAddress"];
+            existingAccessPoint.NetworkDetails.MACAddress = assetStateForm["NetworkDetails.MACAddress"];
+            existingAccessPoint.NetworkDetails.NIC = assetStateForm["NetworkDetails.NIC"];
+            existingAccessPoint.NetworkDetails.Network = assetStateForm["NetworkDetails.Network"];
+            existingAccessPoint.NetworkDetails.DefaultGateway = assetStateForm["NetworkDetails.DefaultGateway"];
+            existingAccessPoint.NetworkDetails.DHCPEnabled = assetStateForm["NetworkDetails.DHCPEnabled"] == "true";
+            existingAccessPoint.NetworkDetails.DHCPServer = assetStateForm["NetworkDetails.DHCPServer"];
+            existingAccessPoint.NetworkDetails.DNSHostname = assetStateForm["NetworkDetails.DNSHostname"];
+            existingAccessPoint.NetworkDetails.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
