@@ -1869,118 +1869,142 @@ public class AssetsController : Controller
             existingComputer.UpdatedAt = DateTime.UtcNow;
 
             // Update Computer Info
-            if (existingComputer.ComputerInfo != null)
+            if (existingComputer.ComputerInfo == null)
             {
-                existingComputer.ComputerInfo.ServiceTag = Request.Form["ComputerInfo.ServiceTag"];
-                existingComputer.ComputerInfo.Manufacturer = Request.Form["ComputerInfo.Manufacturer"];
-                existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"])
-                    ? DateTime.Parse(Request.Form["ComputerInfo.BiosDate"]!) : null;
-                existingComputer.ComputerInfo.Domain = Request.Form["ComputerInfo.Domain"];
-                existingComputer.ComputerInfo.SMBiosVersion = Request.Form["ComputerInfo.SMBiosVersion"];
-                existingComputer.ComputerInfo.BiosVersion = Request.Form["ComputerInfo.BiosVersion"];
-                existingComputer.ComputerInfo.BiosManufacturer = Request.Form["ComputerInfo.BiosManufacturer"];
-                existingComputer.ComputerInfo.UpdatedAt = DateTime.UtcNow;
+                existingComputer.ComputerInfo = new ComputerInfo();
+                _context.ComputerInfos.Add(existingComputer.ComputerInfo);
             }
+            existingComputer.ComputerInfo.ServiceTag = Request.Form["ComputerInfo.ServiceTag"];
+            existingComputer.ComputerInfo.Manufacturer = Request.Form["ComputerInfo.Manufacturer"];
+            existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"])
+                ? DateTime.Parse(Request.Form["ComputerInfo.BiosDate"]!) : null;
+            existingComputer.ComputerInfo.Domain = Request.Form["ComputerInfo.Domain"];
+            existingComputer.ComputerInfo.SMBiosVersion = Request.Form["ComputerInfo.SMBiosVersion"];
+            existingComputer.ComputerInfo.BiosVersion = Request.Form["ComputerInfo.BiosVersion"];
+            existingComputer.ComputerInfo.BiosManufacturer = Request.Form["ComputerInfo.BiosManufacturer"];
+            existingComputer.ComputerInfo.UpdatedAt = DateTime.UtcNow;
 
             // Update OS Info
-            if (existingComputer.OperatingSystemInfo != null)
+            if (existingComputer.OperatingSystemInfo == null)
             {
-                existingComputer.OperatingSystemInfo.Name = Request.Form["OperatingSystemInfo.Name"];
-                existingComputer.OperatingSystemInfo.Version = Request.Form["OperatingSystemInfo.Version"];
-                existingComputer.OperatingSystemInfo.BuildNumber = Request.Form["OperatingSystemInfo.BuildNumber"];
-                existingComputer.OperatingSystemInfo.ServicePack = Request.Form["OperatingSystemInfo.ServicePack"];
-                existingComputer.OperatingSystemInfo.ProductId = Request.Form["OperatingSystemInfo.ProductId"];
-                existingComputer.OperatingSystemInfo.UpdatedAt = DateTime.UtcNow;
+                existingComputer.OperatingSystemInfo = new OperatingSystemInfo();
+                _context.OperatingSystemInfos.Add(existingComputer.OperatingSystemInfo);
             }
+            existingComputer.OperatingSystemInfo.Name = Request.Form["OperatingSystemInfo.Name"];
+            existingComputer.OperatingSystemInfo.Version = Request.Form["OperatingSystemInfo.Version"];
+            existingComputer.OperatingSystemInfo.BuildNumber = Request.Form["OperatingSystemInfo.BuildNumber"];
+            existingComputer.OperatingSystemInfo.ServicePack = Request.Form["OperatingSystemInfo.ServicePack"];
+            existingComputer.OperatingSystemInfo.ProductId = Request.Form["OperatingSystemInfo.ProductId"];
+            existingComputer.OperatingSystemInfo.UpdatedAt = DateTime.UtcNow;
 
             // Update Memory Details
-            if (existingComputer.MemoryDetails != null)
+            if (existingComputer.MemoryDetails == null)
             {
-                existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"])
-                    ? int.Parse(Request.Form["MemoryDetails.RAM"]!) : null;
-                existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"])
-                    ? int.Parse(Request.Form["MemoryDetails.VirtualMemory"]!) : null;
-                existingComputer.MemoryDetails.UpdatedAt = DateTime.UtcNow;
+                existingComputer.MemoryDetails = new MemoryDetails();
+                _context.MemoryDetails.Add(existingComputer.MemoryDetails);
             }
+            existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"])
+                ? int.Parse(Request.Form["MemoryDetails.RAM"]!) : null;
+            existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"])
+                ? int.Parse(Request.Form["MemoryDetails.VirtualMemory"]!) : null;
+            existingComputer.MemoryDetails.UpdatedAt = DateTime.UtcNow;
 
             // Update Processor
-            if (existingComputer.Processor != null)
+            if (existingComputer.Processor == null)
             {
-                existingComputer.Processor.ProcessorInfo = Request.Form["Processor.ProcessorInfo"];
-                existingComputer.Processor.Manufacturer = Request.Form["Processor.Manufacturer"];
-                existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"])
-                    ? int.Parse(Request.Form["Processor.ClockSpeedMHz"]!) : null;
-                existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"])
-                    ? int.Parse(Request.Form["Processor.NumberOfCores"]!) : null;
-                existingComputer.Processor.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Processor = new Processor();
+                _context.Processors.Add(existingComputer.Processor);
             }
+            existingComputer.Processor.ProcessorInfo = Request.Form["Processor.ProcessorInfo"];
+            existingComputer.Processor.Manufacturer = Request.Form["Processor.Manufacturer"];
+            existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"])
+                ? int.Parse(Request.Form["Processor.ClockSpeedMHz"]!) : null;
+            existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"])
+                ? int.Parse(Request.Form["Processor.NumberOfCores"]!) : null;
+            existingComputer.Processor.UpdatedAt = DateTime.UtcNow;
 
             // Update Hard Disk
-            if (existingComputer.HardDisk != null)
+            if (existingComputer.HardDisk == null)
             {
-                existingComputer.HardDisk.Model = Request.Form["HardDisk.Model"];
-                existingComputer.HardDisk.SerialNumber = Request.Form["HardDisk.SerialNumber"];
-                existingComputer.HardDisk.Manufacturer = Request.Form["HardDisk.Manufacturer"];
-                existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"])
-                    ? int.Parse(Request.Form["HardDisk.CapacityGB"]!) : null;
-                existingComputer.HardDisk.UpdatedAt = DateTime.UtcNow;
+                existingComputer.HardDisk = new HardDisk();
+                _context.HardDisks.Add(existingComputer.HardDisk);
             }
+            existingComputer.HardDisk.Model = Request.Form["HardDisk.Model"];
+            existingComputer.HardDisk.SerialNumber = Request.Form["HardDisk.SerialNumber"];
+            existingComputer.HardDisk.Manufacturer = Request.Form["HardDisk.Manufacturer"];
+            existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"])
+                ? int.Parse(Request.Form["HardDisk.CapacityGB"]!) : null;
+            existingComputer.HardDisk.UpdatedAt = DateTime.UtcNow;
 
             // Update Keyboard
-            if (existingComputer.Keyboard != null)
+            if (existingComputer.Keyboard == null)
             {
-                existingComputer.Keyboard.KeyboardType = Request.Form["Keyboard.KeyboardType"];
-                existingComputer.Keyboard.Manufacturer = Request.Form["Keyboard.Manufacturer"];
-                existingComputer.Keyboard.SerialNumber = Request.Form["Keyboard.SerialNumber"];
-                existingComputer.Keyboard.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Keyboard = new Keyboard();
+                _context.Keyboards.Add(existingComputer.Keyboard);
             }
+            existingComputer.Keyboard.KeyboardType = Request.Form["Keyboard.KeyboardType"];
+            existingComputer.Keyboard.Manufacturer = Request.Form["Keyboard.Manufacturer"];
+            existingComputer.Keyboard.SerialNumber = Request.Form["Keyboard.SerialNumber"];
+            existingComputer.Keyboard.UpdatedAt = DateTime.UtcNow;
 
             // Update Mouse
-            if (existingComputer.Mouse != null)
+            if (existingComputer.Mouse == null)
             {
-                existingComputer.Mouse.MouseType = Request.Form["Mouse.MouseType"];
-                existingComputer.Mouse.SerialNumber = Request.Form["Mouse.SerialNumber"];
-                existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"])
-                    ? int.Parse(Request.Form["Mouse.MouseButtons"]!) : null;
-                existingComputer.Mouse.Manufacturer = Request.Form["Mouse.Manufacturer"];
-                existingComputer.Mouse.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Mouse = new Mouse();
+                _context.Mice.Add(existingComputer.Mouse);
             }
+            existingComputer.Mouse.MouseType = Request.Form["Mouse.MouseType"];
+            existingComputer.Mouse.SerialNumber = Request.Form["Mouse.SerialNumber"];
+            existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"])
+                ? int.Parse(Request.Form["Mouse.MouseButtons"]!) : null;
+            existingComputer.Mouse.Manufacturer = Request.Form["Mouse.Manufacturer"];
+            existingComputer.Mouse.UpdatedAt = DateTime.UtcNow;
 
             // Update Monitor
-            if (existingComputer.Monitor != null)
+            if (existingComputer.Monitor == null)
             {
-                existingComputer.Monitor.MonitorType = Request.Form["Monitor.MonitorType"];
-                existingComputer.Monitor.SerialNumber = Request.Form["Monitor.SerialNumber"];
-                existingComputer.Monitor.Manufacturer = Request.Form["Monitor.Manufacturer"];
-                existingComputer.Monitor.MaxResolution = Request.Form["Monitor.MaxResolution"];
-                existingComputer.Monitor.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Monitor = new Models.Assets.Monitor();
+                _context.Monitors.Add(existingComputer.Monitor);
             }
+            existingComputer.Monitor.MonitorType = Request.Form["Monitor.MonitorType"];
+            existingComputer.Monitor.SerialNumber = Request.Form["Monitor.SerialNumber"];
+            existingComputer.Monitor.Manufacturer = Request.Form["Monitor.Manufacturer"];
+            existingComputer.Monitor.MaxResolution = Request.Form["Monitor.MaxResolution"];
+            existingComputer.Monitor.UpdatedAt = DateTime.UtcNow;
 
             // Update Asset State
-            if (existingComputer.AssetState != null)
+            if (existingComputer.AssetState == null)
             {
-                existingComputer.AssetState.Status = (AssetStatusEnum)int.Parse(Request.Form["AssetState.Status"]!);
-                existingComputer.AssetState.AssociatedTo = Request.Form["AssetState.AssociatedTo"];
-                existingComputer.AssetState.Site = Request.Form["AssetState.Site"];
-                existingComputer.AssetState.StateComments = Request.Form["AssetState.StateComments"];
-                existingComputer.AssetState.UserId = Request.Form["AssetState.UserId"];
-                existingComputer.AssetState.Department = Request.Form["AssetState.Department"];
-                existingComputer.AssetState.UpdatedAt = DateTime.UtcNow;
+                existingComputer.AssetState = new AssetState();
+                _context.AssetStates.Add(existingComputer.AssetState);
             }
 
-            // Update Network Details
-            if (existingComputer.NetworkDetails != null)
+            if (Enum.TryParse<AssetStatusEnum>(Request.Form["AssetState.Status"], out var status))
             {
-                existingComputer.NetworkDetails.IPAddress = Request.Form["NetworkDetails.IPAddress"];
-                existingComputer.NetworkDetails.MACAddress = Request.Form["NetworkDetails.MACAddress"];
-                existingComputer.NetworkDetails.NIC = Request.Form["NetworkDetails.NIC"];
-                existingComputer.NetworkDetails.Network = Request.Form["NetworkDetails.Network"];
-                existingComputer.NetworkDetails.DefaultGateway = Request.Form["NetworkDetails.DefaultGateway"];
-                existingComputer.NetworkDetails.DHCPEnabled = Request.Form["NetworkDetails.DHCPEnabled"] == "true";
-                existingComputer.NetworkDetails.DHCPServer = Request.Form["NetworkDetails.DHCPServer"];
-                existingComputer.NetworkDetails.DNSHostname = Request.Form["NetworkDetails.DNSHostname"];
-                existingComputer.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+                existingComputer.AssetState.Status = status;
             }
+            existingComputer.AssetState.AssociatedTo = Request.Form["AssetState.AssociatedTo"];
+            existingComputer.AssetState.Site = Request.Form["AssetState.Site"];
+            existingComputer.AssetState.StateComments = Request.Form["AssetState.StateComments"];
+            existingComputer.AssetState.UserId = Request.Form["AssetState.UserId"];
+            existingComputer.AssetState.Department = Request.Form["AssetState.Department"];
+            existingComputer.AssetState.UpdatedAt = DateTime.UtcNow;
+
+            // Update Network Details
+            if (existingComputer.NetworkDetails == null)
+            {
+                existingComputer.NetworkDetails = new NetworkDetails();
+                _context.NetworkDetails.Add(existingComputer.NetworkDetails);
+            }
+            existingComputer.NetworkDetails.IPAddress = Request.Form["NetworkDetails.IPAddress"];
+            existingComputer.NetworkDetails.MACAddress = Request.Form["NetworkDetails.MACAddress"];
+            existingComputer.NetworkDetails.NIC = Request.Form["NetworkDetails.NIC"];
+            existingComputer.NetworkDetails.Network = Request.Form["NetworkDetails.Network"];
+            existingComputer.NetworkDetails.DefaultGateway = Request.Form["NetworkDetails.DefaultGateway"];
+            existingComputer.NetworkDetails.DHCPEnabled = Request.Form["NetworkDetails.DHCPEnabled"] == "true";
+            existingComputer.NetworkDetails.DHCPServer = Request.Form["NetworkDetails.DHCPServer"];
+            existingComputer.NetworkDetails.DNSHostname = Request.Form["NetworkDetails.DNSHostname"];
+            existingComputer.NetworkDetails.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
