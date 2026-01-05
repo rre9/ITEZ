@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TicketLog> TicketLogs => Set<TicketLog>();
     public DbSet<AccessRequest> AccessRequests => Set<AccessRequest>();
     public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
+    public DbSet<SystemChangeRequest> SystemChangeRequests => Set<SystemChangeRequest>();
 
     // Assets DbSets
     public DbSet<Product> Products => Set<Product>();

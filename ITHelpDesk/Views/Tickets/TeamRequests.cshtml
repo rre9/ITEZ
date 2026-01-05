@@ -175,31 +175,41 @@
                             else if (item is Ticket ticket)
                             {
                                 var ticketNumber = $"HD-{ticket.Id:D6}";
+                                var isManagerApproved = ticket.Description != null && ticket.Description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
+                                var managerStatus = isManagerApproved ? "Approved" : "Pending";
+                                var managerStatusBadge = isManagerApproved ? "bg-success" : "bg-warning text-dark";
+                                
+                                // Check if current user is the one assigned to this ticket (can review)
+                                var canReview = ticket.AssignedToId == ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                                
                                 <tr>
                                     <td class="fw-semibold text-secondary">@ticketNumber</td>
                                     <td>@(ticket.Title.Replace("System Change Request:", "").Trim())</td>
                                     <td>@ticket.Department</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-warning text-dark">@Localizer["Pending"]</span>
+                                        <span class="badge rounded-pill @managerStatusBadge">@(isManagerApproved ? Localizer["ApprovalStatusApproved"] : Localizer["Pending"])</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary">@LocalizeStatus(ticket.Status)</span>
                                     </td>
                                     <td>@ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
                                     <td class="text-nowrap text-end">
-                                        @if (User.IsInRole("Security"))
+                                        @if (canReview)
                                         {
-                                            <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
-                                                asp-action="ApproveSecurity" asp-route-id="@ticket.Id">
-                                                <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
-                                                asp-action="Approve" asp-route-id="@ticket.Id">
-                                                <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
-                                            </a>
+                                            @if (User.IsInRole("Security"))
+                                            {
+                                                <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
+                                                    asp-action="ApproveSecurity" asp-route-id="@ticket.Id">
+                                                    <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
+                                                </a>
+                                            }
+                                            else if (User.IsInRole("Manager"))
+                                            {
+                                                <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
+                                                    asp-action="Approve" asp-route-id="@ticket.Id">
+                                                    <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
+                                                </a>
+                                            }
                                         }
                                         <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details"
                                             asp-route-id="@ticket.Id">
