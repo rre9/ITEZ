@@ -35,6 +35,10 @@ namespace ITHelpDesk.ViewModels.Assets
         [DataType(DataType.Date)]
         public DateTime? WarrantyExpiryDate { get; set; }
 
+        // Server Info
+        public string? ServerRole { get; set; }
+        public string? OSEdition { get; set; }
+
         // Computer Info
         public string? ServiceTag { get; set; }
         public string? ComputerManufacturer { get; set; }
@@ -86,6 +90,7 @@ namespace ITHelpDesk.ViewModels.Assets
 
         // Asset State
         public AssetStatusEnum Status { get; set; }
+        public int? AssetStatus { get; set; }
         public string? AssociatedTo { get; set; }
         public string? Site { get; set; }
         public string? StateComments { get; set; }

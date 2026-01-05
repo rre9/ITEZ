@@ -93,587 +93,756 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header pb-0">
-                    <h5>Edit Server</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>Edit Server</h5>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <form asp-action="EditServer" method="post" class="needs-validation" novalidate>
+                    <form asp-action="EditServer" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
-                        <div class="row">
-                            <!-- Basic Information -->
-                            <div class="col-md-12">
+
+                        <!-- Basic Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
                                 <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
-                            </div>
+                                <div class="row">
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Name" class="form-label">
-                                    Name
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="Name" class="form-control" required data-required="true" />
-                                <span asp-validation-for="Name" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="Name-required">This field
-                                    is required</span>
-                            </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Name" class="form-label">
+                                            Name
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="Name" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="Name-required">This field is required</span>
+                                    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ProductId" class="form-label">
-                                    Product
-                                    <span class="field-required">*</span>
-                                </label>
-                                <div class="select-with-add">
-                                    <select asp-for="ProductId" class="form-select" required data-required="true">
-                                        <option value="">-- Select Product --</option>
-                                        @foreach (var product in (ViewBag.Products as
-                                                                                List<ITHelpDesk.Models.Assets.Product>) ?? new
-                                                                                List<ITHelpDesk.Models.Assets.Product>())
-                                        {
-                                            <option value="@product.Id">@product.ProductName - @product.Manufacturer
-                                            </option>
-                                        }
-                                    </select>
-                                    <button type="button" class="btn btn-add" data-bs-toggle="modal"
-                                        data-bs-target="#addProductModal" title="Add New Product"></button>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ProductId" class="form-label">
+                                            Product
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <div class="select-with-add">
+                                            <select asp-for="ProductId" class="form-select" required
+                                                data-required="true">
+                                                <option value="">-- Select Product --</option>
+                                                @if (ViewBag.Products != null)
+                                                {
+                                                    @foreach (var product in ViewBag.Products as
+                                                                                                    List<ITHelpDesk.Models.Assets.Product>)
+                                                    {
+                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer
+                                                        </option>
+                                                    }
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addProductModal" title="Add New Product"></button>
+                                        </div>
+                                        <span asp-validation-for="ProductId" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ProductId-required">This field is required</span>
+                                    </div>
+
+                                    <!-- Asset Details -->
+                                    <div class="col-md-12 mt-3">
+                                        <h6 class="text-sm mb-3 fw-bold">Asset Details</h6>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="SerialNumber" class="form-label">
+                                            Serial Number
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="SerialNumber" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="SerialNumber" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="SerialNumber-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AssetTag" class="form-label">
+                                            Asset Tag
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="AssetTag" class="form-control optional-field" />
+                                        <span asp-validation-for="AssetTag" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="VendorId" class="form-label">
+                                            Vendor
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <div class="select-with-add">
+                                            <select asp-for="VendorId" class="form-select" required
+                                                data-required="true">
+                                                <option value="">-- Select Vendor --</option>
+                                                @if (ViewBag.Vendors != null)
+                                                {
+                                                    @foreach (var vendor in ViewBag.Vendors as
+                                                                                                    List<ITHelpDesk.Models.Assets.Vendor>)
+                                                    {
+                                                        <option value="@vendor.Id">@vendor.VendorName</option>
+                                                    }
+                                                }
+                                            </select>
+                                            <button type="button" class="btn btn-add" data-bs-toggle="modal"
+                                                data-bs-target="#addVendorModal" title="Add New Vendor"></button>
+                                        </div>
+                                        <span asp-validation-for="VendorId" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="VendorId-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="PurchaseCost" class="form-label">
+                                            Purchase Cost (SAR)
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control"
+                                            required data-required="true" />
+                                        <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="PurchaseCost-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ExpiryDate" class="form-label">
+                                            Expiry Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ExpiryDate" type="date" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ExpiryDate-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Location" class="form-label">
+                                            Location
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="Location" class="form-control optional-field" />
+                                        <span asp-validation-for="Location" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AcquisitionDate" class="form-label">
+                                            Acquisition Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="AcquisitionDate" type="date" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="AcquisitionDate-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">
+                                            Warranty Expiry Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="WarrantyExpiryDate" type="date" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="WarrantyExpiryDate-required">This field is required</span>
+                                    </div>
                                 </div>
-                                <span asp-validation-for="ProductId" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="ProductId-required">This
-                                    field is required</span>
-                            </div>
-
-                            <!-- Asset Details -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Asset Details</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="SerialNumber" class="form-label">
-                                    Serial Number
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="SerialNumber" class="form-control" required data-required="true" />
-                                <span asp-validation-for="SerialNumber" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="SerialNumber-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="AssetTag" class="form-label">
-                                    Asset Tag
-                                    <span class="field-optional">(Optional)</span>
-                                </label>
-                                <input asp-for="AssetTag" class="form-control" />
-                                <span asp-validation-for="AssetTag" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="VendorId" class="form-label">
-                                    Vendor
-                                    <span class="field-required">*</span>
-                                </label>
-                                <div class="select-with-add">
-                                    <select asp-for="VendorId" class="form-select" required data-required="true">
-                                        <option value="">-- Select Vendor --</option>
-                                        @foreach (var vendor in (ViewBag.Vendors as
-                                                                                List<ITHelpDesk.Models.Assets.Vendor>) ?? new
-                                                                                List<ITHelpDesk.Models.Assets.Vendor>())
-                                        {
-                                            <option value="@vendor.Id">@vendor.VendorName</option>
-                                        }
-                                    </select>
-                                    <button type="button" class="btn btn-add" data-bs-toggle="modal"
-                                        data-bs-target="#addVendorModal" title="Add New Vendor"></button>
-                                </div>
-                                <span asp-validation-for="VendorId" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="VendorId-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PurchaseCost" class="form-label">
-                                    Purchase Cost (SAR)
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="PurchaseCost" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="PurchaseCost-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ExpiryDate" class="form-label">
-                                    Expiry Date
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="ExpiryDate" type="date" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="ExpiryDate-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="AcquisitionDate" class="form-label">
-                                    Acquisition Date
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="AcquisitionDate" type="date" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="AcquisitionDate-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="WarrantyExpiryDate" class="form-label">
-                                    Warranty Expiry Date
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="WarrantyExpiryDate" type="date" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="WarrantyExpiryDate-required">This field is required</span>
-                            </div>
-
-                            <!-- Computer Info -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Computer Info</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ServiceTag" class="form-label">Service Tag</label>
-                                <input asp-for="ServiceTag" class="form-control" />
-                                <span asp-validation-for="ServiceTag" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ComputerManufacturer" class="form-label">
-                                    Manufacturer
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="ComputerManufacturer" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="ComputerManufacturer" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="ComputerManufacturer-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="BiosDate" class="form-label">
-                                    BIOS Date
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="BiosDate" type="date" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="BiosDate" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="BiosDate-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Domain" class="form-label">Domain</label>
-                                <input asp-for="Domain" class="form-control" />
-                                <span asp-validation-for="Domain" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="SMBiosVersion" class="form-label">SMBIOS Version</label>
-                                <input asp-for="SMBiosVersion" class="form-control" />
-                                <span asp-validation-for="SMBiosVersion" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="BiosVersion" class="form-label">BIOS Version</label>
-                                <input asp-for="BiosVersion" class="form-control" />
-                                <span asp-validation-for="BiosVersion" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="BiosManufacturer" class="form-label">BIOS Manufacturer</label>
-                                <input asp-for="BiosManufacturer" class="form-control" />
-                                <span asp-validation-for="BiosManufacturer" class="text-danger"></span>
-                            </div>
-
-                            <!-- Operating System Info -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Operating System Info</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="OSName" class="form-label">
-                                    Name
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="OSName" class="form-control" required data-required="true" />
-                                <span asp-validation-for="OSName" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="OSName-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="OSVersion" class="form-label">
-                                    Version
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="OSVersion" class="form-control" required data-required="true" />
-                                <span asp-validation-for="OSVersion" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="OSVersion-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="BuildNumber" class="form-label">Build Number</label>
-                                <input asp-for="BuildNumber" class="form-control" />
-                                <span asp-validation-for="BuildNumber" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ServicePack" class="form-label">Service Pack</label>
-                                <input asp-for="ServicePack" class="form-control" />
-                                <span asp-validation-for="ServicePack" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="OSProductId" class="form-label">Product ID</label>
-                                <input asp-for="OSProductId" class="form-control" />
-                                <span asp-validation-for="OSProductId" class="text-danger"></span>
-                            </div>
-
-                            <!-- Memory Details -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Memory Details</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="RAM" class="form-label">
-                                    RAM (GB)
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="RAM" type="number" class="form-control" required data-required="true" />
-                                <span asp-validation-for="RAM" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="RAM-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="VirtualMemory" class="form-label">
-                                    Virtual Memory (GB)
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="VirtualMemory" type="number" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="VirtualMemory" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="VirtualMemory-required">This field is required</span>
-                            </div>
-
-                            <!-- Processor -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Processor</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ProcessorInfo" class="form-label">
-                                    Processor Info
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="ProcessorInfo" class="form-control" required data-required="true" />
-                                <span asp-validation-for="ProcessorInfo" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="ProcessorInfo-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ProcessorManufacturer" class="form-label">
-                                    Manufacturer
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="ProcessorManufacturer" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="ProcessorManufacturer" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="ProcessorManufacturer-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ClockSpeedMHz" class="form-label">
-                                    Clock Speed (MHz)
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="ClockSpeedMHz" type="number" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="ClockSpeedMHz" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden"
-                                    id="ClockSpeedMHz-required">This field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="NumberOfCores" class="form-label">Number of Cores</label>
-                                <input asp-for="NumberOfCores" type="number" class="form-control" />
-                                <span asp-validation-for="NumberOfCores" class="text-danger"></span>
-                            </div>
-
-                            <!-- Hard Disk -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Hard Disk</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="HardDiskModel" class="form-label">Model</label>
-                                <input asp-for="HardDiskModel" class="form-control" />
-                                <span asp-validation-for="HardDiskModel" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="HardDiskSerialNumber" class="form-label">Serial Number</label>
-                                <input asp-for="HardDiskSerialNumber" class="form-control" />
-                                <span asp-validation-for="HardDiskSerialNumber" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="HardDiskManufacturer" class="form-label">Manufacturer</label>
-                                <input asp-for="HardDiskManufacturer" class="form-control" />
-                                <span asp-validation-for="HardDiskManufacturer" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="CapacityGB" class="form-label">
-                                    Capacity (GB)
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="CapacityGB" type="number" class="form-control" required
-                                    data-required="true" />
-                                <span asp-validation-for="CapacityGB" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="CapacityGB-required">This
-                                    field is required</span>
-                            </div>
-
-                            <!-- Keyboard -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Keyboard</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="KeyboardType" class="form-label">Keyboard Type</label>
-                                <input asp-for="KeyboardType" class="form-control" />
-                                <span asp-validation-for="KeyboardType" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="KeyboardManufacturer" class="form-label">Manufacturer</label>
-                                <input asp-for="KeyboardManufacturer" class="form-control" />
-                                <span asp-validation-for="KeyboardManufacturer" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="KeyboardSerialNumber" class="form-label">Serial Number</label>
-                                <input asp-for="KeyboardSerialNumber" class="form-control" />
-                                <span asp-validation-for="KeyboardSerialNumber" class="text-danger"></span>
-                            </div>
-
-                            <!-- Mouse -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Mouse</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MouseType" class="form-label">Mouse Type</label>
-                                <input asp-for="MouseType" class="form-control" />
-                                <span asp-validation-for="MouseType" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MouseSerialNumber" class="form-label">Serial Number</label>
-                                <input asp-for="MouseSerialNumber" class="form-control" />
-                                <span asp-validation-for="MouseSerialNumber" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MouseButtons" class="form-label">Mouse Buttons</label>
-                                <input asp-for="MouseButtons" type="number" class="form-control" />
-                                <span asp-validation-for="MouseButtons" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MouseManufacturer" class="form-label">Manufacturer</label>
-                                <input asp-for="MouseManufacturer" class="form-control" />
-                                <span asp-validation-for="MouseManufacturer" class="text-danger"></span>
-                            </div>
-
-                            <!-- Monitor -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Monitor</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MonitorType" class="form-label">Monitor Type</label>
-                                <input asp-for="MonitorType" class="form-control" />
-                                <span asp-validation-for="MonitorType" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MonitorSerialNumber" class="form-label">Serial Number</label>
-                                <input asp-for="MonitorSerialNumber" class="form-control" />
-                                <span asp-validation-for="MonitorSerialNumber" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MonitorManufacturer" class="form-label">Manufacturer</label>
-                                <input asp-for="MonitorManufacturer" class="form-control" />
-                                <span asp-validation-for="MonitorManufacturer" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MaxResolution" class="form-label">Max Resolution</label>
-                                <input asp-for="MaxResolution" class="form-control" />
-                                <span asp-validation-for="MaxResolution" class="text-danger"></span>
-                            </div>
-
-                            <!-- Asset State -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Status" class="form-label">
-                                    Asset is Currently
-                                    <span class="field-required">*</span>
-                                </label>
-                                <select asp-for="Status" class="form-select" required data-required="true">
-                                    <option value="1">In Store</option>
-                                    <option value="2">In Use</option>
-                                    <option value="3">In Repair</option>
-                                    <option value="4">Expired</option>
-                                    <option value="5">Disposed</option>
-                                </select>
-                                <span asp-validation-for="Status" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="Status-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Department" class="form-label">
-                                    Department
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="Department" class="form-control" required data-required="true" />
-                                <span asp-validation-for="Department" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="Department-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Site" class="form-label">Site</label>
-                                <input asp-for="Site" class="form-control" />
-                                <span asp-validation-for="Site" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="StateComments" class="form-label">State Comments</label>
-                                <textarea asp-for="StateComments" class="form-control" rows="2"></textarea>
-                                <span asp-validation-for="StateComments" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="UserId" class="form-label">User</label>
-                                <input asp-for="UserId" class="form-control" />
-                                <span asp-validation-for="UserId" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Department" class="form-label">Department</label>
-                                <input asp-for="Department" class="form-control" />
-                                <span asp-validation-for="Department" class="text-danger"></span>
-                            </div>
-
-                            <!-- Network Details -->
-                            <div class="col-md-12 mt-3">
-                                <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="IPAddress" class="form-label">
-                                    IP Address
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="IPAddress" class="form-control" required data-required="true" />
-                                <span asp-validation-for="IPAddress" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="IPAddress-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="MACAddress" class="form-label">
-                                    MAC Address
-                                    <span class="field-required">*</span>
-                                </label>
-                                <input asp-for="MACAddress" class="form-control" required data-required="true" />
-                                <span asp-validation-for="MACAddress" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="MACAddress-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="NIC" class="form-label">NIC</label>
-                                <input asp-for="NIC" class="form-control" />
-                                <span asp-validation-for="NIC" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Network" class="form-label">Network</label>
-                                <input asp-for="Network" class="form-control" />
-                                <span asp-validation-for="Network" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DefaultGateway" class="form-label">Default Gateway</label>
-                                <input asp-for="DefaultGateway" class="form-control" />
-                                <span asp-validation-for="DefaultGateway" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DHCPEnabled" class="form-label">
-                                    DHCP Enabled
-                                    <span class="field-required">*</span>
-                                </label>
-                                <select asp-for="DHCPEnabled" class="form-select" required data-required="true">
-                                    <option value="false">False</option>
-                                    <option value="true">True</option>
-                                </select>
-                                <span asp-validation-for="DHCPEnabled" class="text-danger"></span>
-                                <span class="form-error-message submit-validation-hidden" id="DHCPEnabled-required">This
-                                    field is required</span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DHCPServer" class="form-label">
-                                    DHCP Server
-                                    <span class="field-optional">(Optional)</span>
-                                </label>
-                                <input asp-for="DHCPServer" class="form-control" />
-                                <span asp-validation-for="DHCPServer" class="text-danger"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DNSHostname" class="form-label">
-                                    DNS Hostname
-                                    <span class="field-optional">(Optional)</span>
-                                </label>
-                                <input asp-for="DNSHostname" class="form-control" />
-                                <span asp-validation-for="DNSHostname" class="text-danger"></span>
                             </div>
                         </div>
 
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i>
-                                    Update Server
-                                </button>
-                                <a asp-action="Servers" class="btn btn-secondary">
-                                    <i class="fas fa-times me-1"></i>
-                                    Cancel
+                        <!-- Computer Info Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Computer Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ServiceTag" class="form-label">
+                                            Service Tag
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ServiceTag" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="ServiceTag" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ServiceTag-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ComputerManufacturer" class="form-label">
+                                            Manufacturer
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ComputerManufacturer" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="ComputerManufacturer" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ComputerManufacturer-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="BiosDate" class="form-label">
+                                            BIOS Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="BiosDate" type="date" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="BiosDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="BiosDate-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Domain" class="form-label">
+                                            Domain
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="Domain" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="Domain" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="Domain-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="SMBiosVersion" class="form-label">
+                                            SMBios Version
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="SMBiosVersion" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="SMBiosVersion" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="SMBiosVersion-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="BiosVersion" class="form-label">
+                                            BIOS Version
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="BiosVersion" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="BiosVersion" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="BiosVersion-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="BiosManufacturer" class="form-label">
+                                            BIOS Manufacturer
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="BiosManufacturer" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="BiosManufacturer" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="BiosManufacturer-required">This field is required</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operating System Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Operating System Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="OSName" class="form-label">
+                                            Name
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="OSName" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="OSName" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="OSName-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="OSVersion" class="form-label">
+                                            Version
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="OSVersion" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="OSVersion" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="OSVersion-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="BuildNumber" class="form-label">
+                                            Build Number
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="BuildNumber" class="form-control optional-field" />
+                                        <span asp-validation-for="BuildNumber" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ServicePack" class="form-label">
+                                            Service Pack
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="ServicePack" class="form-control optional-field" />
+                                        <span asp-validation-for="ServicePack" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="OSProductId" class="form-label">
+                                            Product ID
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="OSProductId" class="form-control optional-field" />
+                                        <span asp-validation-for="OSProductId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Memory Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Memory Details</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="RAM" class="form-label">
+                                            RAM (GB)
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="RAM" type="number" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="RAM" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="RAM-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="VirtualMemory" class="form-label">
+                                            Virtual Memory (GB)
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="VirtualMemory" type="number" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="VirtualMemory" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="VirtualMemory-required">This field is required</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Processor Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Processor Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ProcessorInfo" class="form-label">
+                                            Processor Info
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ProcessorInfo" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="ProcessorInfo" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ProcessorInfo-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ProcessorManufacturer" class="form-label">
+                                            Manufacturer
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ProcessorManufacturer" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="ProcessorManufacturer" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ProcessorManufacturer-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="ClockSpeedMHz" class="form-label">
+                                            Clock Speed (MHz)
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ClockSpeedMHz" type="number" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="ClockSpeedMHz" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="ClockSpeedMHz-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="NumberOfCores" class="form-label">
+                                            Number of Cores
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="NumberOfCores" type="number" class="form-control optional-field" />
+                                        <span asp-validation-for="NumberOfCores" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hard Disk Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Hard Disk Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="HardDiskModel" class="form-label">
+                                            Model
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="HardDiskModel" class="form-control optional-field" />
+                                        <span asp-validation-for="HardDiskModel" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="HardDiskSerialNumber" class="form-label">
+                                            Serial Number
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="HardDiskSerialNumber" class="form-control optional-field" />
+                                        <span asp-validation-for="HardDiskSerialNumber" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="HardDiskManufacturer" class="form-label">
+                                            Manufacturer
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="HardDiskManufacturer" class="form-control optional-field" />
+                                        <span asp-validation-for="HardDiskManufacturer" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="CapacityGB" class="form-label">
+                                            Capacity (GB)
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="CapacityGB" type="number" class="form-control" required
+                                            data-required="true" />
+                                        <span asp-validation-for="CapacityGB" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="CapacityGB-required">This field is required</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Keyboard Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Keyboard Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="KeyboardType" class="form-label">
+                                            Keyboard Type
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="KeyboardType" class="form-control optional-field" />
+                                        <span asp-validation-for="KeyboardType" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="KeyboardManufacturer" class="form-label">
+                                            Manufacturer
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="KeyboardManufacturer" class="form-control optional-field" />
+                                        <span asp-validation-for="KeyboardManufacturer" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="KeyboardSerialNumber" class="form-label">
+                                            Serial Number
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="KeyboardSerialNumber" class="form-control optional-field" />
+                                        <span asp-validation-for="KeyboardSerialNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mouse Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Mouse Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MouseType" class="form-label">
+                                            Mouse Type
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MouseType" class="form-control optional-field" />
+                                        <span asp-validation-for="MouseType" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MouseSerialNumber" class="form-label">
+                                            Serial Number
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MouseSerialNumber" class="form-control optional-field" />
+                                        <span asp-validation-for="MouseSerialNumber" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MouseButtons" class="form-label">
+                                            Mouse Buttons
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MouseButtons" type="number" class="form-control optional-field" />
+                                        <span asp-validation-for="MouseButtons" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MouseManufacturer" class="form-label">
+                                            Manufacturer
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MouseManufacturer" class="form-control optional-field" />
+                                        <span asp-validation-for="MouseManufacturer" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Monitor Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Monitor Information</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MonitorType" class="form-label">
+                                            Monitor Type
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MonitorType" class="form-control optional-field" />
+                                        <span asp-validation-for="MonitorType" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MonitorSerialNumber" class="form-label">
+                                            Serial Number
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MonitorSerialNumber" class="form-control optional-field" />
+                                        <span asp-validation-for="MonitorSerialNumber" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MonitorManufacturer" class="form-label">
+                                            Manufacturer
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MonitorManufacturer" class="form-control optional-field" />
+                                        <span asp-validation-for="MonitorManufacturer" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MaxResolution" class="form-label">
+                                            Max Resolution
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="MaxResolution" class="form-control optional-field" placeholder="e.g. 1920x1080" />
+                                        <span asp-validation-for="MaxResolution" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asset State Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            Asset is Currently
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <select id="AssetStatus" name="AssetStatus" class="form-select" required data-required="true">
+                                            <option value="">Select Status...</option>
+                                            <option value="2">In Store</option>
+                                            <option value="1">In Use</option>
+                                            <option value="3">In Repair</option>
+                                            <option value="4">Expired</option>
+                                            <option value="5">Disposed</option>
+                                        </select>
+                                        <span asp-validation-for="AssetStatus" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="AssetStatus-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="AssociatedTo" class="form-label">
+                                            Associated To
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="AssociatedTo" class="form-control optional-field" />
+                                        <span asp-validation-for="AssociatedTo" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Site" class="form-label">
+                                            Site
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="Site" class="form-control optional-field" />
+                                        <span asp-validation-for="Site" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="UserId" class="form-label">
+                                            User
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="UserId" class="form-control optional-field" />
+                                        <span asp-validation-for="UserId" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Department" class="form-label">
+                                            Department
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <select asp-for="Department" class="form-select" required data-required="true">
+                                            <option value="">-- Select Department --</option>
+                                            <option value="IT">IT</option>
+                                            <option value="HR">HR</option>
+                                            <option value="Finance">Finance</option>
+                                            <option value="Operations">Operations</option>
+                                            <option value="Sales">Sales</option>
+                                            <option value="Marketing">Marketing</option>
+                                        </select>
+                                        <span asp-validation-for="Department" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="Department-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3">
+                                        <label asp-for="StateComments" class="form-label">
+                                            State Comments
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <textarea asp-for="StateComments" class="form-control optional-field" rows="2"></textarea>
+                                        <span asp-validation-for="StateComments" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Details Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="IPAddress" class="form-label">
+                                            IP Address
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="IPAddress" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="IPAddress" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="IPAddress-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="MACAddress" class="form-label">
+                                            MAC Address
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="MACAddress" class="form-control" required data-required="true" />
+                                        <span asp-validation-for="MACAddress" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="MACAddress-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="NIC" class="form-label">
+                                            NIC
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="NIC" class="form-control optional-field" />
+                                        <span asp-validation-for="NIC" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Network" class="form-label">
+                                            Network
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="Network" class="form-control optional-field" />
+                                        <span asp-validation-for="Network" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DefaultGateway" class="form-label">
+                                            Default Gateway
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="DefaultGateway" class="form-control optional-field" />
+                                        <span asp-validation-for="DefaultGateway" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">
+                                            DHCP Enabled
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <select id="DHCPEnabled" name="DHCPEnabled" class="form-select" required
+                                            data-required="true">
+                                            <option value="">-- Select --</option>
+                                            <option value="false">False</option>
+                                            <option value="true">True</option>
+                                        </select>
+                                        <span asp-validation-for="DHCPEnabled" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden"
+                                            id="DHCPEnabled-required">This field is required</span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DHCPServer" class="form-label">
+                                            DHCP Server
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="DHCPServer" class="form-control optional-field" />
+                                        <span asp-validation-for="DHCPServer" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="DNSHostname" class="form-label">
+                                            DNS Hostname
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <input asp-for="DNSHostname" class="form-control optional-field" />
+                                        <span asp-validation-for="DNSHostname" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <a asp-action="Servers" class="btn btn-secondary me-2">
+                                    <i class="fas fa-times me-2"></i>Cancel
                                 </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Update Server
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -681,8 +850,6 @@
             </div>
         </div>
     </div>
-</div>
-</div>
 </div>
 
 <!-- Modal إضافة مورد جديد -->
@@ -714,7 +881,7 @@
                             <input type="text" class="form-control" id="vendorLandmark">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorPostalCode" class="form-label">Postal Code</label>
+                            <label for="vendorPostalCode" class="form-label">ZIP/Postal Code</label>
                             <input type="text" class="form-control" id="vendorPostalCode">
                         </div>
                         <div class="col-md-6 mb-3">
@@ -742,7 +909,7 @@
                             <input type="text" class="form-control" id="vendorStateProvince">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorPhone" class="form-label">Phone Number</label>
+                            <label for="vendorPhone" class="form-label">Phone No.</label>
                             <input type="text" class="form-control" id="vendorPhone">
                         </div>
                         <div class="col-md-6 mb-3">
@@ -934,7 +1101,7 @@
             const form = document.querySelector('form[asp-action="EditServer"]');
             if (form) {
                 form.addEventListener('submit', function (e) {
-                    const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ComputerManufacturer', 'BiosDate', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'Status', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
+                    const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 'SMBiosVersion', 'BiosVersion', 'BiosManufacturer', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'AssetStatus', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
                     let hasErrors = false;
 
                     // Check required fields
@@ -963,7 +1130,7 @@
                 });
 
                 // Real-time validation on field change/blur
-                const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ComputerManufacturer', 'BiosDate', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'Status', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
+                const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 'SMBiosVersion', 'BiosVersion', 'BiosManufacturer', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'AssetStatus', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
                 requiredFields.forEach(fieldName => {
                     const input = document.querySelector(`[name="${fieldName}"]`);
                     if (input) {

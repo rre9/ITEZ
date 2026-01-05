@@ -175,82 +175,6 @@ else
                             </div>
                         }
 
-                        <!-- Processor -->
-                        @if (item.Processor != null && !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c-35.3 0-64 28.7-64 64H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64c0 35.3 28.7 64 64 64v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448c35.3 0 64-28.7 64-64h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V280h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V176h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448c0-35.3-28.7-64-64-64V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H280V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H176V24zM160 128H352c17.7 0 32 14.3 32 32V352c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32zm192 32H160V352H352V160z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Processor</div>
-                                    <div class="spec-value">@item.Processor.ProcessorInfo</div>
-                                    @if (item.Processor.ClockSpeedMHz.HasValue && item.Processor.ClockSpeedMHz.Value > 0)
-                                    {
-                                        <div class="spec-badges mt-1">
-                                            <span class="badge-spec">@item.Processor.ClockSpeedMHz MHz</span>
-                                            @if (item.Processor.NumberOfCores.HasValue && item.Processor.NumberOfCores.Value > 0)
-                                            {
-                                                <span class="badge-spec">@item.Processor.NumberOfCores Cores</span>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-
-                        <!-- RAM -->
-                        @if (item.MemoryDetails != null && item.MemoryDetails.RAM > 0)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M64 64C28.7 64 0 92.7 0 128v7.4c0 6.8 4.4 12.6 10.1 16.3C23.3 158.1 32 173.9 32 192s-8.7 33.9-21.9 40.3C4.4 235.9 0 241.7 0 248.6V320H576V248.6c0-6.8-4.4-12.6-10.1-16.3C552.7 225.9 544 210.1 544 192s8.7-33.9 21.9-40.3c5.7-3.7 10.1-9.5 10.1-16.3V128c0-35.3-28.7-64-64-64H64zM576 352H0v64c0 17.7 14.3 32 32 32H80V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h64V416c0-8.8 7.2-16 16-16s16 7.2 16 16v32h48c17.7 0 32-14.3 32-32V352zM192 160v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm128 0v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm128 0v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">RAM</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.MemoryDetails.RAM GB</span>
-                                    </div>
-                                    @if (item.MemoryDetails.VirtualMemory > 0)
-                                    {
-                                        <div class="spec-note">Virtual: @item.MemoryDetails.VirtualMemory GB</div>
-                                    }
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Storage -->
-                        @if (item.HardDisk != null && item.HardDisk.CapacityGB.HasValue && item.HardDisk.CapacityGB.Value > 0)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM64 160H224v96H64V160zm0 128H224v96H64V288zM352 160v96H256V160h96zM256 288h96v96H256V288zM448 160v96H384V160h64zM384 288h64v96H384V288z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Storage</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.HardDisk.CapacityGB GB</span>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(item.HardDisk.Model))
-                                    {
-                                        <div class="spec-note">@item.HardDisk.Model</div>
-                                    }
-                                </div>
-                            </div>
-                        }
-
                         <!-- Operating System -->
                         @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
                         {
@@ -385,40 +309,33 @@ else
                         <div class="collapse" id="details-@item.Id">
                             <div class="details-content">
                                 <div class="details-grid">
-                                    <!-- System Details -->
-                                    @if (item.ComputerInfo != null)
+                                    <!-- System Configuration -->
+                                    @if (item.OperatingSystemInfo != null || item.Processor != null || item.MemoryDetails != null)
                                     {
                                         <div class="detail-section">
                                             <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-cog me-2"></i>System Information
+                                                <i class="fa-solid fa-cog me-2"></i>System Configuration
                                             </h6>
                                             <div class="detail-list">
-                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.Manufacturer))
+                                                @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Manufacturer:</span>
-                                                        <span class="detail-val">@item.ComputerInfo.Manufacturer</span>
+                                                        <span class="detail-key">Operating System:</span>
+                                                        <span class="detail-val">@item.OperatingSystemInfo.Name</span>
                                                     </div>
                                                 }
-                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.Domain))
+                                                @if (item.Processor != null && !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Domain:</span>
-                                                        <span class="detail-val">@item.ComputerInfo.Domain</span>
+                                                        <span class="detail-key">Processor:</span>
+                                                        <span class="detail-val">@item.Processor.ProcessorInfo</span>
                                                     </div>
                                                 }
-                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.ServiceTag))
+                                                @if (item.MemoryDetails != null && item.MemoryDetails.RAM.HasValue)
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Service Tag:</span>
-                                                        <span class="detail-val">@item.ComputerInfo.ServiceTag</span>
-                                                    </div>
-                                                }
-                                                @if (!string.IsNullOrEmpty(item.ComputerInfo.BiosVersion))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">BIOS Version:</span>
-                                                        <span class="detail-val">@item.ComputerInfo.BiosVersion</span>
+                                                        <span class="detail-key">Memory:</span>
+                                                        <span class="detail-val">@item.MemoryDetails.RAM GB</span>
                                                     </div>
                                                 }
                                             </div>
@@ -472,7 +389,7 @@ else
                                         <div class="detail-list">
                                             <div class="detail-item">
                                                 <span class="detail-key">Created:</span>
-                                                <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy                               hh:mm tt")</span>
+                                                <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</span>
                                             </div>
                                             @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.Site))
                                             {
@@ -481,8 +398,7 @@ else
                                                     <span class="detail-val">@item.AssetState.Site</span>
                                                 </div>
                                             }
-                                            @if (item.AssetState != null &&
-                                                                                !string.IsNullOrEmpty(item.AssetState.StateComments))
+                                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.StateComments))
                                             {
                                                 <div class="detail-item">
                                                     <span class="detail-key">Comments:</span>
