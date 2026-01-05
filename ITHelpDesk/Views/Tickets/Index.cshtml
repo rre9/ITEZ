@@ -5,7 +5,7 @@
 @using Microsoft.AspNetCore.Routing
 
 @{
-    ViewData["Title"] = "All Tickets";
+    ViewData["Title"] = Localizer["AllTickets"];
 
     string PriorityBadge(TicketPriority priority) => priority switch
     {
@@ -24,6 +24,30 @@
         _ => "bg-light text-dark"
     };
 
+    string LocalizePriority(TicketPriority priority)
+    {
+        return priority switch
+        {
+            TicketPriority.Low => Localizer["PriorityLow"].ToString(),
+            TicketPriority.Medium => Localizer["PriorityMedium"].ToString(),
+            TicketPriority.High => Localizer["PriorityHigh"].ToString(),
+            _ => priority.ToString()
+        };
+    }
+
+    string LocalizeStatus(TicketStatus status)
+    {
+        return status switch
+        {
+            TicketStatus.New => Localizer["StatusNew"].ToString(),
+            TicketStatus.InProgress => Localizer["StatusInProgress"].ToString(),
+            TicketStatus.Resolved => Localizer["StatusResolved"].ToString(),
+            TicketStatus.Rejected => Localizer["StatusRejected"].ToString(),
+            TicketStatus.Closed => Localizer["StatusClosed"].ToString(),
+            _ => status.ToString()
+        };
+    }
+
     var baseRouteValues = Model.Query.ToRouteValues(includePagination: false);
     var exportRoute = baseRouteValues.ToDictionary(
         kvp => kvp.Key,
@@ -33,13 +57,13 @@
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
         <h1 class="display-6 fw-semibold text-primary mb-1">
-            <i class="fa-solid fa-clipboard-list-check me-2"></i>Ticket Dashboard
+            <i class="fa-solid fa-clipboard-list-check me-2"></i>@Localizer["TicketDashboard"]
         </h1>
-        <p class="text-secondary mb-0">Monitor, prioritize, and resolve IT support requests.</p>
+        <p class="text-secondary mb-0">@Localizer["TicketDashboardDescription"]</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a asp-action="ExportCsv" asp-all-route-data="exportRoute" class="btn btn-outline-secondary">
-            <i class="fa-solid fa-file-export me-2"></i>Export CSV
+            <i class="fa-solid fa-file-export me-2"></i>@Localizer["ExportCSV"]
         </a>
     </div>
 </div>
@@ -105,21 +129,21 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <label class="form-label fw-semibold" for="Requester">Requester</label>
-                <input type="text" class="form-control" id="Requester" name="Requester" value="@Model.Query.Requester" placeholder="Name or email" />
+                <label class="form-label fw-semibold" for="Requester">@Localizer["Requester"]</label>
+                <input type="text" class="form-control" id="Requester" name="Requester" value="@Model.Query.Requester" placeholder="@Localizer["Search"]" />
             </div>
 
             <div class="col-12 col-md-6 col-lg-3">
-                <label class="form-label fw-semibold" for="Assignee">Assignee</label>
-                <input type="text" class="form-control" id="Assignee" name="Assignee" value="@Model.Query.Assignee" placeholder="Name or email" />
+                <label class="form-label fw-semibold" for="Assignee">@Localizer["Assignee"]</label>
+                <input type="text" class="form-control" id="Assignee" name="Assignee" value="@Model.Query.Assignee" placeholder="@Localizer["Search"]" />
             </div>
 
             <div class="col-12 col-lg-6 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fa-solid fa-filter me-2"></i>Apply Filters
+                    <i class="fa-solid fa-filter me-2"></i>@Localizer["ApplyFilters"]
                 </button>
                 <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-rotate-right me-2"></i>Reset
+                    <i class="fa-solid fa-rotate-right me-2"></i>@Localizer["Reset"]
                 </a>
             </div>
         </form>
@@ -131,7 +155,7 @@
         @if (activeFilters.Any())
         {
             <div class="mt-3">
-                <span class="text-secondary small text-uppercase fw-semibold me-2">Active Filters:</span>
+                <span class="text-secondary small text-uppercase fw-semibold me-2">@Localizer["ActiveFilters"]</span>
                 @foreach (var filter in activeFilters)
                 {
                     <span class="badge bg-light text-secondary border me-2">@($"{filter.Key}: {filter.Value}")</span>
@@ -147,15 +171,15 @@
             <table class="table table-hover table-striped align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">@SortLink("createdAt", "Ticket #")</th>
-                        <th scope="col">@SortLink("title", "Title")</th>
-                        <th scope="col">@SortLink("department", "Department")</th>
-                        <th scope="col">@SortLink("priority", "Priority")</th>
-                        <th scope="col">@SortLink("status", "Status")</th>
-                        <th scope="col">Requester</th>
-                        <th scope="col">Assignee</th>
-                        <th scope="col" class="text-nowrap">@SortLink("createdAt", "Created At")</th>
-                        <th scope="col" class="text-nowrap text-end">Actions</th>
+                        <th scope="col">@SortLink("createdAt", Localizer["TicketNumber"].ToString())</th>
+                        <th scope="col">@SortLink("title", Localizer["Title"].ToString())</th>
+                        <th scope="col">@SortLink("department", Localizer["Department"].ToString())</th>
+                        <th scope="col">@SortLink("priority", Localizer["Priority"].ToString())</th>
+                        <th scope="col">@SortLink("status", Localizer["Status"].ToString())</th>
+                        <th scope="col">@Localizer["Requester"]</th>
+                        <th scope="col">@Localizer["Assignee"]</th>
+                        <th scope="col" class="text-nowrap">@SortLink("createdAt", Localizer["CreatedAt"].ToString())</th>
+                        <th scope="col" class="text-nowrap text-end">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -164,8 +188,8 @@
                     <tr>
                         <td colspan="9" class="py-5 text-center text-secondary">
                             <i class="fa-regular fa-envelope-open-text fa-3x mb-3 text-muted"></i>
-                            <div class="fw-semibold">No tickets match the current filters.</div>
-                            <p class="mb-3">Adjust your filters or broaden your search criteria.</p>
+                            <div class="fw-semibold">@Localizer["NoTicketsMatchFilters"]</div>
+                            <p class="mb-3">@Localizer["NoTicketsMatchFiltersDescription"]</p>
                         </td>
                     </tr>
                 }
@@ -178,19 +202,19 @@
                             <td class="fw-semibold text-secondary">@ticketNumber</td>
                             <td>
                                 <a asp-action="Details" asp-route-id="@ticket.Id" class="text-decoration-none fw-semibold">@ticket.Title</a>
-                                <div class="text-muted small d-md-none">Created @ticket.CreatedAt.ToLocalTime():g</div>
+                                <div class="text-muted small d-md-none">@Localizer["Created"] @ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</div>
                             </td>
                             <td>@ticket.Department</td>
-                            <td><span class="badge rounded-pill @PriorityBadge(ticket.Priority)">@ticket.Priority</span></td>
-                            <td><span class="badge rounded-pill @StatusBadge(ticket.Status)">@ticket.Status</span></td>
+                            <td><span class="badge rounded-pill @PriorityBadge(ticket.Priority)">@LocalizePriority(ticket.Priority)</span></td>
+                            <td><span class="badge rounded-pill @StatusBadge(ticket.Status)">@LocalizeStatus(ticket.Status)</span></td>
                             <td>@ticket.CreatedBy?.FullName</td>
-                            <td>@(ticket.AssignedTo?.FullName ?? "Unassigned")</td>
-                            <td>@ticket.CreatedAt.ToLocalTime():g</td>
+                            <td>@(ticket.AssignedTo?.FullName ?? Localizer["Unassigned"])</td>
+                            <td>@ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
                             <td class="text-nowrap text-end">
-                                <a class="btn btn-primary btn-sm me-2" asp-action="Details" asp-route-id="@ticket.Id">View Details</a>
+                                <a class="btn btn-primary btn-sm me-2" asp-action="Details" asp-route-id="@ticket.Id">@Localizer["ViewDetails"]</a>
                                 @if (User.IsInRole("Admin") || User.IsInRole("Support"))
                                 {
-                                    <a class="btn btn-outline-secondary btn-sm" asp-action="ChangeStatus" asp-route-id="@ticket.Id">Update Status</a>
+                                    <a class="btn btn-outline-secondary btn-sm" asp-action="ChangeStatus" asp-route-id="@ticket.Id">@Localizer["UpdateStatus"]</a>
                                 }
                             </td>
                         </tr>

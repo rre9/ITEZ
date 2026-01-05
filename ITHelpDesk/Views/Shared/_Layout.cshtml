@@ -1,13 +1,50 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    var culture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+    var dir = isRtl ? "rtl" : "ltr";
+}
+<!DOCTYPE html>
+<html lang="@culture" dir="@dir">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ITHelpDesk</title>
+    <title>@ViewData["Title"] - @Localizer["ITHelpDesk"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @if (isRtl)
+    {
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" />
+    }
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-0bRqhY6s6+zGtGm5xYgvzmvla12g5L7Z9Bd6Iw2QGXibjHTfrfc03HnvoHxk3FjSFO0DNgSN03lmZ8xZ1AN2Xg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ITHelpDesk.styles.css" asp-append-version="true" />
+    <style>
+        [dir="rtl"] {
+            direction: rtl;
+        }
+        [dir="rtl"] .navbar-nav {
+            flex-direction: row-reverse;
+        }
+        [dir="rtl"] .ms-2 {
+            margin-right: 0.5rem !important;
+            margin-left: 0 !important;
+        }
+        [dir="rtl"] .me-2 {
+            margin-left: 0.5rem !important;
+            margin-right: 0 !important;
+        }
+        .language-toggle {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .language-toggle .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .language-toggle .btn.active {
+            font-weight: bold;
+        }
+    </style>
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -15,36 +52,36 @@
         <nav class="navbar navbar-expand-lg navbar-toggleable-lg navbar-light bg-white border-bottom box-shadow">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fa-solid fa-headset me-2 text-primary"></i>ITHelpDesk
+                    <i class="fa-solid fa-headset me-2 text-primary"></i>@Localizer["ITHelpDesk"]
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="@Localizer["Language"]">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                        <i class="fa-solid fa-house"></i>Home
+                                        <i class="fa-solid fa-house"></i>@Localizer["Home"]
                                     </a>
                                 </li>
                                 @if (User.Identity?.IsAuthenticated ?? false)
                                 {
                                     <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="SelectRequestType">
-                                            <i class="fa-solid fa-plus"></i>Submit Ticket
+                                            <i class="fa-solid fa-plus"></i>@Localizer["SubmitTicket"]
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="MyTickets">
-                                            <i class="fa-solid fa-user-check"></i>My Tickets
+                                            <i class="fa-solid fa-user-check"></i>@Localizer["MyTickets"]
                                         </a>
                                     </li>
                                     @if (User.IsInRole("Manager") || User.IsInRole("Security"))
                                     {
                                         <li class="nav-item">
                                             <a class="nav-link" asp-controller="Tickets" asp-action="TeamRequests">
-                                                <i class="fa-solid fa-users"></i>Team Requests
+                                                <i class="fa-solid fa-users"></i>@Localizer["TeamRequests"]
                                             </a>
                                         </li>
                                     }
@@ -52,7 +89,7 @@
                                     {
                                         <li class="nav-item">
                                             <a class="nav-link" asp-controller="Tickets" asp-action="MyTasks">
-                                                <i class="fa-solid fa-tasks"></i>Tasks
+                                                <i class="fa-solid fa-tasks"></i>@Localizer["Tasks"]
                                             </a>
                                         </li>
                                     }
@@ -60,7 +97,7 @@
                                     {
                                         <li class="nav-item">
                                             <a class="nav-link" asp-controller="Dashboard" asp-action="Security">
-                                                <i class="fa-solid fa-shield-halved"></i>Security Dashboard
+                                                <i class="fa-solid fa-shield-halved"></i>@Localizer["SecurityDashboard"]
                                             </a>
                                         </li>
                                     }
@@ -68,19 +105,19 @@
                                     {
                                         <li class="nav-item">
                                             <a class="nav-link" asp-controller="Tickets" asp-action="MyTasks">
-                                                <i class="fa-solid fa-tasks"></i>Tasks
+                                                <i class="fa-solid fa-tasks"></i>@Localizer["Tasks"]
                                             </a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="Index">
-                                                <i class="fa-solid fa-list-check"></i>All Tickets
+                                                <i class="fa-solid fa-list-check"></i>@Localizer["AllTickets"]
                                             </a>
                                         </li>
                                         @if (User.IsInRole("Admin"))
                                         {
                                             <li class="nav-item">
                                                 <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index">
-                                                    <i class="fa-solid fa-user-gear"></i>Admin Panel
+                                                    <i class="fa-solid fa-user-gear"></i>@Localizer["AdminPanel"]
                                                 </a>
                                             </li>
                                         }
@@ -89,15 +126,33 @@
                                     {
                                         <li class="nav-item">
                                             <a class="nav-link" asp-controller="Assets" asp-action="Dashboard">
-                                                <i class="fa-solid fa-boxes-stacked"></i>Assets
+                                                <i class="fa-solid fa-boxes-stacked"></i>@Localizer["Assets"]
                                             </a>
                                         </li>
                                     }
                                 }
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
-                                        <i class="fa-solid fa-shield-halved"></i>Privacy
+                                        <i class="fa-solid fa-shield-halved"></i>@Localizer["Privacy"]
                                     </a>
+                                </li>
+                            </ul>
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <div class="language-toggle">
+                                        <form asp-controller="Language" asp-action="SetLanguage" method="post" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" style="display: inline;">
+                                            <input type="hidden" name="culture" value="ar" />
+                                            <button type="submit" class="btn btn-sm @(culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase) ? "btn-primary active" : "btn-outline-secondary")">
+                                                @Localizer["Arabic"]
+                                            </button>
+                                        </form>
+                                        <form asp-controller="Language" asp-action="SetLanguage" method="post" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" style="display: inline;">
+                                            <input type="hidden" name="culture" value="en" />
+                                            <button type="submit" class="btn btn-sm @(culture.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "btn-primary active" : "btn-outline-secondary")">
+                                                @Localizer["English"]
+                                            </button>
+                                        </form>
+                                    </div>
                                 </li>
                             </ul>
                     <partial name="_LoginPartial" />

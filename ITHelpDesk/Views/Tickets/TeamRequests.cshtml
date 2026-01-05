@@ -2,7 +2,7 @@
 @using ITHelpDesk.Models
 
 @{
-    ViewData["Title"] = "Team Requests";
+    ViewData["Title"] = Localizer["TeamRequests"];
 
     string ManagerStatusBadge(ApprovalStatus status) => status switch
     {
@@ -20,14 +20,38 @@
         TicketStatus.Rejected => "bg-secondary",
         _ => "bg-light text-dark"
     };
+
+    string LocalizeApprovalStatus(ApprovalStatus status)
+    {
+        return status switch
+        {
+            ApprovalStatus.Pending => Localizer["ApprovalStatusPending"].ToString(),
+            ApprovalStatus.Approved => Localizer["ApprovalStatusApproved"].ToString(),
+            ApprovalStatus.Rejected => Localizer["ApprovalStatusRejected"].ToString(),
+            _ => status.ToString()
+        };
+    }
+
+    string LocalizeStatus(TicketStatus status)
+    {
+        return status switch
+        {
+            TicketStatus.New => Localizer["StatusNew"].ToString(),
+            TicketStatus.InProgress => Localizer["StatusInProgress"].ToString(),
+            TicketStatus.Resolved => Localizer["StatusResolved"].ToString(),
+            TicketStatus.Rejected => Localizer["StatusRejected"].ToString(),
+            TicketStatus.Closed => Localizer["StatusClosed"].ToString(),
+            _ => status.ToString()
+        };
+    }
 }
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
         <h1 class="display-6 fw-semibold text-primary mb-1">
-            <i class="fa-solid fa-users me-2"></i>Team Requests
+            <i class="fa-solid fa-users me-2"></i>@Localizer["TeamRequests"]
         </h1>
-        <p class="text-secondary mb-0">Access requests assigned to you for approval or review.</p>
+        <p class="text-secondary mb-0">@Localizer["TeamRequestsDescription"]</p>
     </div>
     @{
         var pendingCount = Model.AccessRequests.Count(ar => ar.ManagerApprovalStatus == ApprovalStatus.Pending)
@@ -37,7 +61,7 @@
     @if (pendingCount > 0)
     {
         <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-            <i class="fa-solid fa-exclamation-circle me-2"></i>@pendingCount Pending
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@pendingCount @Localizer["PendingCount"]
         </span>
     }
 </div>
@@ -48,13 +72,13 @@
             <table class="table table-hover table-striped align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Ticket #</th>
-                        <th scope="col">Employee Name</th>
-                        <th scope="col">System Name</th>
-                        <th scope="col">Manager Status</th>
-                        <th scope="col">Ticket Status</th>
-                        <th scope="col" class="text-nowrap">Submission Date</th>
-                        <th scope="col" class="text-nowrap text-end">Actions</th>
+                        <th scope="col">@Localizer["TicketNumber"]</th>
+                        <th scope="col">@Localizer["EmployeeNameColumn"]</th>
+                        <th scope="col">@Localizer["SystemName"]</th>
+                        <th scope="col">@Localizer["ManagerStatus"]</th>
+                        <th scope="col">@Localizer["TicketStatus"]</th>
+                        <th scope="col" class="text-nowrap">@Localizer["SubmissionDate"]</th>
+                        <th scope="col" class="text-nowrap text-end">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,9 +88,8 @@
                         <tr>
                             <td colspan="7" class="py-5 text-center text-secondary">
                                 <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
-                                <div class="fw-semibold">No team requests found</div>
-                                <p class="mb-0">Access requests, system changes, and service requests assigned to you will
-                                    appear here.</p>
+                                <div class="fw-semibold">@Localizer["NoTeamRequestsFound"]</div>
+                                <p class="mb-0">@Localizer["NoTeamRequestsFoundDescription"]</p>
                             </td>
                         </tr>
                     }
@@ -84,30 +107,30 @@
                                     <td>@request.SystemName</td>
                                     <td>
                                         <span class="badge rounded-pill @ManagerStatusBadge(request.ManagerApprovalStatus)">
-                                            @request.ManagerApprovalStatus
+                                            @LocalizeApprovalStatus(request.ManagerApprovalStatus)
                                         </span>
                                     </td>
                                     <td>
                                         @if (request.Ticket != null)
                                         {
                                             <span class="badge rounded-pill @TicketStatusBadge(request.Ticket.Status)">
-                                                @request.Ticket.Status
+                                                @LocalizeStatus(request.Ticket.Status)
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary">N/A</span>
+                                            <span class="badge bg-secondary">@Localizer["NA"]</span>
                                         }
                                     </td>
                                     <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
                                     <td class="text-nowrap text-end">
                                         <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets"
                                             asp-action="ApproveAccessRequest" asp-route-id="@request.TicketId">
-                                            <i class="fa-solid fa-gavel me-1"></i>Review
+                                            <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
                                         </a>
                                         <a class="btn btn-outline-primary btn-sm" asp-action="Details"
                                             asp-route-id="@request.TicketId">
-                                            <i class="fa-solid fa-eye me-1"></i>View
+                                            <i class="fa-solid fa-eye me-1"></i>@Localizer["View"]
                                         </a>
                                     </td>
                                 </tr>
@@ -118,33 +141,33 @@
                                 <tr>
                                     <td class="fw-semibold text-secondary">@ticketNumber</td>
                                     <td>@serviceRequest.EmployeeName</td>
-                                    <td>Social Media Access</td>
+                                    <td>@Localizer["ServiceRequest"]</td>
                                     <td>
                                         <span class="badge rounded-pill @ManagerStatusBadge(serviceRequest.ManagerApprovalStatus)">
-                                            @serviceRequest.ManagerApprovalStatus
+                                            @LocalizeApprovalStatus(serviceRequest.ManagerApprovalStatus)
                                         </span>
                                     </td>
                                     <td>
                                         @if (serviceRequest.Ticket != null)
                                         {
                                             <span class="badge rounded-pill @TicketStatusBadge(serviceRequest.Ticket.Status)">
-                                                @serviceRequest.Ticket.Status
+                                                @LocalizeStatus(serviceRequest.Ticket.Status)
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary">N/A</span>
+                                            <span class="badge bg-secondary">@Localizer["NA"]</span>
                                         }
                                     </td>
-                                    <td>@serviceRequest.RequestDate.ToLocalTime().ToString("g")</td>
+                                    <td>@serviceRequest.RequestDate.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
                                     <td class="text-nowrap text-end">
                                         <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets"
                                             asp-action="ApproveServiceRequest" asp-route-id="@serviceRequest.TicketId">
-                                            <i class="fa-solid fa-gavel me-1"></i>Review
+                                            <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
                                         </a>
                                         <a class="btn btn-outline-primary btn-sm" asp-action="Details"
                                             asp-route-id="@serviceRequest.TicketId">
-                                            <i class="fa-solid fa-eye me-1"></i>View
+                                            <i class="fa-solid fa-eye me-1"></i>@Localizer["View"]
                                         </a>
                                     </td>
                                 </tr>
@@ -157,30 +180,30 @@
                                     <td>@(ticket.Title.Replace("System Change Request:", "").Trim())</td>
                                     <td>@ticket.Department</td>
                                     <td>
-                                        <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+                                        <span class="badge rounded-pill bg-warning text-dark">@Localizer["Pending"]</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary">@ticket.Status</span>
+                                        <span class="badge bg-secondary">@LocalizeStatus(ticket.Status)</span>
                                     </td>
-                                    <td>@ticket.CreatedAt.ToLocalTime().ToString("g")</td>
+                                    <td>@ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
                                     <td class="text-nowrap text-end">
                                         @if (User.IsInRole("Security"))
                                         {
                                             <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
                                                 asp-action="ApproveSecurity" asp-route-id="@ticket.Id">
-                                                <i class="fa-solid fa-gavel me-1"></i>Review
+                                                <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
                                             </a>
                                         }
                                         else
                                         {
                                             <a class="btn btn-primary btn-sm me-2" asp-controller="SystemChangeRequests"
                                                 asp-action="Approve" asp-route-id="@ticket.Id">
-                                                <i class="fa-solid fa-gavel me-1"></i>Review
+                                                <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
                                             </a>
                                         }
                                         <a class="btn btn-outline-primary btn-sm" asp-controller="Tickets" asp-action="Details"
                                             asp-route-id="@ticket.Id">
-                                            <i class="fa-solid fa-eye me-1"></i>View
+                                            <i class="fa-solid fa-eye me-1"></i>@Localizer["View"]
                                         </a>
                                     </td>
                                 </tr>
