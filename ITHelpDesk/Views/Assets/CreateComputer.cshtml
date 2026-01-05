@@ -90,37 +90,24 @@
     }
 </style>
 
-<div class="page-wrapper">
-    <div class="page-header d-print-none">
-        <div class="container-xl">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">
-                        <i class="fa-solid fa-plus me-2"></i>Add New Computer
-                    </h2>
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>Add New Computer</h5>
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <a asp-action="Computers" class="btn btn-secondary">
-                        <i class="fa-solid fa-arrow-left me-1"></i>
-                        Back
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+                <div class="card-body">
+                    <form asp-action="CreateComputer" method="post">
+                        @Html.AntiForgeryToken()
 
-    <div class="page-body">
-        <div class="container-xl">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <form asp-action="CreateComputer" method="post" class="needs-validation" novalidate>
+                        <!-- Basic Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
                                 <div class="row">
-                                    <!-- Basic Information -->
-                                    <div class="col-md-12">
-                                        <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
-                                    </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="Name" class="form-label">
@@ -177,7 +164,7 @@
                                             Asset Tag
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="AssetTag" class="form-control" />
+                                        <input asp-for="AssetTag" class="form-control optional-field" />
                                         <span asp-validation-for="AssetTag" class="text-danger"></span>
                                     </div>
 
@@ -230,7 +217,7 @@
                                             Location
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="Location" class="form-control" />
+                                        <input asp-for="Location" class="form-control optional-field" />
                                         <span asp-validation-for="Location" class="text-danger"></span>
                                     </div>
 
@@ -253,19 +240,24 @@
                                         <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
                                         <span class="form-error-message submit-validation-hidden" id="WarrantyExpiryDate-required">This field is required</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Computer Info -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Computer Info</h6>
-                                    </div>
+                        <!-- Computer Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Computer Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="ServiceTag" class="form-label">
                                             Service Tag
-                                            <span class="field-optional">(Optional)</span>
+                                            <span class="field-required">*</span>
                                         </label>
-                                        <input asp-for="ServiceTag" class="form-control" />
+                                        <input asp-for="ServiceTag" class="form-control" required data-required="true" />
                                         <span asp-validation-for="ServiceTag" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="ServiceTag-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -291,43 +283,51 @@
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="Domain" class="form-label">
                                             Domain
-                                            <span class="field-optional">(Optional)</span>
+                                            <span class="field-required">*</span>
                                         </label>
-                                        <input asp-for="Domain" class="form-control" />
+                                        <input asp-for="Domain" class="form-control" required data-required="true" />
                                         <span asp-validation-for="Domain" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="Domain-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="SMBiosVersion" class="form-label">
-                                            SMBIOS Version
-                                            <span class="field-optional">(Optional)</span>
+                                            SMBios Version
+                                            <span class="field-required">*</span>
                                         </label>
-                                        <input asp-for="SMBiosVersion" class="form-control" />
+                                        <input asp-for="SMBiosVersion" class="form-control" required data-required="true" />
                                         <span asp-validation-for="SMBiosVersion" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="SMBiosVersion-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="BiosVersion" class="form-label">
                                             BIOS Version
-                                            <span class="field-optional">(Optional)</span>
+                                            <span class="field-required">*</span>
                                         </label>
-                                        <input asp-for="BiosVersion" class="form-control" />
+                                        <input asp-for="BiosVersion" class="form-control" required data-required="true" />
                                         <span asp-validation-for="BiosVersion" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="BiosVersion-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="BiosManufacturer" class="form-label">
                                             BIOS Manufacturer
-                                            <span class="field-optional">(Optional)</span>
+                                            <span class="field-required">*</span>
                                         </label>
-                                        <input asp-for="BiosManufacturer" class="form-control" />
+                                        <input asp-for="BiosManufacturer" class="form-control" required data-required="true" />
                                         <span asp-validation-for="BiosManufacturer" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="BiosManufacturer-required">This field is required</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Operating System Info -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Operating System Info</h6>
-                                    </div>
+                        <!-- Operating System Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Operating System Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="OSName" class="form-label">
@@ -372,14 +372,18 @@
                                             Product ID
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="OSProductId" class="form-control" />
+                                        <input asp-for="OSProductId" class="form-control optional-field" />
                                         <span asp-validation-for="OSProductId" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Memory Details -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Memory Details</h6>
-                                    </div>
+                        <!-- Memory Details Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Memory Details</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="RAM" class="form-label">
@@ -400,11 +404,15 @@
                                         <span asp-validation-for="VirtualMemory" class="text-danger"></span>
                                         <span class="form-error-message submit-validation-hidden" id="VirtualMemory-required">This field is required</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Processor -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Processor</h6>
-                                    </div>
+                        <!-- Processor Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Processor Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="ProcessorInfo" class="form-label">
@@ -441,21 +449,25 @@
                                             Number of Cores
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="NumberOfCores" type="number" class="form-control" />
+                                        <input asp-for="NumberOfCores" type="number" class="form-control optional-field" />
                                         <span asp-validation-for="NumberOfCores" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Hard Disk -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Hard Disk</h6>
-                                    </div>
+                        <!-- Hard Disk Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Hard Disk Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="HardDiskModel" class="form-label">
                                             Model
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="HardDiskModel" class="form-control" />
+                                        <input asp-for="HardDiskModel" class="form-control optional-field" />
                                         <span asp-validation-for="HardDiskModel" class="text-danger"></span>
                                     </div>
 
@@ -464,7 +476,7 @@
                                             Serial Number
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="HardDiskSerialNumber" class="form-control" />
+                                        <input asp-for="HardDiskSerialNumber" class="form-control optional-field" />
                                         <span asp-validation-for="HardDiskSerialNumber" class="text-danger"></span>
                                     </div>
 
@@ -473,7 +485,7 @@
                                             Manufacturer
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="HardDiskManufacturer" class="form-control" />
+                                        <input asp-for="HardDiskManufacturer" class="form-control optional-field" />
                                         <span asp-validation-for="HardDiskManufacturer" class="text-danger"></span>
                                     </div>
 
@@ -486,18 +498,22 @@
                                         <span asp-validation-for="CapacityGB" class="text-danger"></span>
                                         <span class="form-error-message submit-validation-hidden" id="CapacityGB-required">This field is required</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Keyboard -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Keyboard</h6>
-                                    </div>
+                        <!-- Keyboard Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Keyboard Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="KeyboardType" class="form-label">
                                             Keyboard Type
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="KeyboardType" class="form-control" />
+                                        <input asp-for="KeyboardType" class="form-control optional-field" />
                                         <span asp-validation-for="KeyboardType" class="text-danger"></span>
                                     </div>
 
@@ -506,7 +522,7 @@
                                             Manufacturer
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="KeyboardManufacturer" class="form-control" />
+                                        <input asp-for="KeyboardManufacturer" class="form-control optional-field" />
                                         <span asp-validation-for="KeyboardManufacturer" class="text-danger"></span>
                                     </div>
 
@@ -515,21 +531,25 @@
                                             Serial Number
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="KeyboardSerialNumber" class="form-control" />
+                                        <input asp-for="KeyboardSerialNumber" class="form-control optional-field" />
                                         <span asp-validation-for="KeyboardSerialNumber" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Mouse -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Mouse</h6>
-                                    </div>
+                        <!-- Mouse Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Mouse Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="MouseType" class="form-label">
                                             Mouse Type
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MouseType" class="form-control" />
+                                        <input asp-for="MouseType" class="form-control optional-field" />
                                         <span asp-validation-for="MouseType" class="text-danger"></span>
                                     </div>
 
@@ -538,7 +558,7 @@
                                             Serial Number
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MouseSerialNumber" class="form-control" />
+                                        <input asp-for="MouseSerialNumber" class="form-control optional-field" />
                                         <span asp-validation-for="MouseSerialNumber" class="text-danger"></span>
                                     </div>
 
@@ -547,7 +567,7 @@
                                             Mouse Buttons
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MouseButtons" type="number" class="form-control" />
+                                        <input asp-for="MouseButtons" type="number" class="form-control optional-field" />
                                         <span asp-validation-for="MouseButtons" class="text-danger"></span>
                                     </div>
 
@@ -556,21 +576,25 @@
                                             Manufacturer
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MouseManufacturer" class="form-control" />
+                                        <input asp-for="MouseManufacturer" class="form-control optional-field" />
                                         <span asp-validation-for="MouseManufacturer" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Monitor -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Monitor</h6>
-                                    </div>
+                        <!-- Monitor Information Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Monitor Information</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="MonitorType" class="form-label">
                                             Monitor Type
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MonitorType" class="form-control" />
+                                        <input asp-for="MonitorType" class="form-control optional-field" />
                                         <span asp-validation-for="MonitorType" class="text-danger"></span>
                                     </div>
 
@@ -579,7 +603,7 @@
                                             Serial Number
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MonitorSerialNumber" class="form-control" />
+                                        <input asp-for="MonitorSerialNumber" class="form-control optional-field" />
                                         <span asp-validation-for="MonitorSerialNumber" class="text-danger"></span>
                                     </div>
 
@@ -588,7 +612,7 @@
                                             Manufacturer
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MonitorManufacturer" class="form-control" />
+                                        <input asp-for="MonitorManufacturer" class="form-control optional-field" />
                                         <span asp-validation-for="MonitorManufacturer" class="text-danger"></span>
                                     </div>
 
@@ -597,14 +621,18 @@
                                             Max Resolution
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="MaxResolution" class="form-control" />
+                                        <input asp-for="MaxResolution" class="form-control optional-field" />
                                         <span asp-validation-for="MaxResolution" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <!-- Asset State -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
-                                    </div>
+                        <!-- Asset State Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="AssetStatus" class="form-label">
@@ -613,8 +641,8 @@
                                         </label>
                                         <select asp-for="AssetStatus" class="form-select" required data-required="true">
                                             <option value="">Select Status...</option>
-                                            <option value="1">In Use</option>
                                             <option value="2">In Store</option>
+                                            <option value="1">In Use</option>
                                             <option value="3">In Repair</option>
                                             <option value="4">Expired</option>
                                             <option value="5">Disposed</option>
@@ -628,7 +656,7 @@
                                             Associated To
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="AssociatedTo" class="form-control" />
+                                        <input asp-for="AssociatedTo" class="form-control optional-field" />
                                         <span asp-validation-for="AssociatedTo" class="text-danger"></span>
                                     </div>
 
@@ -637,17 +665,8 @@
                                             Site
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="Site" class="form-control" />
+                                        <input asp-for="Site" class="form-control optional-field" />
                                         <span asp-validation-for="Site" class="text-danger"></span>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label asp-for="StateComments" class="form-label">
-                                            State Comments
-                                            <span class="field-optional">(Optional)</span>
-                                        </label>
-                                        <textarea asp-for="StateComments" class="form-control" rows="2"></textarea>
-                                        <span asp-validation-for="StateComments" class="text-danger"></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -655,7 +674,7 @@
                                             User
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="UserId" class="form-control" />
+                                        <input asp-for="UserId" class="form-control optional-field" />
                                         <span asp-validation-for="UserId" class="text-danger"></span>
                                     </div>
 
@@ -664,15 +683,36 @@
                                             Department
                                             <span class="field-required">*</span>
                                         </label>
-                                        <input asp-for="Department" class="form-control" required data-required="true" />
+                                        <select asp-for="Department" class="form-select" required data-required="true">
+                                            <option value="">Select Department...</option>
+                                            <option value="IT">IT</option>
+                                            <option value="HR">HR</option>
+                                            <option value="Finance">Finance</option>
+                                            <option value="Operations">Operations</option>
+                                            <option value="Sales">Sales</option>
+                                            <option value="Marketing">Marketing</option>
+                                        </select>
                                         <span asp-validation-for="Department" class="text-danger"></span>
                                         <span class="form-error-message submit-validation-hidden" id="Department-required">This field is required</span>
                                     </div>
 
-                                    <!-- Network Details -->
-                                    <div class="col-md-12 mt-3">
-                                        <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="StateComments" class="form-label">
+                                            State Comments
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
+                                        <textarea asp-for="StateComments" class="form-control optional-field" rows="2"></textarea>
+                                        <span asp-validation-for="StateComments" class="text-danger"></span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Details Section -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                <div class="row">
 
                                     <div class="col-md-6 mb-3">
                                         <label asp-for="IPAddress" class="form-label">
@@ -699,7 +739,7 @@
                                             NIC
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="NIC" class="form-control" />
+                                        <input asp-for="NIC" class="form-control optional-field" />
                                         <span asp-validation-for="NIC" class="text-danger"></span>
                                     </div>
 
@@ -708,7 +748,7 @@
                                             Network
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="Network" class="form-control" />
+                                        <input asp-for="Network" class="form-control optional-field" />
                                         <span asp-validation-for="Network" class="text-danger"></span>
                                     </div>
 
@@ -717,7 +757,7 @@
                                             Default Gateway
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="DefaultGateway" class="form-control" />
+                                        <input asp-for="DefaultGateway" class="form-control optional-field" />
                                         <span asp-validation-for="DefaultGateway" class="text-danger"></span>
                                     </div>
 
@@ -740,7 +780,7 @@
                                             DHCP Server
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="DHCPServer" class="form-control" />
+                                        <input asp-for="DHCPServer" class="form-control optional-field" />
                                         <span asp-validation-for="DHCPServer" class="text-danger"></span>
                                     </div>
 
@@ -749,98 +789,97 @@
                                             DNS Hostname
                                             <span class="field-optional">(Optional)</span>
                                         </label>
-                                        <input asp-for="DNSHostname" class="form-control" />
+                                        <input asp-for="DNSHostname" class="form-control optional-field" />
                                         <span asp-validation-for="DNSHostname" class="text-danger"></span>
                                     </div>
                                 </div>
-
-                                <div class="row mt-4">
-                                    <div class="col-12">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save me-1"></i>
-                                            Save
-                                        </button>
-                                        <a asp-action="Computers" class="btn btn-secondary">
-                                            <i class="fas fa-times me-1"></i>
-                                            Cancel
-                                        </a>
-                                    </div>
-                                </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12 text-end">
+                                <a asp-action="Computers" class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i>
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    Save New Computer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal إضافة مورد جديد -->
+<!-- Modal Add New Vendor -->
 <div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addVendorModalLabel">إضافة مورد جديد</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                <h5 class="modal-title" id="addVendorModalLabel">Add New Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addVendorForm">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="vendorName" class="form-label">اسم المورد <span
-                                    class="text-danger">*</span></label>
+                            <label for="vendorName" class="form-label">Vendor Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="vendorName" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorCurrency" class="form-label">العملة</label>
+                            <label for="vendorCurrency" class="form-label">Currency</label>
                             <input type="text" class="form-control" id="vendorCurrency" value="SR" readonly>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorDoorNumber" class="form-label">رقم الباب</label>
+                            <label for="vendorDoorNumber" class="form-label">Door Number</label>
                             <input type="text" class="form-control" id="vendorDoorNumber">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorLandmark" class="form-label">معلم بارز</label>
+                            <label for="vendorLandmark" class="form-label">Landmark</label>
                             <input type="text" class="form-control" id="vendorLandmark">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorPostalCode" class="form-label">الرمز البريدي</label>
+                            <label for="vendorPostalCode" class="form-label">ZIP/Postal Code</label>
                             <input type="text" class="form-control" id="vendorPostalCode">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorCountry" class="form-label">الدولة</label>
+                            <label for="vendorCountry" class="form-label">Country</label>
                             <input type="text" class="form-control" id="vendorCountry">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorFax" class="form-label">الفاكس</label>
+                            <label for="vendorFax" class="form-label">Fax</label>
                             <input type="text" class="form-control" id="vendorFax">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorFirstName" class="form-label">الاسم الأول</label>
+                            <label for="vendorFirstName" class="form-label">First Name</label>
                             <input type="text" class="form-control" id="vendorFirstName">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorStreet" class="form-label">الشارع</label>
+                            <label for="vendorStreet" class="form-label">Street</label>
                             <input type="text" class="form-control" id="vendorStreet">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorCity" class="form-label">المدينة</label>
+                            <label for="vendorCity" class="form-label">City</label>
                             <input type="text" class="form-control" id="vendorCity">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorStateProvince" class="form-label">الولاية/المنطقة</label>
+                            <label for="vendorStateProvince" class="form-label">State/Province</label>
                             <input type="text" class="form-control" id="vendorStateProvince">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorPhone" class="form-label">رقم الهاتف</label>
+                            <label for="vendorPhone" class="form-label">Phone No.</label>
                             <input type="text" class="form-control" id="vendorPhone">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorEmail" class="form-label">البريد الإلكتروني</label>
+                            <label for="vendorEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="vendorEmail">
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label for="vendorDescription" class="form-label">الوصف</label>
+                            <label for="vendorDescription" class="form-label">Description</label>
                             <textarea class="form-control" id="vendorDescription" rows="2"></textarea>
                         </div>
                     </div>
@@ -849,11 +888,11 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
-                    إلغاء
+                    Cancel
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveVendor()">
                     <i class="fas fa-save me-1"></i>
-                    حفظ
+                    Save
                 </button>
             </div>
         </div>
@@ -967,26 +1006,26 @@
                 .then(data => {
                     console.log('Parsed data:', data);
                     if (data.success) {
-                        // إضافة المورد الجديد للقائمة المنسدلة
+                        // Add the new vendor to the dropdown
                         const select = document.querySelector('select[name="VendorId"]');
                         const option = new Option(data.name, data.id, true, true);
                         select.add(option);
 
-                        // إغلاق الـ Modal وإعادة تعيين النموذج
+                        // Close the modal and reset the form
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addVendorModal'));
                         modal.hide();
                         form.reset();
                         document.getElementById('vendorCurrency').value = 'SR';
 
-                        // عرض رسالة نجاح
-                        alert('✅ تم إضافة المورد بنجاح');
+                        // Show success message
+                        alert('✅ Vendor added successfully');
                     } else {
-                        alert('❌ حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                        alert('❌ Error: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('❌ حدث خطأ أثناء حفظ المورد: ' + error.message);
+                    alert('❌ Error saving vendor: ' + error.message);
                 });
         }
 
@@ -1030,12 +1069,12 @@
                 .then(data => {
                     console.log('Parsed data:', data);
                     if (data.success) {
-                        // إضافة المنتج الجديد للقائمة المنسدلة
+                        // Add the new product to the dropdown
                         const select = document.querySelector('select[name="ProductId"]');
                         const option = new Option(data.productName + ' - ' + data.manufacturer, data.id, true, true);
                         select.add(option);
 
-                        // إغلاق الـ Modal وإعادة تعيين النموذج
+                        // Close the modal and reset the form
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
                         modal.hide();
                         form.reset();
@@ -1062,7 +1101,9 @@
             const requiredFields = [
                 'Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 
                 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate',
-                'ComputerManufacturer', 'BiosDate', 'OSName', 'OSVersion',
+                'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 
+                'SMBiosVersion', 'BiosVersion', 'BiosManufacturer',
+                'OSName', 'OSVersion',
                 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer',
                 'ClockSpeedMHz', 'CapacityGB', 'AssetStatus', 'Department',
                 'IPAddress', 'MACAddress', 'DHCPEnabled'
