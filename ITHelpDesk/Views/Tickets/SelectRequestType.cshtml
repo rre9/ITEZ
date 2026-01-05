@@ -19,7 +19,8 @@
                         <div class="card h-100 border-0 shadow-sm request-type-card" data-request-type="access">
                             <div class="card-body d-flex flex-column p-4 p-lg-5">
                                 <div class="text-center mb-4">
-                                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        style="width: 80px; height: 80px;">
                                         <i class="fa-solid fa-key text-primary fa-3x"></i>
                                     </div>
                                 </div>
@@ -27,7 +28,8 @@
                                 <p class="card-text text-muted text-center flex-grow-1 mb-4">
                                     Request access to systems, applications, or resources that require authorization.
                                 </p>
-                                <a href="@Url.Action("CreateAccessRequest", "Tickets")" class="btn btn-primary w-100 btn-lg">
+                                <a href="@Url.Action("CreateAccessRequest", "Tickets")"
+                                    class="btn btn-primary w-100 btn-lg">
                                     <i class="fa-solid fa-arrow-right me-2"></i>Continue
                                 </a>
                             </div>
@@ -39,15 +41,18 @@
                         <div class="card h-100 border-0 shadow-sm request-type-card" data-request-type="service">
                             <div class="card-body d-flex flex-column p-4 p-lg-5">
                                 <div class="text-center mb-4">
-                                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        style="width: 80px; height: 80px;">
                                         <i class="fa-solid fa-network-wired text-info fa-3x"></i>
                                     </div>
                                 </div>
                                 <h5 class="card-title text-center fw-bold mb-3">Service Request</h5>
                                 <p class="card-text text-muted text-center flex-grow-1 mb-4">
-                                    Request Social Media Access Permit for company devices or corporate internet network.
+                                    Request Social Media Access Permit for company devices or corporate internet
+                                    network.
                                 </p>
-                                <a href="@Url.Action("CreateServiceRequest", "Tickets")" class="btn btn-info w-100 btn-lg">
+                                <a href="@Url.Action("CreateServiceRequest", "Tickets")"
+                                    class="btn btn-info w-100 btn-lg">
                                     <i class="fa-solid fa-arrow-right me-2"></i>Continue
                                 </a>
                             </div>
@@ -61,7 +66,8 @@
                             <div class="card h-100 border-0 shadow-sm request-type-card" data-request-type="system">
                                 <div class="card-body d-flex flex-column p-4 p-lg-5">
                                     <div class="text-center mb-4">
-                                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                            style="width: 80px; height: 80px;">
                                             <i class="fa-solid fa-gear text-warning fa-3x"></i>
                                         </div>
                                     </div>
@@ -110,13 +116,12 @@
         box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important;
         border-color: var(--primary-color) !important;
     }
-    
+
     .request-type-card .card-body {
         transition: all 0.3s ease;
     }
-    
+
     .request-type-card:hover .card-body {
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     }
 </style>
-
