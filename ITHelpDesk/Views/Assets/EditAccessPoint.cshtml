@@ -51,6 +51,43 @@
         font-weight: 600;
         line-height: 1;
     }
+
+    /* Required/Optional Field Indicators */
+    .field-required {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .field-optional {
+        color: #6c757d;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Validation styling */
+    .form-control.is-invalid-empty,
+    .form-select.is-invalid-empty {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath fill='%23dc3545' d='M6.8 3.8H5.2V6h1.6V3.8Zm0 4.4H5.2V8h1.6v-1.8Z'/%3e%3c/svg%3e");
+    }
+
+    .form-control.is-invalid-empty:focus,
+    .form-select.is-invalid-empty:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+
+    .form-error-message {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        font-weight: 500;
+    }
+
+    .submit-validation-hidden {
+        display: none;
+    }
 </style>
 
 <div class="page-wrapper">
@@ -92,17 +129,22 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="Name" class="form-label">Name <span
-                                                class="text-danger">*</span></label>
-                                        <input asp-for="Name" class="form-control" required />
+                                        <label asp-for="Name" class="form-label">
+                                            Name
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="Name" class="form-control" required data-required="true" />
                                         <span asp-validation-for="Name" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="Name-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="ProductId" class="form-label">Product <span
-                                                class="text-danger">*</span></label>
+                                        <label asp-for="ProductId" class="form-label">
+                                            Product
+                                            <span class="field-required">*</span>
+                                        </label>
                                         <div class="select-with-add">
-                                            <select asp-for="ProductId" class="form-select" required>
+                                            <select asp-for="ProductId" class="form-select" required data-required="true">
                                                 <option value="">-- Select Product --</option>
                                                 @if (ViewBag.Products != null)
                                                 {
@@ -120,6 +162,7 @@
                                             </button>
                                         </div>
                                         <span asp-validation-for="ProductId" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="ProductId-required">This field is required</span>
                                     </div>
 
                                     <!-- Asset Details -->
@@ -128,21 +171,31 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="SerialNumber" class="form-label">Serial Number</label>
-                                        <input asp-for="SerialNumber" class="form-control" />
+                                        <label asp-for="SerialNumber" class="form-label">
+                                            Serial Number
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="SerialNumber" class="form-control" required data-required="true" />
                                         <span asp-validation-for="SerialNumber" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="SerialNumber-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="AssetTag" class="form-label">Asset Tag</label>
+                                        <label asp-for="AssetTag" class="form-label">
+                                            Asset Tag
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input asp-for="AssetTag" class="form-control" />
                                         <span asp-validation-for="AssetTag" class="text-danger"></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="VendorId" class="form-label">Vendor</label>
+                                        <label asp-for="VendorId" class="form-label">
+                                            Vendor
+                                            <span class="field-required">*</span>
+                                        </label>
                                         <div class="select-with-add">
-                                            <select asp-for="VendorId" class="form-select">
+                                            <select asp-for="VendorId" class="form-select" required data-required="true">
                                                 <option value="">-- Select Vendor --</option>
                                                 @if (ViewBag.Vendors != null)
                                                 {
@@ -160,47 +213,69 @@
                                             </button>
                                         </div>
                                         <span asp-validation-for="VendorId" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="VendorId-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="PurchaseCost" class="form-label">Purchase Cost (SAR)</label>
-                                        <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control" />
+                                        <label asp-for="PurchaseCost" class="form-label">
+                                            Purchase Cost (SAR)
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control" required data-required="true" />
                                         <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="PurchaseCost-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
-                                        <input asp-for="ExpiryDate" type="date" class="form-control"
+                                        <label asp-for="ExpiryDate" class="form-label">
+                                            Expiry Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="ExpiryDate" type="date" class="form-control" required data-required="true"
                                             value="@(Model.ExpiryDate.HasValue && Model.ExpiryDate.Value.Year >= 1900 && Model.ExpiryDate.Value.Year <= 2077 ? Model.ExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
                                         <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="ExpiryDate-required">This field is required</span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="Location" class="form-label">Location</label>
+                                        <label asp-for="Location" class="form-label">
+                                            Location
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input asp-for="Location" class="form-control" />
                                         <span asp-validation-for="Location" class="text-danger"></span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
-                                        <input asp-for="AcquisitionDate" type="date" class="form-control"
+                                        <label asp-for="AcquisitionDate" class="form-label">
+                                            Acquisition Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="AcquisitionDate" type="date" class="form-control" required data-required="true"
                                             value="@(Model.AcquisitionDate.HasValue && Model.AcquisitionDate.Value.Year >= 1900 && Model.AcquisitionDate.Value.Year <= 2077 ? Model.AcquisitionDate.Value.ToString("yyyy-MM-dd") : "")" />
                                         <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="AcquisitionDate-required">This field is required</span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
-                                            Date</label>
-                                        <input asp-for="WarrantyExpiryDate" type="date" class="form-control"
+                                        <label asp-for="WarrantyExpiryDate" class="form-label">
+                                            Warranty Expiry Date
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <input asp-for="WarrantyExpiryDate" type="date" class="form-control" required data-required="true"
                                             value="@(Model.WarrantyExpiryDate.HasValue && Model.WarrantyExpiryDate.Value.Year >= 1900 && Model.WarrantyExpiryDate.Value.Year <= 2077 ? Model.WarrantyExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
                                         <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="WarrantyExpiryDate-required">This field is required</span>
                                     </div> <!-- Asset State -->
                                     <div class="col-md-12 mt-3">
                                         <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label asp-for="AssetStateId" class="form-label">Asset State</label>
-                                        <select asp-for="AssetStateId" class="form-select">
-                                            <option value="">Select Asset State...</option>
+                                        <label asp-for="AssetStateId" class="form-label">
+                                            Asset Status
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <select asp-for="AssetStateId" class="form-select" required data-required="true">
+                                            <option value="">-- Select Asset Status --</option>
                                             @if (ViewBag.AssetStates != null)
                                             {
                                                 @foreach (var state in ViewBag.AssetStates as
@@ -213,6 +288,7 @@
                                             }
                                         </select>
                                         <span asp-validation-for="AssetStateId" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="AssetStatus-required">This field is required</span>
                                     </div>
 
                                     <!-- Network Details -->
@@ -221,56 +297,84 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">IP Address</label>
+                                        <label class="form-label">
+                                            IP Address
+                                            <span class="field-required">*</span>
+                                        </label>
                                         <input type="text" class="form-control" value="@Model.NetworkDetails?.IPAddress"
-                                            name="NetworkDetails.IPAddress" placeholder="192.168.1.1" />
+                                            name="NetworkDetails.IPAddress" placeholder="192.168.1.1" required data-required="true" />
+                                        <span class="form-error-message submit-validation-hidden" id="IPAddress-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">MAC Address</label>
+                                        <label class="form-label">
+                                            MAC Address
+                                            <span class="field-required">*</span>
+                                        </label>
                                         <input type="text" class="form-control"
                                             value="@Model.NetworkDetails?.MACAddress" name="NetworkDetails.MACAddress"
-                                            placeholder="00:00:00:00:00:00" />
+                                            placeholder="00:00:00:00:00:00" required data-required="true" />
+                                        <span class="form-error-message submit-validation-hidden" id="MACAddress-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">NIC</label>
+                                        <label class="form-label">
+                                            NIC
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input type="text" class="form-control" value="@Model.NetworkDetails?.NIC"
                                             name="NetworkDetails.NIC" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Network</label>
+                                        <label class="form-label">
+                                            Network
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input type="text" class="form-control" value="@Model.NetworkDetails?.Network"
                                             name="NetworkDetails.Network" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Default Gateway</label>
+                                        <label class="form-label">
+                                            Default Gateway
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input type="text" class="form-control"
                                             value="@Model.NetworkDetails?.DefaultGateway"
                                             name="NetworkDetails.DefaultGateway" placeholder="192.168.1.1" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">DHCP Enabled</label>
-                                        <select class="form-select" name="NetworkDetails.DHCPEnabled">
+                                        <label class="form-label">
+                                            DHCP Enabled
+                                            <span class="field-required">*</span>
+                                        </label>
+                                        <select class="form-select" name="NetworkDetails.DHCPEnabled" required data-required="true">
+                                            <option value="">-- Select Option --</option>
                                             <option value="false"
                                                 selected="@(Model.NetworkDetails?.DHCPEnabled == false)">False</option>
                                             <option value="true"
                                                 selected="@(Model.NetworkDetails?.DHCPEnabled == true)">True</option>
                                         </select>
+                                        <span class="form-error-message submit-validation-hidden" id="DHCPEnabled-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">DHCP Server</label>
+                                        <label class="form-label">
+                                            DHCP Server
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input type="text" class="form-control"
                                             value="@Model.NetworkDetails?.DHCPServer"
                                             name="NetworkDetails.DHCPServer" />
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">DNS Hostname</label>
+                                        <label class="form-label">
+                                            DNS Hostname
+                                            <span class="field-optional">(Optional)</span>
+                                        </label>
                                         <input type="text" class="form-control"
                                             value="@Model.NetworkDetails?.DNSHostname"
                                             name="NetworkDetails.DNSHostname" />
@@ -494,5 +598,102 @@
                     alert('❌ Error saving product: ' + error.message);
                 });
         }
+
+        // Form Validation Script for EditAccessPoint
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[asp-action="EditAccessPoint"]');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            // List of required fields (matching CreateAccessPoint)
+            const requiredFields = [
+                'Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 
+                'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate',
+                'AssetStatus', 'AssetStateId', 'IPAddress', 'MACAddress', 'DHCPEnabled'
+            ];
+
+            submitBtn.addEventListener('click', function(e) {
+                let isValid = true;
+                const errors = [];
+
+                // Check all required fields
+                requiredFields.forEach(fieldName => {
+                    const field = form.querySelector(`[name="${fieldName}"]`);
+                    if (!field) return;
+
+                    const value = field.value ? field.value.trim() : '';
+                    const errorSpan = document.getElementById(`${fieldName}-required`);
+
+                    if (!value) {
+                        isValid = false;
+                        
+                        // Add visual error state
+                        field.classList.add('is-invalid-empty');
+                        
+                        // Show error message
+                        if (errorSpan) {
+                            errorSpan.classList.remove('submit-validation-hidden');
+                        }
+                        
+                        errors.push(field.parentElement.querySelector('label')?.textContent?.trim() || fieldName);
+                    } else {
+                        // Remove visual error state if field is now filled
+                        field.classList.remove('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.add('submit-validation-hidden');
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid-empty');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                    
+                    alert('❌ Please fill in all required fields:\n\n' + errors.join('\n'));
+                    return false;
+                }
+            });
+
+            // Real-time validation on field change
+            requiredFields.forEach(fieldName => {
+                const field = form.querySelector(`[name="${fieldName}"]`);
+                if (!field) return;
+
+                field.addEventListener('change', function() {
+                    const value = this.value ? this.value.trim() : '';
+                    const errorSpan = document.getElementById(`${fieldName}-required`);
+
+                    if (value) {
+                        this.classList.remove('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.add('submit-validation-hidden');
+                        }
+                    } else {
+                        this.classList.add('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.remove('submit-validation-hidden');
+                        }
+                    }
+                });
+
+                field.addEventListener('blur', function() {
+                    const value = this.value ? this.value.trim() : '';
+                    const errorSpan = document.getElementById(`${fieldName}-required`);
+
+                    if (!value) {
+                        this.classList.add('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.remove('submit-validation-hidden');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 }
