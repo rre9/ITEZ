@@ -49,10 +49,10 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
         // This works for both pending and approved states (Manager can always view their assigned requests)
         var isSelectedManagerForAccess = await _context.AccessRequests
             .AnyAsync(ar => ar.TicketId == resource.Id && ar.SelectedManagerId == userId);
-        
+
         var isSelectedManagerForService = await _context.ServiceRequests
             .AnyAsync(sr => sr.TicketId == resource.Id && sr.SelectedManagerId == userId);
-        
+
         if (isSelectedManagerForAccess || isSelectedManagerForService)
         {
             context.Succeed(requirement);
@@ -64,15 +64,15 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
         if (context.User.IsInRole("Manager"))
         {
             var hasManagerReviewedAccess = await _context.AccessRequests
-                .AnyAsync(ar => ar.TicketId == resource.Id && 
+                .AnyAsync(ar => ar.TicketId == resource.Id &&
                                ar.SelectedManagerId == userId &&
                                ar.ManagerApprovalStatus != Models.ApprovalStatus.Pending);
-            
+
             var hasManagerReviewedService = await _context.ServiceRequests
-                .AnyAsync(sr => sr.TicketId == resource.Id && 
+                .AnyAsync(sr => sr.TicketId == resource.Id &&
                                sr.SelectedManagerId == userId &&
                                sr.ManagerApprovalStatus != Models.ApprovalStatus.Pending);
-            
+
             if (hasManagerReviewedAccess || hasManagerReviewedService)
             {
                 context.Succeed(requirement);
@@ -86,13 +86,13 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
         if (context.User.IsInRole("Security"))
         {
             var hasSecurityReviewedAccess = await _context.AccessRequests
-                .AnyAsync(ar => ar.TicketId == resource.Id && 
+                .AnyAsync(ar => ar.TicketId == resource.Id &&
                                ar.SecurityApprovalStatus != Models.ApprovalStatus.Pending);
-            
+
             var hasSecurityReviewedService = await _context.ServiceRequests
-                .AnyAsync(sr => sr.TicketId == resource.Id && 
+                .AnyAsync(sr => sr.TicketId == resource.Id &&
                                sr.SecurityApprovalStatus != Models.ApprovalStatus.Pending);
-            
+
             if (hasSecurityReviewedAccess || hasSecurityReviewedService)
             {
                 context.Succeed(requirement);
@@ -105,15 +105,15 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
         if (context.User.IsInRole("IT"))
         {
             var isAccessRequestInITStage = await _context.AccessRequests
-                .AnyAsync(ar => ar.TicketId == resource.Id && 
+                .AnyAsync(ar => ar.TicketId == resource.Id &&
                                ar.SecurityApprovalStatus == Models.ApprovalStatus.Approved &&
                                resource.Status == Models.TicketStatus.InProgress);
-            
+
             var isServiceRequestInITStage = await _context.ServiceRequests
-                .AnyAsync(sr => sr.TicketId == resource.Id && 
+                .AnyAsync(sr => sr.TicketId == resource.Id &&
                                sr.SecurityApprovalStatus == Models.ApprovalStatus.Approved &&
                                resource.Status == Models.TicketStatus.InProgress);
-            
+
             if (isAccessRequestInITStage || isServiceRequestInITStage)
             {
                 context.Succeed(requirement);
@@ -136,7 +136,7 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
                     return;
                 }
             }
-            
+
             if (context.User.IsInRole("Security"))
             {
                 // Security can view all System Change Requests with Security department
@@ -146,11 +146,11 @@ public sealed class TicketAccessHandler : AuthorizationHandler<TicketAccessRequi
                     return;
                 }
             }
-            
+
             if (context.User.IsInRole("IT"))
             {
                 // IT can view System Change Requests assigned to them or after Security approval
-                var isApproved = resource.Description != null && 
+                var isApproved = resource.Description != null &&
                                 resource.Description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
                 if (isApproved || resource.AssignedToId == userId)
                 {

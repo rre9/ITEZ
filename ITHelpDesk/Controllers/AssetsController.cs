@@ -494,6 +494,7 @@ public class AssetsController : Controller
         {
             var existingAccessPoint = await _context.AccessPoints
                 .Include(a => a.NetworkDetails)
+                .Include(a => a.AssetState)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (existingAccessPoint == null)
@@ -510,8 +511,27 @@ public class AssetsController : Controller
             existingAccessPoint.Location = model.Location;
             existingAccessPoint.AcquisitionDate = model.AcquisitionDate;
             existingAccessPoint.WarrantyExpiryDate = model.WarrantyExpiryDate;
-            existingAccessPoint.AssetStateId = model.AssetStateId;
             existingAccessPoint.UpdatedAt = DateTime.UtcNow;
+
+            // Update AssetState
+            var assetStateForm = Request.Form;
+            if (existingAccessPoint.AssetState == null)
+            {
+                existingAccessPoint.AssetState = new AssetState();
+                _context.AssetStates.Add(existingAccessPoint.AssetState);
+            }
+
+            // Update AssetState properties from form
+            if (Enum.TryParse<AssetStatusEnum>(assetStateForm["AssetState.Status"], out var status))
+            {
+                existingAccessPoint.AssetState.Status = status;
+            }
+            existingAccessPoint.AssetState.AssociatedTo = assetStateForm["AssetState.AssociatedTo"];
+            existingAccessPoint.AssetState.Site = assetStateForm["AssetState.Site"];
+            existingAccessPoint.AssetState.StateComments = assetStateForm["AssetState.StateComments"];
+            existingAccessPoint.AssetState.UserId = assetStateForm["AssetState.UserId"];
+            existingAccessPoint.AssetState.Department = assetStateForm["AssetState.Department"];
+            existingAccessPoint.AssetState.UpdatedAt = DateTime.UtcNow;
 
             // Update NetworkDetails
             if (existingAccessPoint.NetworkDetails == null)
@@ -519,15 +539,15 @@ public class AssetsController : Controller
                 existingAccessPoint.NetworkDetails = new NetworkDetails();
             }
 
-            var networkDetailsForm = Request.Form;
-            existingAccessPoint.NetworkDetails.IPAddress = networkDetailsForm["NetworkDetails.IPAddress"];
-            existingAccessPoint.NetworkDetails.MACAddress = networkDetailsForm["NetworkDetails.MACAddress"];
-            existingAccessPoint.NetworkDetails.NIC = networkDetailsForm["NetworkDetails.NIC"];
-            existingAccessPoint.NetworkDetails.Network = networkDetailsForm["NetworkDetails.Network"];
-            existingAccessPoint.NetworkDetails.DefaultGateway = networkDetailsForm["NetworkDetails.DefaultGateway"];
-            existingAccessPoint.NetworkDetails.DHCPEnabled = networkDetailsForm["NetworkDetails.DHCPEnabled"] == "true";
-            existingAccessPoint.NetworkDetails.DHCPServer = networkDetailsForm["NetworkDetails.DHCPServer"];
-            existingAccessPoint.NetworkDetails.DNSHostname = networkDetailsForm["NetworkDetails.DNSHostname"];
+            existingAccessPoint.NetworkDetails.IPAddress = assetStateForm["NetworkDetails.IPAddress"];
+            existingAccessPoint.NetworkDetails.MACAddress = assetStateForm["NetworkDetails.MACAddress"];
+            existingAccessPoint.NetworkDetails.NIC = assetStateForm["NetworkDetails.NIC"];
+            existingAccessPoint.NetworkDetails.Network = assetStateForm["NetworkDetails.Network"];
+            existingAccessPoint.NetworkDetails.DefaultGateway = assetStateForm["NetworkDetails.DefaultGateway"];
+            existingAccessPoint.NetworkDetails.DHCPEnabled = assetStateForm["NetworkDetails.DHCPEnabled"] == "true";
+            existingAccessPoint.NetworkDetails.DHCPServer = assetStateForm["NetworkDetails.DHCPServer"];
+            existingAccessPoint.NetworkDetails.DNSHostname = assetStateForm["NetworkDetails.DNSHostname"];
+            existingAccessPoint.NetworkDetails.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -843,6 +863,7 @@ public class AssetsController : Controller
         {
             var existingRouter = await _context.Routers
                 .Include(r => r.NetworkDetails)
+                .Include(r => r.AssetState)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (existingRouter == null)
@@ -861,6 +882,18 @@ public class AssetsController : Controller
             existingRouter.WarrantyExpiryDate = model.WarrantyExpiryDate;
             existingRouter.AssetStateId = model.AssetStateId;
             existingRouter.UpdatedAt = DateTime.UtcNow;
+
+            // Update AssetState if exists
+            if (existingRouter.AssetState != null && model.AssetState != null)
+            {
+                existingRouter.AssetState.Status = model.AssetState.Status;
+                existingRouter.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
+                existingRouter.AssetState.Site = model.AssetState.Site;
+                existingRouter.AssetState.UserId = model.AssetState.UserId;
+                existingRouter.AssetState.Department = model.AssetState.Department;
+                existingRouter.AssetState.StateComments = model.AssetState.StateComments;
+                existingRouter.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
 
             // Update NetworkDetails if exists
             if (existingRouter.NetworkDetails != null && model.NetworkDetails != null)
@@ -1179,6 +1212,7 @@ public class AssetsController : Controller
         try
         {
             var existingSwitch = await _context.Switches
+                .Include(s => s.AssetState)
                 .Include(s => s.NetworkDetails)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -1198,6 +1232,18 @@ public class AssetsController : Controller
             existingSwitch.WarrantyExpiryDate = model.WarrantyExpiryDate;
             existingSwitch.AssetStateId = model.AssetStateId;
             existingSwitch.UpdatedAt = DateTime.UtcNow;
+
+            // Update AssetState if exists
+            if (existingSwitch.AssetState != null && model.AssetState != null)
+            {
+                existingSwitch.AssetState.Status = model.AssetState.Status;
+                existingSwitch.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
+                existingSwitch.AssetState.Site = model.AssetState.Site;
+                existingSwitch.AssetState.UserId = model.AssetState.UserId;
+                existingSwitch.AssetState.Department = model.AssetState.Department;
+                existingSwitch.AssetState.StateComments = model.AssetState.StateComments;
+                existingSwitch.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
 
             // Update NetworkDetails if exists
             if (existingSwitch.NetworkDetails != null && model.NetworkDetails != null)
@@ -1608,7 +1654,12 @@ public class AssetsController : Controller
 
             // Create Hard Disk
             HardDisk? hardDisk = null;
-            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            var hasHardDiskInput = !string.IsNullOrEmpty(model.HardDiskModel)
+                || !string.IsNullOrEmpty(model.HardDiskSerialNumber)
+                || !string.IsNullOrEmpty(model.HardDiskManufacturer)
+                || model.CapacityGB.HasValue;
+
+            if (hasHardDiskInput)
             {
                 hardDisk = new HardDisk
                 {
@@ -1849,118 +1900,142 @@ public class AssetsController : Controller
             existingComputer.UpdatedAt = DateTime.UtcNow;
 
             // Update Computer Info
-            if (existingComputer.ComputerInfo != null)
+            if (existingComputer.ComputerInfo == null)
             {
-                existingComputer.ComputerInfo.ServiceTag = Request.Form["ComputerInfo.ServiceTag"];
-                existingComputer.ComputerInfo.Manufacturer = Request.Form["ComputerInfo.Manufacturer"];
-                existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"])
-                    ? DateTime.Parse(Request.Form["ComputerInfo.BiosDate"]!) : null;
-                existingComputer.ComputerInfo.Domain = Request.Form["ComputerInfo.Domain"];
-                existingComputer.ComputerInfo.SMBiosVersion = Request.Form["ComputerInfo.SMBiosVersion"];
-                existingComputer.ComputerInfo.BiosVersion = Request.Form["ComputerInfo.BiosVersion"];
-                existingComputer.ComputerInfo.BiosManufacturer = Request.Form["ComputerInfo.BiosManufacturer"];
-                existingComputer.ComputerInfo.UpdatedAt = DateTime.UtcNow;
+                existingComputer.ComputerInfo = new ComputerInfo();
+                _context.ComputerInfos.Add(existingComputer.ComputerInfo);
             }
+            existingComputer.ComputerInfo.ServiceTag = Request.Form["ComputerInfo.ServiceTag"];
+            existingComputer.ComputerInfo.Manufacturer = Request.Form["ComputerInfo.Manufacturer"];
+            existingComputer.ComputerInfo.BiosDate = !string.IsNullOrEmpty(Request.Form["ComputerInfo.BiosDate"])
+                ? DateTime.Parse(Request.Form["ComputerInfo.BiosDate"]!) : null;
+            existingComputer.ComputerInfo.Domain = Request.Form["ComputerInfo.Domain"];
+            existingComputer.ComputerInfo.SMBiosVersion = Request.Form["ComputerInfo.SMBiosVersion"];
+            existingComputer.ComputerInfo.BiosVersion = Request.Form["ComputerInfo.BiosVersion"];
+            existingComputer.ComputerInfo.BiosManufacturer = Request.Form["ComputerInfo.BiosManufacturer"];
+            existingComputer.ComputerInfo.UpdatedAt = DateTime.UtcNow;
 
             // Update OS Info
-            if (existingComputer.OperatingSystemInfo != null)
+            if (existingComputer.OperatingSystemInfo == null)
             {
-                existingComputer.OperatingSystemInfo.Name = Request.Form["OperatingSystemInfo.Name"];
-                existingComputer.OperatingSystemInfo.Version = Request.Form["OperatingSystemInfo.Version"];
-                existingComputer.OperatingSystemInfo.BuildNumber = Request.Form["OperatingSystemInfo.BuildNumber"];
-                existingComputer.OperatingSystemInfo.ServicePack = Request.Form["OperatingSystemInfo.ServicePack"];
-                existingComputer.OperatingSystemInfo.ProductId = Request.Form["OperatingSystemInfo.ProductId"];
-                existingComputer.OperatingSystemInfo.UpdatedAt = DateTime.UtcNow;
+                existingComputer.OperatingSystemInfo = new OperatingSystemInfo();
+                _context.OperatingSystemInfos.Add(existingComputer.OperatingSystemInfo);
             }
+            existingComputer.OperatingSystemInfo.Name = Request.Form["OperatingSystemInfo.Name"];
+            existingComputer.OperatingSystemInfo.Version = Request.Form["OperatingSystemInfo.Version"];
+            existingComputer.OperatingSystemInfo.BuildNumber = Request.Form["OperatingSystemInfo.BuildNumber"];
+            existingComputer.OperatingSystemInfo.ServicePack = Request.Form["OperatingSystemInfo.ServicePack"];
+            existingComputer.OperatingSystemInfo.ProductId = Request.Form["OperatingSystemInfo.ProductId"];
+            existingComputer.OperatingSystemInfo.UpdatedAt = DateTime.UtcNow;
 
             // Update Memory Details
-            if (existingComputer.MemoryDetails != null)
+            if (existingComputer.MemoryDetails == null)
             {
-                existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"])
-                    ? int.Parse(Request.Form["MemoryDetails.RAM"]!) : null;
-                existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"])
-                    ? int.Parse(Request.Form["MemoryDetails.VirtualMemory"]!) : null;
-                existingComputer.MemoryDetails.UpdatedAt = DateTime.UtcNow;
+                existingComputer.MemoryDetails = new MemoryDetails();
+                _context.MemoryDetails.Add(existingComputer.MemoryDetails);
             }
+            existingComputer.MemoryDetails.RAM = !string.IsNullOrEmpty(Request.Form["MemoryDetails.RAM"])
+                ? int.Parse(Request.Form["MemoryDetails.RAM"]!) : null;
+            existingComputer.MemoryDetails.VirtualMemory = !string.IsNullOrEmpty(Request.Form["MemoryDetails.VirtualMemory"])
+                ? int.Parse(Request.Form["MemoryDetails.VirtualMemory"]!) : null;
+            existingComputer.MemoryDetails.UpdatedAt = DateTime.UtcNow;
 
             // Update Processor
-            if (existingComputer.Processor != null)
+            if (existingComputer.Processor == null)
             {
-                existingComputer.Processor.ProcessorInfo = Request.Form["Processor.ProcessorInfo"];
-                existingComputer.Processor.Manufacturer = Request.Form["Processor.Manufacturer"];
-                existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"])
-                    ? int.Parse(Request.Form["Processor.ClockSpeedMHz"]!) : null;
-                existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"])
-                    ? int.Parse(Request.Form["Processor.NumberOfCores"]!) : null;
-                existingComputer.Processor.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Processor = new Processor();
+                _context.Processors.Add(existingComputer.Processor);
             }
+            existingComputer.Processor.ProcessorInfo = Request.Form["Processor.ProcessorInfo"];
+            existingComputer.Processor.Manufacturer = Request.Form["Processor.Manufacturer"];
+            existingComputer.Processor.ClockSpeedMHz = !string.IsNullOrEmpty(Request.Form["Processor.ClockSpeedMHz"])
+                ? int.Parse(Request.Form["Processor.ClockSpeedMHz"]!) : null;
+            existingComputer.Processor.NumberOfCores = !string.IsNullOrEmpty(Request.Form["Processor.NumberOfCores"])
+                ? int.Parse(Request.Form["Processor.NumberOfCores"]!) : null;
+            existingComputer.Processor.UpdatedAt = DateTime.UtcNow;
 
             // Update Hard Disk
-            if (existingComputer.HardDisk != null)
+            if (existingComputer.HardDisk == null)
             {
-                existingComputer.HardDisk.Model = Request.Form["HardDisk.Model"];
-                existingComputer.HardDisk.SerialNumber = Request.Form["HardDisk.SerialNumber"];
-                existingComputer.HardDisk.Manufacturer = Request.Form["HardDisk.Manufacturer"];
-                existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"])
-                    ? int.Parse(Request.Form["HardDisk.CapacityGB"]!) : null;
-                existingComputer.HardDisk.UpdatedAt = DateTime.UtcNow;
+                existingComputer.HardDisk = new HardDisk();
+                _context.HardDisks.Add(existingComputer.HardDisk);
             }
+            existingComputer.HardDisk.Model = Request.Form["HardDisk.Model"];
+            existingComputer.HardDisk.SerialNumber = Request.Form["HardDisk.SerialNumber"];
+            existingComputer.HardDisk.Manufacturer = Request.Form["HardDisk.Manufacturer"];
+            existingComputer.HardDisk.CapacityGB = !string.IsNullOrEmpty(Request.Form["HardDisk.CapacityGB"])
+                ? int.Parse(Request.Form["HardDisk.CapacityGB"]!) : null;
+            existingComputer.HardDisk.UpdatedAt = DateTime.UtcNow;
 
             // Update Keyboard
-            if (existingComputer.Keyboard != null)
+            if (existingComputer.Keyboard == null)
             {
-                existingComputer.Keyboard.KeyboardType = Request.Form["Keyboard.KeyboardType"];
-                existingComputer.Keyboard.Manufacturer = Request.Form["Keyboard.Manufacturer"];
-                existingComputer.Keyboard.SerialNumber = Request.Form["Keyboard.SerialNumber"];
-                existingComputer.Keyboard.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Keyboard = new Keyboard();
+                _context.Keyboards.Add(existingComputer.Keyboard);
             }
+            existingComputer.Keyboard.KeyboardType = Request.Form["Keyboard.KeyboardType"];
+            existingComputer.Keyboard.Manufacturer = Request.Form["Keyboard.Manufacturer"];
+            existingComputer.Keyboard.SerialNumber = Request.Form["Keyboard.SerialNumber"];
+            existingComputer.Keyboard.UpdatedAt = DateTime.UtcNow;
 
             // Update Mouse
-            if (existingComputer.Mouse != null)
+            if (existingComputer.Mouse == null)
             {
-                existingComputer.Mouse.MouseType = Request.Form["Mouse.MouseType"];
-                existingComputer.Mouse.SerialNumber = Request.Form["Mouse.SerialNumber"];
-                existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"])
-                    ? int.Parse(Request.Form["Mouse.MouseButtons"]!) : null;
-                existingComputer.Mouse.Manufacturer = Request.Form["Mouse.Manufacturer"];
-                existingComputer.Mouse.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Mouse = new Mouse();
+                _context.Mice.Add(existingComputer.Mouse);
             }
+            existingComputer.Mouse.MouseType = Request.Form["Mouse.MouseType"];
+            existingComputer.Mouse.SerialNumber = Request.Form["Mouse.SerialNumber"];
+            existingComputer.Mouse.MouseButtons = !string.IsNullOrEmpty(Request.Form["Mouse.MouseButtons"])
+                ? int.Parse(Request.Form["Mouse.MouseButtons"]!) : null;
+            existingComputer.Mouse.Manufacturer = Request.Form["Mouse.Manufacturer"];
+            existingComputer.Mouse.UpdatedAt = DateTime.UtcNow;
 
             // Update Monitor
-            if (existingComputer.Monitor != null)
+            if (existingComputer.Monitor == null)
             {
-                existingComputer.Monitor.MonitorType = Request.Form["Monitor.MonitorType"];
-                existingComputer.Monitor.SerialNumber = Request.Form["Monitor.SerialNumber"];
-                existingComputer.Monitor.Manufacturer = Request.Form["Monitor.Manufacturer"];
-                existingComputer.Monitor.MaxResolution = Request.Form["Monitor.MaxResolution"];
-                existingComputer.Monitor.UpdatedAt = DateTime.UtcNow;
+                existingComputer.Monitor = new Models.Assets.Monitor();
+                _context.Monitors.Add(existingComputer.Monitor);
             }
+            existingComputer.Monitor.MonitorType = Request.Form["Monitor.MonitorType"];
+            existingComputer.Monitor.SerialNumber = Request.Form["Monitor.SerialNumber"];
+            existingComputer.Monitor.Manufacturer = Request.Form["Monitor.Manufacturer"];
+            existingComputer.Monitor.MaxResolution = Request.Form["Monitor.MaxResolution"];
+            existingComputer.Monitor.UpdatedAt = DateTime.UtcNow;
 
             // Update Asset State
-            if (existingComputer.AssetState != null)
+            if (existingComputer.AssetState == null)
             {
-                existingComputer.AssetState.Status = (AssetStatusEnum)int.Parse(Request.Form["AssetState.Status"]!);
-                existingComputer.AssetState.AssociatedTo = Request.Form["AssetState.AssociatedTo"];
-                existingComputer.AssetState.Site = Request.Form["AssetState.Site"];
-                existingComputer.AssetState.StateComments = Request.Form["AssetState.StateComments"];
-                existingComputer.AssetState.UserId = Request.Form["AssetState.UserId"];
-                existingComputer.AssetState.Department = Request.Form["AssetState.Department"];
-                existingComputer.AssetState.UpdatedAt = DateTime.UtcNow;
+                existingComputer.AssetState = new AssetState();
+                _context.AssetStates.Add(existingComputer.AssetState);
             }
 
-            // Update Network Details
-            if (existingComputer.NetworkDetails != null)
+            if (Enum.TryParse<AssetStatusEnum>(Request.Form["AssetState.Status"], out var status))
             {
-                existingComputer.NetworkDetails.IPAddress = Request.Form["NetworkDetails.IPAddress"];
-                existingComputer.NetworkDetails.MACAddress = Request.Form["NetworkDetails.MACAddress"];
-                existingComputer.NetworkDetails.NIC = Request.Form["NetworkDetails.NIC"];
-                existingComputer.NetworkDetails.Network = Request.Form["NetworkDetails.Network"];
-                existingComputer.NetworkDetails.DefaultGateway = Request.Form["NetworkDetails.DefaultGateway"];
-                existingComputer.NetworkDetails.DHCPEnabled = Request.Form["NetworkDetails.DHCPEnabled"] == "true";
-                existingComputer.NetworkDetails.DHCPServer = Request.Form["NetworkDetails.DHCPServer"];
-                existingComputer.NetworkDetails.DNSHostname = Request.Form["NetworkDetails.DNSHostname"];
-                existingComputer.NetworkDetails.UpdatedAt = DateTime.UtcNow;
+                existingComputer.AssetState.Status = status;
             }
+            existingComputer.AssetState.AssociatedTo = Request.Form["AssetState.AssociatedTo"];
+            existingComputer.AssetState.Site = Request.Form["AssetState.Site"];
+            existingComputer.AssetState.StateComments = Request.Form["AssetState.StateComments"];
+            existingComputer.AssetState.UserId = Request.Form["AssetState.UserId"];
+            existingComputer.AssetState.Department = Request.Form["AssetState.Department"];
+            existingComputer.AssetState.UpdatedAt = DateTime.UtcNow;
+
+            // Update Network Details
+            if (existingComputer.NetworkDetails == null)
+            {
+                existingComputer.NetworkDetails = new NetworkDetails();
+                _context.NetworkDetails.Add(existingComputer.NetworkDetails);
+            }
+            existingComputer.NetworkDetails.IPAddress = Request.Form["NetworkDetails.IPAddress"];
+            existingComputer.NetworkDetails.MACAddress = Request.Form["NetworkDetails.MACAddress"];
+            existingComputer.NetworkDetails.NIC = Request.Form["NetworkDetails.NIC"];
+            existingComputer.NetworkDetails.Network = Request.Form["NetworkDetails.Network"];
+            existingComputer.NetworkDetails.DefaultGateway = Request.Form["NetworkDetails.DefaultGateway"];
+            existingComputer.NetworkDetails.DHCPEnabled = Request.Form["NetworkDetails.DHCPEnabled"] == "true";
+            existingComputer.NetworkDetails.DHCPServer = Request.Form["NetworkDetails.DHCPServer"];
+            existingComputer.NetworkDetails.DNSHostname = Request.Form["NetworkDetails.DNSHostname"];
+            existingComputer.NetworkDetails.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -2194,11 +2269,17 @@ public class AssetsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateServer(ServerCreateViewModel model)
     {
-        if (!ModelState.IsValid)
+        // Check only required fields
+        if (string.IsNullOrEmpty(model.Name) || model.ProductId == 0 || 
+            string.IsNullOrEmpty(model.IPAddress) || string.IsNullOrEmpty(model.MACAddress) ||
+            model.ExpiryDate == null || model.AcquisitionDate == null || 
+            model.WarrantyExpiryDate == null || model.VendorId == null ||
+            model.PurchaseCost == null)
         {
             ViewBag.Products = await _context.Products.ToListAsync();
             ViewBag.Vendors = await _context.Vendors.ToListAsync();
             ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            TempData["ErrorMessage"] = "Please fill in all required fields";
             return View(model);
         }
 
@@ -2338,7 +2419,7 @@ public class AssetsController : Controller
             // Create Asset State
             var assetState = new AssetState
             {
-                Status = model.Status,
+                Status = model.AssetStatus.HasValue ? (AssetStatusEnum)model.AssetStatus : AssetStatusEnum.InStore,
                 AssociatedTo = model.AssociatedTo,
                 Site = model.Site,
                 StateComments = model.StateComments,
@@ -2519,7 +2600,8 @@ public class AssetsController : Controller
             return NotFound();
         }
 
-        if (!ModelState.IsValid)
+        // Check only required fields - don't validate ModelState strictly
+        if (string.IsNullOrEmpty(model.Name) || model.ProductId == 0)
         {
             ViewBag.Products = await _context.Products.ToListAsync();
             ViewBag.Vendors = await _context.Vendors.ToListAsync();
@@ -2606,7 +2688,12 @@ public class AssetsController : Controller
             }
 
             // Update Hard Disk
-            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            var hasHardDiskInput = !string.IsNullOrEmpty(model.HardDiskModel)
+                || !string.IsNullOrEmpty(model.HardDiskSerialNumber)
+                || !string.IsNullOrEmpty(model.HardDiskManufacturer)
+                || model.CapacityGB.HasValue;
+
+            if (hasHardDiskInput)
             {
                 if (server.HardDisk == null)
                 {
