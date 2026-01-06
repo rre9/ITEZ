@@ -393,12 +393,16 @@
                                 <div class="row">
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
-                                            Asset Status
-                                            <span class="field-required">*</span>
-                                        </label>
-                                        <select name="AssetState.Status" class="form-select" required
-                                            data-required="true">
+                                                    <label class="form-label">Asset Status <span class="field-required">*</span></label>
+                                                    <select name="AssetState.Status" class="form-select" required data-required="true">
+                                                        <option value="">-- Select Status --</option>
+                                                        <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">In Store</option>
+                                                        <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">In Use</option>
+                                                        <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">In Repair</option>
+                                                        <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">Expired</option>
+                                                        <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">Disposed</option>
+                                                    </select>
+                                        
                                             <option value="">Select Status...</option>
                                             <option value="1"
                                                 selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">

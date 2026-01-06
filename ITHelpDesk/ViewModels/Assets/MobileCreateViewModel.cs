@@ -66,7 +66,7 @@ public class MobileCreateViewModel
     public string? OSProductId { get; set; }
 
     // Asset State
-    public int AssetStatus { get; set; } = 1;
+    public int AssetStatus { get; set; }
 
     [StringLength(50)]
     public string? AssociatedTo { get; set; }
