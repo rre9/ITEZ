@@ -1,7 +1,7 @@
 @model AccessRequestCreateViewModel
 
 @{
-    ViewData["Title"] = "Create Access Request";
+    ViewData["Title"] = Localizer["CreateAccessRequest"];
 }
 
 <div class="row justify-content-center">
@@ -11,12 +11,12 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-5">
                     <div>
                         <h1 class="h2 fw-bold text-primary mb-2">
-                            <i class="fa-solid fa-key me-2"></i>Access Request
+                            <i class="fa-solid fa-key me-2"></i>@Localizer["AccessRequest"]
                         </h1>
-                        <p class="text-muted mb-0 fs-5">Submit a request for system or application access.</p>
+                        <p class="text-muted mb-0 fs-5">@Localizer["CreateAccessRequestDescription"]</p>
                     </div>
                     <a asp-action="SelectRequestType" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-arrow-left-long me-2"></i>Back
+                        <i class="fa-solid fa-arrow-left-long me-2"></i>@Localizer["Back"]
                     </a>
                 </div>
 
@@ -30,15 +30,15 @@
                                 <i class="fa-solid fa-user text-primary fa-lg"></i>
                             </div>
                             <h5 class="fw-bold text-dark mb-0">
-                                Applicant Information
+                                @Localizer["ApplicantInformation"]
                             </h5>
                         </div>
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label asp-for="FullName" class="form-label">
-                                    <i class="fa-solid fa-user me-1 text-muted"></i>Full Name
+                                    <i class="fa-solid fa-user me-1 text-muted"></i>@Localizer["FullName"]
                                 </label>
-                                <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                                <input asp-for="FullName" class="form-control" placeholder="@Localizer["EnterFullName"]" />
                                 <span asp-validation-for="FullName" class="text-danger small d-block mt-1"></span>
                             </div>
 
@@ -49,9 +49,9 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="Department" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+                                <label for="Department" class="form-label fw-semibold">@Localizer["Department"] <span class="text-danger">*</span></label>
                                 <select asp-for="Department" class="form-select" required>
-                                    <option value="">-- Select Department --</option>
+                                    <option value="">@Localizer["SelectDepartment"]</option>
                                     @if (Model.Departments != null)
                                     {
                                         foreach (var dept in Model.Departments)
@@ -79,7 +79,7 @@
                             <div class="col-md-6">
                                 <label asp-for="SelectedManagerId" class="form-label fw-semibold"></label>
                                 <select asp-for="SelectedManagerId" class="form-select" required>
-                                    <option value="">-- Select Direct Manager --</option>
+                                    <option value="">@Localizer["SelectDirectManager"]</option>
                                     @if (Model.Managers != null)
                                     {
                                         foreach (var manager in Model.Managers)
@@ -96,53 +96,53 @@
                     <!-- Section 2: Access Request Details -->
                     <div class="mb-5">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-lock me-2 text-primary"></i>Access Request Details
+                            <i class="fa-solid fa-lock me-2 text-primary"></i>@Localizer["AccessRequestDetails"]
                         </h5>
                         <div class="row g-4">
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Access Type <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">@Localizer["AccessType"] <span class="text-danger">*</span></label>
                                 <div class="form-check-group">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="AccessType" id="AccessType_Full" value="Full Access" required />
                                         <label class="form-check-label" for="AccessType_Full">
-                                            <strong>Full Access</strong>
-                                            <small class="text-muted d-block">Complete access to all system features and functions.</small>
+                                            <strong>@Localizer["FullAccess"]</strong>
+                                            <small class="text-muted d-block">@Localizer["FullAccessDescription"]</small>
                                         </label>
                                     </div>
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="radio" name="AccessType" id="AccessType_ReadOnly" value="Read Only" />
                                         <label class="form-check-label" for="AccessType_ReadOnly">
-                                            <strong>Read Only</strong>
-                                            <small class="text-muted d-block">View-only access without modification capabilities.</small>
+                                            <strong>@Localizer["ReadOnly"]</strong>
+                                            <small class="text-muted d-block">@Localizer["ReadOnlyDescription"]</small>
                                         </label>
                                     </div>
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="radio" name="AccessType" id="AccessType_Edit" value="Edit Access" />
                                         <label class="form-check-label" for="AccessType_Edit">
-                                            <strong>Edit Access</strong>
-                                            <small class="text-muted d-block">Ability to view and modify content but not system settings.</small>
+                                            <strong>@Localizer["EditAccess"]</strong>
+                                            <small class="text-muted d-block">@Localizer["EditAccessDescription"]</small>
                                         </label>
                                     </div>
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="radio" name="AccessType" id="AccessType_Admin" value="Admin Access" />
                                         <label class="form-check-label" for="AccessType_Admin">
-                                            <strong>Admin Access</strong>
-                                            <small class="text-muted d-block">Administrative privileges with full system control.</small>
+                                            <strong>@Localizer["AdminAccess"]</strong>
+                                            <small class="text-muted d-block">@Localizer["AdminAccessDescription"]</small>
                                         </label>
                                     </div>
                                 </div>
-                                <div class="invalid-feedback d-block">Please select an access type.</div>
+                                <div class="invalid-feedback d-block">@Localizer["PleaseSelectAccessType"]</div>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="SystemName" class="form-label fw-semibold"></label>
-                                <input asp-for="SystemName" class="form-control" placeholder="e.g., CRM System, ERP Platform" />
+                                <input asp-for="SystemName" class="form-control" placeholder="@Localizer["SystemNamePlaceholder"]" />
                                 <span asp-validation-for="SystemName" class="text-danger small"></span>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="AccessDuration" class="form-label fw-semibold"></label>
-                                <input asp-for="AccessDuration" class="form-control" placeholder="e.g., 6 months, Permanent" />
+                                <input asp-for="AccessDuration" class="form-control" placeholder="@Localizer["AccessDurationPlaceholder"]" />
                                 <span asp-validation-for="AccessDuration" class="text-danger small"></span>
                             </div>
 
@@ -155,13 +155,13 @@
                             <div class="col-md-6">
                                 <label asp-for="EndDate" class="form-label fw-semibold"></label>
                                 <input asp-for="EndDate" type="date" class="form-control" value="@(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("yyyy-MM-dd") : "")" />
-                                <small class="form-text text-muted">Leave empty for permanent access.</small>
+                                <small class="form-text text-muted">@Localizer["LeaveEmptyForPermanent"]</small>
                                 <span asp-validation-for="EndDate" class="text-danger small"></span>
                             </div>
 
                             <div class="col-12">
                                 <label asp-for="Reason" class="form-label fw-semibold"></label>
-                                <textarea asp-for="Reason" class="form-control" rows="4" placeholder="Explain why you need this access and how it relates to your job responsibilities..."></textarea>
+                                <textarea asp-for="Reason" class="form-control" rows="4" placeholder="@Localizer["ExplainWhyNeedAccess"]"></textarea>
                                 <span asp-validation-for="Reason" class="text-danger small"></span>
                             </div>
                         </div>
@@ -169,14 +169,14 @@
 
                     <!-- Section 3: Attachments -->
                     <div class="mb-5">
-                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
+                            <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-paperclip me-2 text-primary"></i>@Localizer["Attachments"]
                         </h5>
                         <div class="row g-4">
                             <div class="col-12">
-                                <label for="Attachments" class="form-label fw-semibold">Supporting Documents</label>
+                                <label for="Attachments" class="form-label fw-semibold">@Localizer["SupportingDocuments"]</label>
                                 <div class="form-text mb-2">
-                                    <i class="fa-solid fa-info-circle me-1"></i>Upload supporting documents (PDF, JPG, PNG). Multiple files allowed. Maximum 10 MB per file.
+                                    <i class="fa-solid fa-info-circle me-1"></i>@Localizer["UploadSupportingDocumentsInfo"]
                                 </div>
                                 <input asp-for="Attachments" type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png" />
                                 <span asp-validation-for="Attachments" class="text-danger small"></span>
@@ -186,13 +186,13 @@
 
                     <!-- Section 4: Notes -->
                     <div class="mb-5">
-                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-sticky-note me-2 text-primary"></i>Notes
+                            <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-sticky-note me-2 text-primary"></i>@Localizer["Notes"]
                         </h5>
                         <div class="row g-4">
                             <div class="col-12">
-                                <label for="Notes" class="form-label fw-semibold">Additional Notes</label>
-                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Any additional information or comments (optional)"></textarea>
+                                <label for="Notes" class="form-label fw-semibold">@Localizer["AdditionalNotes"]</label>
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="@Localizer["AdditionalNotesPlaceholder"]"></textarea>
                                 <span asp-validation-for="Notes" class="text-danger small"></span>
                             </div>
                         </div>
@@ -201,12 +201,12 @@
                     <!-- Submit Buttons -->
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mt-5 pt-3 border-top">
                         <div class="text-secondary small">
-                            <i class="fa-regular fa-clock me-1"></i>Request will be submitted for approval after review.
+                            <i class="fa-regular fa-clock me-1"></i>@Localizer["RequestWillBeSubmitted"]
                         </div>
                         <div class="d-flex gap-2">
-                            <a asp-action="SelectRequestType" class="btn btn-outline-secondary">Cancel</a>
+                            <a asp-action="SelectRequestType" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
                             <button type="submit" class="btn btn-primary px-4">
-                                <i class="fa-solid fa-paper-plane me-2"></i>Submit Access Request
+                                <i class="fa-solid fa-paper-plane me-2"></i>@Localizer["SubmitAccessRequest"]
                             </button>
                         </div>
                     </div>

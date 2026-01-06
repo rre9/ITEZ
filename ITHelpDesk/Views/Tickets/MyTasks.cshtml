@@ -1,7 +1,7 @@
 @model ITHelpDesk.ViewModels.TasksViewModel
 
 @{
-    ViewData["Title"] = "My Tasks";
+    ViewData["Title"] = Localizer["MyTasks"];
 
     string PriorityBadge(TicketPriority priority) => priority switch
     {
@@ -20,15 +20,39 @@
         TicketStatus.Closed => "bg-dark",
         _ => "bg-light text-dark"
     };
+
+    string LocalizePriority(TicketPriority priority)
+    {
+        return priority switch
+        {
+            TicketPriority.Low => Localizer["PriorityLow"].ToString(),
+            TicketPriority.Medium => Localizer["PriorityMedium"].ToString(),
+            TicketPriority.High => Localizer["PriorityHigh"].ToString(),
+            _ => priority.ToString()
+        };
+    }
+
+    string LocalizeStatus(TicketStatus status)
+    {
+        return status switch
+        {
+            TicketStatus.New => Localizer["StatusNew"].ToString(),
+            TicketStatus.InProgress => Localizer["StatusInProgress"].ToString(),
+            TicketStatus.Resolved => Localizer["StatusResolved"].ToString(),
+            TicketStatus.Rejected => Localizer["StatusRejected"].ToString(),
+            TicketStatus.Closed => Localizer["StatusClosed"].ToString(),
+            _ => status.ToString()
+        };
+    }
 }
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
         <h1 class="display-6 fw-bold text-primary mb-2">
-            <i class="fa-solid fa-tasks me-2"></i>Tasks
+            <i class="fa-solid fa-tasks me-2"></i>@Localizer["MyTasks"]
         </h1>
         <p class="text-muted mb-0">
-            <i class="fa-solid fa-info-circle me-1"></i>Tickets assigned to you for review or action.
+            <i class="fa-solid fa-info-circle me-1"></i>@Localizer["MyTasksDescription"]
         </p>
     </div>
 </div>
@@ -36,7 +60,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-bottom">
         <h5 class="mb-0 fw-semibold">
-            <i class="fa-solid fa-list-check me-2 text-primary"></i>Assigned Tickets
+            <i class="fa-solid fa-list-check me-2 text-primary"></i>@Localizer["AssignedTickets"]
         </h5>
     </div>
     <div class="card-body p-0">
@@ -44,14 +68,14 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Ticket #</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Department</th>
-                        <th scope="col">Priority</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="text-nowrap">Created By</th>
-                        <th scope="col" class="text-nowrap">Created At</th>
-                        <th scope="col" class="text-nowrap text-end">Actions</th>
+                        <th scope="col">@Localizer["TicketNumber"]</th>
+                        <th scope="col">@Localizer["Title"]</th>
+                        <th scope="col">@Localizer["Department"]</th>
+                        <th scope="col">@Localizer["Priority"]</th>
+                        <th scope="col">@Localizer["Status"]</th>
+                        <th scope="col" class="text-nowrap">@Localizer["CreatedBy"]</th>
+                        <th scope="col" class="text-nowrap">@Localizer["CreatedAt"]</th>
+                        <th scope="col" class="text-nowrap text-end">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,8 +85,8 @@
                         <td colspan="8" class="py-5 text-center">
                             <div class="empty-state">
                                 <i class="fa-solid fa-inbox fa-4x mb-4 text-muted opacity-50"></i>
-                                <h5 class="fw-semibold text-dark mb-2">No tasks assigned</h5>
-                                <p class="text-muted mb-0">All tickets assigned to you will appear here.</p>
+                                <h5 class="fw-semibold text-dark mb-2">@Localizer["NoTasksAssigned"]</h5>
+                                <p class="text-muted mb-0">@Localizer["NoTasksAssignedDescription"]</p>
                             </div>
                         </td>
                     </tr>
@@ -82,26 +106,26 @@
                                 <a asp-action="Details" asp-route-id="@ticket.Id" class="text-decoration-none fw-semibold">
                                     @ticket.Title
                                 </a>
-                                <div class="text-muted small d-md-none">Created @ticket.CreatedAt.ToLocalTime():g</div>
+                                <div class="text-muted small d-md-none">@Localizer["Created"] @ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</div>
                             </td>
                             <td>@ticket.Department</td>
                             <td>
-                                <span class="badge rounded-pill @PriorityBadge(ticket.Priority)">@ticket.Priority</span>
+                                <span class="badge rounded-pill @PriorityBadge(ticket.Priority)">@LocalizePriority(ticket.Priority)</span>
                             </td>
                             <td>
-                                <span class="badge rounded-pill @StatusBadge(ticket.Status)">@ticket.Status</span>
+                                <span class="badge rounded-pill @StatusBadge(ticket.Status)">@LocalizeStatus(ticket.Status)</span>
                             </td>
                             <td>@(ticket.CreatedBy?.FullName ?? "Unknown")</td>
-                            <td>@ticket.CreatedAt.ToLocalTime():g</td>
+                            <td>@ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
                             <td class="text-nowrap text-end">
                                 @if (!string.IsNullOrEmpty(reviewAction))
                                 {
                                     <a class="btn btn-primary btn-sm me-2" asp-action="@reviewAction" asp-route-id="@ticket.Id">
-                                        <i class="fa-solid fa-gavel me-1"></i>Review
+                                        <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
                                     </a>
                                 }
                                 <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@ticket.Id">
-                                    <i class="fa-solid fa-eye me-1"></i>View
+                                    <i class="fa-solid fa-eye me-1"></i>@Localizer["View"]
                                 </a>
                             </td>
                         </tr>

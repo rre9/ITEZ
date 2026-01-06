@@ -1,7 +1,18 @@
 @model TicketCreateViewModel
 
 @{
-    ViewData["Title"] = "Create Ticket";
+    ViewData["Title"] = Localizer["CreateTicket"];
+
+    string LocalizePriority(TicketPriority priority)
+    {
+        return priority switch
+        {
+            TicketPriority.Low => Localizer["PriorityLow"].ToString(),
+            TicketPriority.Medium => Localizer["PriorityMedium"].ToString(),
+            TicketPriority.High => Localizer["PriorityHigh"].ToString(),
+            _ => priority.ToString()
+        };
+    }
 }
 
 <div class="row justify-content-center">
@@ -11,20 +22,20 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
                     <div>
                         <h1 class="h3 fw-semibold text-primary mb-1">
-                            <i class="fa-solid fa-circle-plus me-2"></i>Create a Support Ticket
+                            <i class="fa-solid fa-circle-plus me-2"></i>@Localizer["CreateSupportTicket"]
                         </h1>
-                        <p class="text-secondary mb-0">Provide detailed information to help our support team respond quickly.</p>
+                        <p class="text-secondary mb-0">@Localizer["CreateSupportTicketDescription"]</p>
                     </div>
                     @if (User.IsInRole("Admin") || User.IsInRole("Support"))
                     {
                         <a asp-action="MyTasks" class="btn btn-outline-secondary">
-                            <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Tasks
+                            <i class="fa-solid fa-arrow-left-long me-2"></i>@Localizer["BackToTasks"]
                         </a>
                     }
                     else
                     {
                         <a asp-action="MyTickets" class="btn btn-outline-secondary">
-                            <i class="fa-solid fa-arrow-left-long me-2"></i>Back to My Tickets
+                            <i class="fa-solid fa-arrow-left-long me-2"></i>@Localizer["BackToTickets"]
                         </a>
                     }
                 </div>
@@ -35,20 +46,20 @@
                     <div class="row g-4">
                         <div class="col-12">
                             <label asp-for="Title" class="form-label fw-semibold"></label>
-                            <input asp-for="Title" class="form-control form-control-lg" placeholder="Brief summary of the issue" />
+                            <input asp-for="Title" class="form-control form-control-lg" placeholder="@Localizer["BriefSummaryOfIssue"]" />
                             <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
                         <div class="col-12">
                             <label asp-for="Description" class="form-label fw-semibold"></label>
-                            <textarea asp-for="Description" class="form-control" rows="6" placeholder="Describe the issue, steps taken, and impact"></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="6" placeholder="@Localizer["DescribeIssueStepsImpact"]"></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
                         <div class="col-md-6">
                             <label asp-for="Department" class="form-label fw-semibold"></label>
                             <select asp-for="Department" class="form-select">
-                                <option value="">-- Select Department --</option>
+                                <option value="">@Localizer["SelectDepartment"]</option>
                                 @if (Model.Departments is not null)
                                 {
                                     foreach (var dept in Model.Departments)
@@ -65,7 +76,7 @@
                             <select asp-for="Priority" class="form-select">
                                 @foreach (var priority in Model.AvailablePriorities)
                                 {
-                                    <option value="@priority">@priority</option>
+                                    <option value="@priority">@LocalizePriority(priority)</option>
                                 }
                             </select>
                             <span asp-validation-for="Priority" class="text-danger small"></span>
@@ -74,9 +85,9 @@
                         @if (Model.CanAssign && Model.SupportUsers != null)
                         {
                             <div class="col-md-6">
-                                <label asp-for="AssignedToId" class="form-label fw-semibold">Assign To</label>
+                                <label asp-for="AssignedToId" class="form-label fw-semibold">@Localizer["AssignTo"]</label>
                                 <select asp-for="AssignedToId" class="form-select">
-                                    <option value="">-- Unassigned --</option>
+                                    <option value="">@Localizer["UnassignedOption"]</option>
                                     @foreach (var user in Model.SupportUsers)
                                     {
                                         <option value="@user.Id">@user.FullName (@user.Email)</option>
@@ -87,9 +98,9 @@
                         }
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold" for="Attachments">Attachments</label>
+                            <label class="form-label fw-semibold" for="Attachments">@Localizer["Attachments"]</label>
                             <div class="form-text mb-1">
-                                <i class="fa-solid fa-paperclip me-1"></i>Upload supporting documents (JPG, PNG, PDF up to 10 MB each).
+                                <i class="fa-solid fa-paperclip me-1"></i>@Localizer["UploadSupportingDocuments"]
                             </div>
                             <input asp-for="Attachments" type="file" class="form-control" multiple />
                             <span asp-validation-for="Attachments" class="text-danger small"></span>
@@ -98,19 +109,19 @@
 
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mt-5 pt-3 border-top">
                         <div class="text-secondary small">
-                            <i class="fa-regular fa-clock me-1"></i>Ticket will be logged immediately after submission.
+                            <i class="fa-regular fa-clock me-1"></i>@Localizer["TicketWillBeLogged"]
                         </div>
                         <div class="d-flex gap-2">
                             @if (User.IsInRole("Admin") || User.IsInRole("Support"))
                             {
-                                <a asp-action="MyTasks" class="btn btn-outline-secondary">Cancel</a>
+                                <a asp-action="MyTasks" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
                             }
                             else
                             {
-                                <a asp-action="MyTickets" class="btn btn-outline-secondary">Cancel</a>
+                                <a asp-action="MyTickets" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
                             }
                             <button type="submit" class="btn btn-primary px-4">
-                                <i class="fa-solid fa-paper-plane me-2"></i>Submit Ticket
+                                <i class="fa-solid fa-paper-plane me-2"></i>@Localizer["SubmitTicket"]
                             </button>
                         </div>
                     </div>

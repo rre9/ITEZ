@@ -1,15 +1,15 @@
 @page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = Localizer["Register"];
 }
 
 <div class="row justify-content-center">
     <div class="col-12 col-lg-8 col-xl-6">
         <div class="card border-0 shadow-sm mt-4">
             <div class="card-body p-4 p-lg-5">
-                <h1 class="h3 fw-semibold mb-2 text-center text-primary">Create your IT Help Desk account</h1>
-                <p class="text-secondary text-center mb-4">Access support resources with your @@yub.com.sa email.</p>
+                <h1 class="h3 fw-semibold mb-2 text-center text-primary">@Localizer["CreateYourAccount"]</h1>
+                <p class="text-secondary text-center mb-4">@Localizer["AccessSupportResources"]</p>
 
                 <form asp-route-returnUrl="@Model.ReturnUrl" method="post" novalidate>
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -24,7 +24,7 @@
                         <label asp-for="Input.Email" class="form-label fw-semibold"></label>
                         <input asp-for="Input.Email" class="form-control" autocomplete="username" />
                         <span asp-validation-for="Input.Email" class="text-danger small"></span>
-                        <div class="form-text">Only corporate emails ending with @@yub.com.sa are allowed.</div>
+                        <div class="form-text">@Localizer["OnlyCorporateEmailsAllowed"]</div>
                     </div>
 
                     <div class="mb-3">
@@ -39,7 +39,7 @@
                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2">Register</button>
+                    <button type="submit" class="btn btn-primary w-100 py-2">@Localizer["Register"]</button>
                 </form>
             </div>
         </div>
