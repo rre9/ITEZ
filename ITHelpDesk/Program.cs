@@ -11,15 +11,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Localization;
 using System.Globalization;
 using System.Security.Authentication;
 using System.Threading.RateLimiting;
-using ITHelpDesk.Services.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure culture for date formatting
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Configure Kestrel to enforce TLS 1.2 and TLS 1.3 only
 builder.WebHost.ConfigureKestrel(options =>
@@ -56,40 +57,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("TicketAccess", policy =>
         policy.Requirements.Add(new TicketAccessRequirement()));
 });
-
-// Localization setup
-var localizationPath = Path.Combine(builder.Environment.ContentRootPath, "Localization");
-builder.Services.AddSingleton<IStringLocalizerFactory>(sp =>
-    new JsonStringLocalizerFactory(localizationPath, sp.GetRequiredService<ILoggerFactory>()));
-builder.Services.AddSingleton<IStringLocalizer>(sp =>
-{
-    var factory = sp.GetRequiredService<IStringLocalizerFactory>();
-    return factory.Create(typeof(SharedResource));
-});
-
-// Configure Request Localization
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[] { "ar", "en" };
-    options.SetDefaultCulture("ar")
-        .AddSupportedCultures(supportedCultures)
-        .AddSupportedUICultures(supportedCultures)
-        .RequestCultureProviders.Clear();
-    options.RequestCultureProviders.Add(new QueryStringRequestCultureProvider());
-    options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
-    options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
-});
-
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization()
-    .AddDataAnnotationsLocalization(options =>
-    {
-        options.DataAnnotationLocalizerProvider = (type, factory) =>
-        {
-            return factory.Create(typeof(SharedResource));
-        };
-    });
-
+builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<ITicketAttachmentService, TicketAttachmentService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -170,9 +138,14 @@ using (var scope = app.Services.CreateScope())
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);
 }
 
-// Configure Request Localization Middleware
-var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
-app.UseRequestLocalization(locOptions.Value);
+// Configure culture middleware for date formatting
+var supportedCultures = new[] { new CultureInfo("en-US") };
+app.UseRequestLocalization(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

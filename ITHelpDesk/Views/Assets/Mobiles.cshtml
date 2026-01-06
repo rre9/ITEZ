@@ -38,7 +38,7 @@
                     <span>Export to Excel</span>
                 </a>
                 <a asp-action="CreateMobile" class="btn btn-primary btn-add-new">
-                    <i class="fa-solid fa-plus-circle me-2"></i>Add New Computer
+                    <i class="fa-solid fa-plus-circle me-2"></i>Add New Mobile Device
                 </a>
             </div>
         </div>
@@ -454,6 +454,149 @@ else
                                         </div>
                                     }
 
+                                    <!-- Operating System Details -->
+                                    @if (item.OperatingSystemInfo != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-microchip me-2"></i>Operating System Details
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.OperatingSystemInfo.Version))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">OS Version:</span>
+                                                        <span class="detail-val">@item.OperatingSystemInfo.Version</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.OperatingSystemInfo.BuildNumber))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Build Number:</span>
+                                                        <span class="detail-val">@item.OperatingSystemInfo.BuildNumber</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.OperatingSystemInfo.ServicePack))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Service Pack:</span>
+                                                        <span class="detail-val">@item.OperatingSystemInfo.ServicePack</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.OperatingSystemInfo.ProductId))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Product ID:</span>
+                                                        <span class="detail-val code">@item.OperatingSystemInfo.ProductId</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Asset & Warranty Info -->
+                                    <div class="detail-section">
+                                        <h6 class="detail-section-title">
+                                            <i class="fa-solid fa-calendar-check me-2"></i>Asset & Warranty Information
+                                        </h6>
+                                        <div class="detail-list">
+                                            @if (item.AcquisitionDate.HasValue)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Acquisition Date:</span>
+                                                    <span class="detail-val">@item.AcquisitionDate.Value.ToString("MMM dd, yyyy")</span>
+                                                </div>
+                                            }
+                                            @if (item.ExpiryDate.HasValue)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Expiry Date:</span>
+                                                    <span class="detail-val">@item.ExpiryDate.Value.ToString("MMM dd, yyyy")</span>
+                                                </div>
+                                            }
+                                            @if (item.WarrantyExpiryDate.HasValue)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Warranty Expiry Date:</span>
+                                                    <span class="detail-val">@item.WarrantyExpiryDate.Value.ToString("MMM dd, yyyy")</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Asset State Details -->
+                                    @if (item.AssetState != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-box me-2"></i>Asset State Details
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.AssetState.AssociatedTo))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Associated To:</span>
+                                                        <span class="detail-val">@item.AssetState.AssociatedTo</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.Site))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Site:</span>
+                                                        <span class="detail-val">@item.AssetState.Site</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.Department))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Department:</span>
+                                                        <span class="detail-val">@item.AssetState.Department</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.StateComments))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">State Comments:</span>
+                                                        <span class="detail-val">@item.AssetState.StateComments</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Network Details Extended -->
+                                    @if (item.NetworkDetails != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-wifi me-2"></i>Network Details
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.NIC))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">NIC:</span>
+                                                        <span class="detail-val">@item.NetworkDetails.NIC</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.Network))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Network:</span>
+                                                        <span class="detail-val">@item.NetworkDetails.Network</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DHCPServer))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">DHCP Server:</span>
+                                                        <span class="detail-val code">@item.NetworkDetails.DHCPServer</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
                                     <!-- Additional Info -->
                                     <div class="detail-section">
                                         <h6 class="detail-section-title">
@@ -464,21 +607,6 @@ else
                                                 <span class="detail-key">Created:</span>
                                                 <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy                                    hh:mm tt")</span>
                                             </div>
-                                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.Site))
-                                            {
-                                                <div class="detail-item">
-                                                    <span class="detail-key">Site:</span>
-                                                    <span class="detail-val">@item.AssetState.Site</span>
-                                                </div>
-                                            }
-                                            @if (item.AssetState != null &&
-                                                                                !string.IsNullOrEmpty(item.AssetState.StateComments))
-                                            {
-                                                <div class="detail-item">
-                                                    <span class="detail-key">Comments:</span>
-                                                    <span class="detail-val">@item.AssetState.StateComments</span>
-                                                </div>
-                                            }
                                             @if (item.Vendor != null)
                                             {
                                                 <div class="detail-item">

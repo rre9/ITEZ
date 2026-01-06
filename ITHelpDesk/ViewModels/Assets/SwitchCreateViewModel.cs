@@ -38,6 +38,7 @@ public class SwitchCreateViewModel
     public DateTime? WarrantyExpiryDate { get; set; }
 
     // Asset State
+    [Required(ErrorMessage = "Asset Status is required")]
     public AssetStatusEnum AssetStatus { get; set; } = AssetStatusEnum.InStore;
 
     [MaxLength(50)]
@@ -49,8 +50,9 @@ public class SwitchCreateViewModel
     [MaxLength(450)]
     public string? UserId { get; set; }
 
+    [Required(ErrorMessage = "Department is required")]
     [MaxLength(100)]
-    public string? Department { get; set; }
+    public string Department { get; set; } = string.Empty;
 
     [MaxLength(500)]
     public string? StateComments { get; set; }

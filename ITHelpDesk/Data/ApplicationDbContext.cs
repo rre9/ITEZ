@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TicketLog> TicketLogs => Set<TicketLog>();
     public DbSet<AccessRequest> AccessRequests => Set<AccessRequest>();
     public DbSet<ServiceRequest> ServiceRequests => Set<ServiceRequest>();
+    public DbSet<SystemChangeRequest> SystemChangeRequests => Set<SystemChangeRequest>();
 
     // Assets DbSets
     public DbSet<Product> Products => Set<Product>();
@@ -685,42 +686,42 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             vm.HasOne(v => v.ComputerInfo)
                 .WithMany()
                 .HasForeignKey(v => v.ComputerInfoId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.OperatingSystemInfo)
                 .WithMany()
                 .HasForeignKey(v => v.OperatingSystemInfoId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.MemoryDetails)
                 .WithMany()
                 .HasForeignKey(v => v.MemoryDetailsId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.Processor)
                 .WithMany()
                 .HasForeignKey(v => v.ProcessorId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.HardDisk)
                 .WithMany()
                 .HasForeignKey(v => v.HardDiskId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.Keyboard)
                 .WithMany()
                 .HasForeignKey(v => v.KeyboardId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.Mouse)
                 .WithMany()
                 .HasForeignKey(v => v.MouseId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             vm.HasOne(v => v.Monitor)
                 .WithMany()
                 .HasForeignKey(v => v.MonitorId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Configure Workstation entity relationships

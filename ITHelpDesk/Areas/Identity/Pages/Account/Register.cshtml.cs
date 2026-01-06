@@ -111,7 +111,6 @@ public partial class RegisterModel : PageModel
 
                 // Sign in immediately without email confirmation
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                // Note: Toast message localization is handled in the view/controller, keeping the original format for now
                 Toast = $"✅ Welcome aboard, {HtmlEncoder.Default.Encode(Input.FullName)}! Your account has been created successfully.";
                 return LocalRedirect(returnUrl);
             }

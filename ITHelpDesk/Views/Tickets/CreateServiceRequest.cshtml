@@ -26,20 +26,20 @@
                     <!-- Section 1: Applicant Information -->
                     <div class="mb-5">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-user me-2 text-primary"></i>@Localizer["ApplicantInformation"]
+                            <i class="fa-solid fa-user me-2 text-primary"></i>Applicant Information
                         </h5>
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label asp-for="EmployeeName" class="form-label fw-semibold"></label>
                                 <input asp-for="EmployeeName" class="form-control" readonly />
-                                <small class="form-text text-muted">@Localizer["AutoFilledFromProfile"]</small>
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
                                 <span asp-validation-for="EmployeeName" class="text-danger small"></span>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="Department" class="form-label fw-semibold"></label>
                                 <select asp-for="Department" class="form-select" required>
-                                    <option value="">@Localizer["SelectDepartment"]</option>
+                                    <option value="">-- Select Department --</option>
                                     @if (Model.Departments != null)
                                     {
                                         foreach (var dept in Model.Departments)
@@ -55,7 +55,7 @@
                             <div class="col-md-6">
                                 <label asp-for="JobTitle" class="form-label fw-semibold"></label>
                                 <input asp-for="JobTitle" class="form-control" />
-                                <small class="form-text text-muted">@Localizer["AutoFilledFromProfile"]</small>
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
                                 <span asp-validation-for="JobTitle" class="text-danger small"></span>
                             </div>
 
@@ -69,7 +69,7 @@
                             <div class="col-md-6">
                                 <label asp-for="SelectedManagerId" class="form-label fw-semibold"></label>
                                 <select asp-for="SelectedManagerId" class="form-select" required>
-                                    <option value="">@Localizer["SelectDirectManager"]</option>
+                                    <option value="">-- Select Direct Manager --</option>
                                     @if (Model.Managers != null)
                                     {
                                         foreach (var manager in Model.Managers)
@@ -86,13 +86,13 @@
                     <!-- Section 2: Description of Requested Usage -->
                     <div class="mb-5">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-file-lines me-2 text-primary"></i>@Localizer["DescriptionOfRequestedUsage"]
+                            <i class="fa-solid fa-file-lines me-2 text-primary"></i>Description of Requested Usage
                         </h5>
                         <div class="row g-4">
                             <div class="col-12">
                                 <label asp-for="UsageDescription" class="form-label fw-semibold"></label>
-                                <textarea asp-for="UsageDescription" class="form-control" rows="5" required placeholder="@Localizer["Description"]"></textarea>
-                                <small class="form-text text-muted">@Localizer["MaximumCharacters"]</small>
+                                <textarea asp-for="UsageDescription" class="form-control" rows="5" required placeholder="Describe the social media usage you are requesting..."></textarea>
+                                <small class="form-text text-muted">Maximum 2000 characters</small>
                                 <span asp-validation-for="UsageDescription" class="text-danger small"></span>
                             </div>
                         </div>
@@ -106,8 +106,8 @@
                         <div class="row g-4">
                             <div class="col-12">
                                 <label asp-for="UsageReason" class="form-label fw-semibold"></label>
-                                <textarea asp-for="UsageReason" class="form-control" rows="5" required placeholder="@Localizer["ReasonForRequest"]"></textarea>
-                                <small class="form-text text-muted">@Localizer["MaximumCharacters"]</small>
+                                <textarea asp-for="UsageReason" class="form-control" rows="5" required placeholder="Explain the business or operational reasons for this request..."></textarea>
+                                <small class="form-text text-muted">Maximum 2000 characters</small>
                                 <span asp-validation-for="UsageReason" class="text-danger small"></span>
                             </div>
                         </div>
@@ -133,7 +133,7 @@
                     <!-- Section 5: Acknowledgment & Signature -->
                     <div class="mb-5">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-signature me-2 text-primary"></i>@Localizer["AcknowledgmentSignature"]
+                            <i class="fa-solid fa-signature me-2 text-primary"></i>Acknowledgment & Signature
                         </h5>
                         <div class="row g-4">
                             <div class="col-12">
@@ -150,14 +150,14 @@
                             <div class="col-md-6">
                                 <label asp-for="SignatureName" class="form-label fw-semibold"></label>
                                 <input asp-for="SignatureName" class="form-control" readonly />
-                                <small class="form-text text-muted">@Localizer["AutoFilledFromProfile"]</small>
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
                                 <span asp-validation-for="SignatureName" class="text-danger small"></span>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="SignatureJobTitle" class="form-label fw-semibold"></label>
                                 <input asp-for="SignatureJobTitle" class="form-control" />
-                                <small class="form-text text-muted">@Localizer["AutoFilledFromProfile"]</small>
+                                <small class="form-text text-muted">Auto-filled from your profile</small>
                                 <span asp-validation-for="SignatureJobTitle" class="text-danger small"></span>
                             </div>
 
@@ -172,14 +172,14 @@
 
                     <!-- Section 6: Attachments -->
                     <div class="mb-5">
-                            <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-paperclip me-2 text-primary"></i>@Localizer["Attachments"]
+                        <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
                         </h5>
                         <div class="row g-4">
                             <div class="col-12">
-                                <label for="Attachments" class="form-label fw-semibold">@Localizer["SupportingDocuments"]</label>
+                                <label for="Attachments" class="form-label fw-semibold">Supporting Documents</label>
                                 <div class="form-text mb-2">
-                                    <i class="fa-solid fa-info-circle me-1"></i>@Localizer["UploadSupportingDocumentsInfo"]
+                                    <i class="fa-solid fa-info-circle me-1"></i>Upload supporting documents (PDF, JPG, PNG). Multiple files allowed. Maximum 10 MB per file.
                                 </div>
                                 <input asp-for="Attachments" type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png" />
                                 <span asp-validation-for="Attachments" class="text-danger small"></span>
@@ -190,12 +190,12 @@
                     <!-- Submit Buttons -->
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mt-5 pt-3 border-top">
                         <div class="text-secondary small">
-                            <i class="fa-regular fa-clock me-1"></i>@Localizer["RequestWillBeSubmitted"]
+                            <i class="fa-regular fa-clock me-1"></i>Request will be submitted for approval after review.
                         </div>
                         <div class="d-flex gap-2">
-                            <a asp-action="SelectRequestType" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
+                            <a asp-action="SelectRequestType" class="btn btn-outline-secondary">Cancel</a>
                             <button type="submit" class="btn btn-info px-4">
-                                <i class="fa-solid fa-paper-plane me-2"></i>@Localizer["SubmitServiceRequest"]
+                                <i class="fa-solid fa-paper-plane me-2"></i>Submit Service Request
                             </button>
                         </div>
                     </div>

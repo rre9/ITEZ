@@ -3,30 +3,6 @@
 @{
     var ticketNumber = $"HD-{Model.Id:D6}";
     ViewData["Title"] = ticketNumber;
-
-    string LocalizePriority(TicketPriority priority)
-    {
-        return priority switch
-        {
-            TicketPriority.Low => Localizer["PriorityLow"].ToString(),
-            TicketPriority.Medium => Localizer["PriorityMedium"].ToString(),
-            TicketPriority.High => Localizer["PriorityHigh"].ToString(),
-            _ => priority.ToString()
-        };
-    }
-
-    string LocalizeStatus(TicketStatus status)
-    {
-        return status switch
-        {
-            TicketStatus.New => Localizer["StatusNew"].ToString(),
-            TicketStatus.InProgress => Localizer["StatusInProgress"].ToString(),
-            TicketStatus.Resolved => Localizer["StatusResolved"].ToString(),
-            TicketStatus.Rejected => Localizer["StatusRejected"].ToString(),
-            TicketStatus.Closed => Localizer["StatusClosed"].ToString(),
-            _ => status.ToString()
-        };
-    }
 }
 
 <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-2">
@@ -34,26 +10,26 @@
         @if (User.IsInRole("Employee"))
         {
             <a asp-action="MyTickets" class="text-decoration-none text-secondary small fw-semibold">
-                <i class="fa-solid fa-arrow-left-long me-1"></i>@Localizer["BackToTickets"]
+                <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tickets
             </a>
         }
         else if (User.IsInRole("Admin") || User.IsInRole("Support"))
         {
             <a asp-action="MyTasks" class="text-decoration-none text-secondary small fw-semibold">
-                <i class="fa-solid fa-arrow-left-long me-1"></i>@Localizer["BackToTasks"]
+                <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tasks
             </a>
         }
         else if (User.IsInRole("IT"))
         {
             <a asp-action="MyTasks" class="text-decoration-none text-secondary small fw-semibold">
-                <i class="fa-solid fa-arrow-left-long me-1"></i>@Localizer["BackToTasks"]
+                <i class="fa-solid fa-arrow-left-long me-1"></i>Back to tasks
             </a>
         }
         <h1 class="display-6 fw-bold text-primary mb-2 mt-2">
             <i class="fa-solid fa-ticket me-2"></i>@ticketNumber
         </h1>
         <p class="text-muted mb-0">
-            <i class="fa-solid fa-clock me-1"></i>@Localizer["Opened"] @Model.CreatedAt.ToLocalTime().ToString("f", System.Globalization.CultureInfo.CurrentUICulture) @Localizer["By"] <strong>@Model.CreatedBy?.FullName</strong>
+            <i class="fa-solid fa-clock me-1"></i>Opened @Model.CreatedAt.ToLocalTime():f by <strong>@Model.CreatedBy?.FullName</strong>
         </p>
     </div>
 </div>
@@ -78,15 +54,15 @@
     
     @if (isEmployee)
     {
-        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTickets">@Localizer["MyTickets"]</a>
+        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTickets">My Tickets</a>
     }
     else if (isAdminOrSupport)
     {
-        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">@Localizer["Tasks"]</a>
+        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">Tasks</a>
     }
     else if (isIT)
     {
-        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">@Localizer["MyTasks"]</a>
+        <a class="btn btn-outline-secondary btn-lg" asp-action="MyTasks">My Tasks</a>
     }
 </div>
 
@@ -96,12 +72,12 @@
             <div class="card-header bg-white border-bottom">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fa-solid fa-file-lines me-2 text-primary"></i>@Localizer["TicketDetails"]
+                        <i class="fa-solid fa-file-lines me-2 text-primary"></i>Ticket Details
                     </h5>
                     <div class="d-flex flex-wrap align-items-center gap-2">
-                        <span class="badge rounded-pill bg-primary text-uppercase">@LocalizeStatus(Model.Status)</span>
+                        <span class="badge rounded-pill bg-primary text-uppercase">@Model.Status</span>
                         <span class="badge rounded-pill @(Model.Priority == TicketPriority.High ? "bg-danger" : Model.Priority == TicketPriority.Medium ? "bg-warning text-dark" : "bg-success") text-uppercase">
-                            @LocalizePriority(Model.Priority)
+                            @Model.Priority
                         </span>
                     </div>
                 </div>
@@ -110,13 +86,13 @@
                 <h2 class="h4 fw-bold mb-4">@Model.Title</h2>
                 <div class="mb-4">
                     <h3 class="h6 text-uppercase text-muted fw-bold mb-2">
-                        <i class="fa-solid fa-building me-1"></i>@Localizer["Department"]
+                        <i class="fa-solid fa-building me-1"></i>Department
                     </h3>
                     <p class="mb-0 fs-5">@Model.Department</p>
                 </div>
                 <div class="mb-4">
                     <h3 class="h6 text-uppercase text-muted fw-bold mb-2">
-                        <i class="fa-solid fa-align-left me-1"></i>@Localizer["Description"]
+                        <i class="fa-solid fa-align-left me-1"></i>Description
                     </h3>
                     <p class="mb-0 text-dark">@Model.Description</p>
                 </div>
@@ -124,7 +100,7 @@
                     <div class="col-md-6">
                         <div class="border rounded-3 p-3 bg-light h-100">
                             <div class="text-muted small text-uppercase fw-bold mb-2">
-                                <i class="fa-solid fa-user me-1"></i>@Localizer["CreatedBy"]
+                                <i class="fa-solid fa-user me-1"></i>Created By
                             </div>
                             <div class="fw-semibold fs-6">@Model.CreatedBy?.FullName</div>
                         </div>
@@ -132,26 +108,26 @@
                     <div class="col-md-6">
                         <div class="border rounded-3 p-3 bg-light h-100">
                             <div class="text-muted small text-uppercase fw-bold mb-2">
-                                <i class="fa-solid fa-user-check me-1"></i>@Localizer["AssignedTo"]
+                                <i class="fa-solid fa-user-check me-1"></i>Assigned To
                             </div>
-                            <div class="fw-semibold fs-6">@(Model.AssignedTo?.FullName ?? Localizer["Unassigned"])</div>
+                            <div class="fw-semibold fs-6">@(Model.AssignedTo?.FullName ?? "Unassigned")</div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="border rounded-3 p-3 bg-light h-100">
                             <div class="text-muted small text-uppercase fw-bold mb-2">
-                                <i class="fa-solid fa-calendar-plus me-1"></i>@Localizer["CreatedAt"]
+                                <i class="fa-solid fa-calendar-plus me-1"></i>Created At
                             </div>
-                            <div class="fw-semibold fs-6">@Model.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</div>
+                            <div class="fw-semibold fs-6">@Model.CreatedAt.ToLocalTime():g</div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="border rounded-3 p-3 bg-light h-100">
                             <div class="text-muted small text-uppercase fw-bold mb-2">
-                                <i class="fa-solid fa-clock-rotate-left me-1"></i>@Localizer["LastUpdated"]
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i>Last Updated
                             </div>
                             <div class="fw-semibold fs-6">
-                                @(Model.Logs.OrderByDescending(l => l.Timestamp).FirstOrDefault()?.Timestamp.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture) ?? Localizer["NoUpdatesYet"])
+                                @(Model.Logs.OrderByDescending(l => l.Timestamp).FirstOrDefault()?.Timestamp.ToLocalTime().ToString("g") ?? "No updates yet")
                             </div>
                         </div>
                     </div>
@@ -166,32 +142,32 @@
             <div class="card border-0 shadow-sm mb-4 border-primary">
                 <div class="card-header bg-primary text-white border-0">
                     <h2 class="h5 fw-semibold mb-0">
-                        <i class="fa-solid fa-server me-2"></i>@Localizer["ITExecution"]
+                        <i class="fa-solid fa-server me-2"></i>IT Execution
                     </h2>
                 </div>
                 <div class="card-body">
-                    <p class="text-secondary mb-4">@Localizer["ITExecutionDescription"]</p>
+                    <p class="text-secondary mb-4">Final decision for this request. This action will close the ticket.</p>
                     
                     <div class="d-flex flex-column gap-3">
                         <form asp-action="CompleteAndClose" asp-route-id="@Model.Id" method="post">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
-                                <label for="completionNotes" class="form-label fw-semibold">@Localizer["CompletionNotes"]</label>
-                                <textarea id="completionNotes" name="notes" class="form-control" rows="3" placeholder="@Localizer["EnterCompletionNotes"]" required></textarea>
+                                <label for="completionNotes" class="form-label fw-semibold">Completion Notes</label>
+                                <textarea id="completionNotes" name="notes" class="form-control" rows="3" placeholder="Enter completion notes..." required></textarea>
                             </div>
                             <button type="submit" class="btn btn-success w-100">
-                                <i class="fa-solid fa-check-circle me-2"></i>@Localizer["CompleteClose"]
+                                <i class="fa-solid fa-check-circle me-2"></i>Complete & Close
                             </button>
                         </form>
                         
                         <form asp-action="RejectAndClose" asp-route-id="@Model.Id" method="post">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
-                                <label for="rejectionNotes" class="form-label fw-semibold">@Localizer["RejectionReason"]</label>
-                                <textarea id="rejectionNotes" name="notes" class="form-control" rows="3" placeholder="@Localizer["EnterRejectionReason"]" required></textarea>
+                                <label for="rejectionNotes" class="form-label fw-semibold">Rejection Reason</label>
+                                <textarea id="rejectionNotes" name="notes" class="form-control" rows="3" placeholder="Enter rejection reason..." required></textarea>
                             </div>
                             <button type="submit" class="btn btn-danger w-100">
-                                <i class="fa-solid fa-times-circle me-2"></i>@Localizer["RejectClose"]
+                                <i class="fa-solid fa-times-circle me-2"></i>Reject & Close
                             </button>
                         </form>
                     </div>
@@ -202,7 +178,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-bottom">
                 <h2 class="h5 fw-semibold mb-0">
-                    <i class="fa-solid fa-paperclip me-2 text-primary"></i>@Localizer["Attachments"]
+                    <i class="fa-solid fa-paperclip me-2 text-primary"></i>Attachments
                 </h2>
             </div>
             <div class="card-body">
@@ -218,7 +194,7 @@
                                         <i class="fa-solid fa-file-lines me-2 text-secondary"></i>@attachment.FileName
                                     </a>
                                     <div class="text-secondary small">
-                                        @Localizer["Uploaded"] @attachment.UploadTime.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)
+                                        Uploaded @attachment.UploadTime.ToLocalTime():g
                                     </div>
                                 </div>
                                 <span class="badge bg-light text-secondary">@($"{attachment.FilePath}".Split('.').LastOrDefault()?.ToUpperInvariant())</span>
@@ -228,7 +204,7 @@
                 }
                 else
                 {
-                    <div class="text-secondary small">@Localizer["NoAttachmentsYet"]</div>
+                    <div class="text-secondary small">No attachments yet.</div>
                 }
             </div>
         </div>
@@ -236,7 +212,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom">
                 <h2 class="h5 fw-semibold mb-0">
-                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>@Localizer["ActivityLog"]
+                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Activity Log
                 </h2>
             </div>
             <div class="card-body">
@@ -252,7 +228,7 @@
                                     <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
                                         <span class="badge bg-primary text-uppercase small">@log.Action</span>
                                         <span class="text-muted small">
-                                            <i class="fa-solid fa-clock me-1"></i>@log.Timestamp.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)
+                                            <i class="fa-solid fa-clock me-1"></i>@log.Timestamp.ToLocalTime():g
                                         </span>
                                     </div>
                                     <p class="mb-2 text-dark">@log.Notes</p>
@@ -267,7 +243,7 @@
                                     {
                                         <div class="text-muted small d-flex align-items-center">
                                             <i class="fa-solid fa-cog me-2"></i>
-                                            <strong>@Localizer["System"]</strong>
+                                            <strong>System</strong>
                                         </div>
                                     }
                                 </div>
@@ -279,7 +255,7 @@
                 {
                     <div class="text-center py-4">
                         <i class="fa-solid fa-clock-rotate-left fa-3x text-muted opacity-25 mb-3"></i>
-                        <p class="text-muted mb-0">@Localizer["NoActivityLoggedYet"]</p>
+                        <p class="text-muted mb-0">No activity logged yet.</p>
                     </div>
                 }
             </div>

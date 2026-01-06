@@ -2,20 +2,20 @@
 @using ITHelpDesk.Models
 
 @{
-    ViewData["Title"] = Localizer["ManagerDashboard"];
+    ViewData["Title"] = "Manager Dashboard";
 }
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
         <h1 class="display-6 fw-semibold text-primary mb-1">
-            <i class="fa-solid fa-user-check me-2"></i>@Localizer["ManagerDashboard"]
+            <i class="fa-solid fa-user-check me-2"></i>Manager Dashboard
         </h1>
-        <p class="text-secondary mb-0">@Localizer["ManagerDashboardDescription"]</p>
+        <p class="text-secondary mb-0">Review pending access requests requiring your approval.</p>
     </div>
     @if (Model.PendingRequests.Any())
     {
         <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-            <i class="fa-solid fa-exclamation-circle me-2"></i>@Model.PendingRequests.Count() @Localizer["PendingCount"]
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@Model.PendingRequests.Count() Pending
         </span>
     }
 </div>
@@ -26,11 +26,11 @@
             <table class="table table-hover table-striped align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">@Localizer["TicketNumber"]</th>
-                        <th scope="col">@Localizer["EmployeeNameColumn"]</th>
-                        <th scope="col">@Localizer["SystemName"]</th>
-                        <th scope="col" class="text-nowrap">@Localizer["SubmissionDate"]</th>
-                        <th scope="col" class="text-nowrap text-end">@Localizer["Actions"]</th>
+                        <th scope="col">Ticket #</th>
+                        <th scope="col">Employee Name</th>
+                        <th scope="col">System Name</th>
+                        <th scope="col" class="text-nowrap">Submission Date</th>
+                        <th scope="col" class="text-nowrap text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,8 +39,8 @@
                         <tr>
                             <td colspan="5" class="py-5 text-center text-secondary">
                                 <i class="fa-solid fa-check-circle fa-3x mb-3 text-success"></i>
-                                <div class="fw-semibold">@Localizer["NoPendingApprovals"]</div>
-                                <p class="mb-0">@Localizer["NoPendingApprovalsDescription"]</p>
+                                <div class="fw-semibold">No pending approvals</div>
+                                <p class="mb-0">All access requests have been reviewed.</p>
                             </td>
                         </tr>
                     }
@@ -54,10 +54,10 @@
                                 <td class="fw-semibold text-secondary">@ticketNumber</td>
                                 <td>@request.FullName</td>
                                 <td>@request.SystemName</td>
-                                <td>@request.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
+                                <td>@request.CreatedAt.ToLocalTime().ToString("g")</td>
                                 <td class="text-nowrap text-end">
                                     <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="ApproveAccessRequest" asp-route-id="@request.TicketId">
-                                        <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
+                                        <i class="fa-solid fa-gavel me-1"></i>Review
                                     </a>
                                 </td>
                             </tr>

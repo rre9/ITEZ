@@ -4,6 +4,93 @@
     ViewData["Title"] = "Edit Computer";
 }
 
+<style>
+    .select-with-add {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .select-with-add .form-select {
+        flex: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        padding-right: 2.5rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+    }
+
+    .select-with-add .btn-add {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        padding: 0.5rem 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #495057;
+        transition: all 0.2s ease;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .select-with-add .btn-add:hover {
+        background: #0066cc;
+        border-color: #0066cc;
+        color: white;
+    }
+
+    .select-with-add .btn-add::before {
+        content: '+';
+        font-size: 1.3rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    /* Required/Optional Field Indicators */
+    .field-required {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .field-optional {
+        color: #6c757d;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Validation styling */
+    .form-control.is-invalid-empty,
+    .form-select.is-invalid-empty {
+        border-color: #dc3545;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath fill='%23dc3545' d='M6.8 3.8H5.2V6h1.6V3.8Zm0 4.4H5.2V8h1.6v-1.8Z'/%3e%3c/svg%3e");
+    }
+
+    .form-control.is-invalid-empty:focus,
+    .form-select.is-invalid-empty:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+
+    .form-error-message {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        font-weight: 500;
+    }
+
+    .submit-validation-hidden {
+        display: none;
+    }
+</style>
+
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -22,26 +109,34 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="Name" class="form-label">Name</label>
-                                            <input asp-for="Name" class="form-control" />
+                                            <label asp-for="Name" class="form-label">
+                                                Name
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <input asp-for="Name" class="form-control" required data-required="true" />
                                             <span asp-validation-for="Name" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="Name-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="ProductId" class="form-label">Product</label>
+                                            <label asp-for="ProductId" class="form-label">
+                                                Product
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <div class="select-with-add">
-                                                <select asp-for="ProductId" class="form-select">
-                                                    <option value="">Select Product</option>
+                                                <select asp-for="ProductId" class="form-select" required data-required="true">
+                                                    <option value="">-- Select Product --</option>
                                                     @foreach (var product in ViewBag.Products)
                                                     {
-                                                        <option value="@product.Id">@product.ProductName</option>
+                                                        <option value="@product.Id">@product.ProductName - @product.Manufacturer</option>
                                                     }
                                                 </select>
                                                 <button type="button" class="btn btn-sm btn-primary btn-add"
                                                     data-bs-toggle="modal" data-bs-target="#addProductModal"></button>
                                             </div>
                                             <span asp-validation-for="ProductId" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="ProductId-required">This field is required</span>
                                         </div>
                                     </div>
                                 </div>
@@ -55,24 +150,34 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="SerialNumber" class="form-label">Serial Number</label>
-                                            <input asp-for="SerialNumber" class="form-control" />
+                                            <label asp-for="SerialNumber" class="form-label">
+                                                Serial Number
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <input asp-for="SerialNumber" class="form-control" required data-required="true" />
                                             <span asp-validation-for="SerialNumber" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="SerialNumber-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="AssetTag" class="form-label">Asset Tag</label>
+                                            <label asp-for="AssetTag" class="form-label">
+                                                Asset Tag
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input asp-for="AssetTag" class="form-control" />
                                             <span asp-validation-for="AssetTag" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="VendorId" class="form-label">Vendor</label>
+                                            <label asp-for="VendorId" class="form-label">
+                                                Vendor
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <div class="select-with-add">
-                                                <select asp-for="VendorId" class="form-select">
-                                                    <option value="">Select Vendor</option>
+                                                <select asp-for="VendorId" class="form-select" required data-required="true">
+                                                    <option value="">-- Select Vendor --</option>
                                                     @foreach (var vendor in ViewBag.Vendors)
                                                     {
                                                         <option value="@vendor.Id">@vendor.VendorName</option>
@@ -82,41 +187,60 @@
                                                     data-bs-toggle="modal" data-bs-target="#addVendorModal"></button>
                                             </div>
                                             <span asp-validation-for="VendorId" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="VendorId-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="PurchaseCost" class="form-label">Purchase Cost</label>
+                                            <label asp-for="PurchaseCost" class="form-label">
+                                                Purchase Cost
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input asp-for="PurchaseCost" class="form-control" type="number"
-                                                step="0.01" />
+                                                step="0.01" required data-required="true" />
                                             <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="PurchaseCost-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="AcquisitionDate" class="form-label">Acquisition Date</label>
-                                            <input asp-for="AcquisitionDate" class="form-control" type="date" />
+                                            <label asp-for="AcquisitionDate" class="form-label">
+                                                Acquisition Date
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <input asp-for="AcquisitionDate" class="form-control" type="date" required data-required="true" />
                                             <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="AcquisitionDate-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry
-                                                Date</label>
-                                            <input asp-for="WarrantyExpiryDate" class="form-control" type="date" />
+                                            <label asp-for="WarrantyExpiryDate" class="form-label">
+                                                Warranty Expiry Date
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <input asp-for="WarrantyExpiryDate" class="form-control" type="date" required data-required="true" />
                                             <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="WarrantyExpiryDate-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
-                                            <input asp-for="ExpiryDate" class="form-control" type="date" />
+                                            <label asp-for="ExpiryDate" class="form-label">
+                                                Expiry Date
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <input asp-for="ExpiryDate" class="form-control" type="date" required data-required="true" />
                                             <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                            <span class="form-error-message submit-validation-hidden" id="ExpiryDate-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label asp-for="Location" class="form-label">Location</label>
+                                            <label asp-for="Location" class="form-label">
+                                                Location
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input asp-for="Location" class="form-control" />
                                             <span asp-validation-for="Location" class="text-danger"></span>
                                         </div>
@@ -132,56 +256,81 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_ServiceTag" class="form-label">Service Tag</label>
+                                            <label for="ComputerInfo_ServiceTag" class="form-label">
+                                                Service Tag
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.ServiceTag"
-                                                value="@Model.ComputerInfo?.ServiceTag" class="form-control" />
+                                                value="@Model.ComputerInfo?.ServiceTag" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="ServiceTag-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="ComputerInfo_Manufacturer"
-                                                class="form-label">Manufacturer</label>
+                                                class="form-label">
+                                                Manufacturer
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.Manufacturer"
-                                                value="@Model.ComputerInfo?.Manufacturer" class="form-control" />
+                                                value="@Model.ComputerInfo?.Manufacturer" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="ComputerManufacturer-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_BiosDate" class="form-label">BIOS Date</label>
+                                            <label for="ComputerInfo_BiosDate" class="form-label">
+                                                BIOS Date
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.BiosDate"
                                                 value="@Model.ComputerInfo?.BiosDate?.ToString("yyyy-MM-dd")"
-                                                class="form-control" type="date" />
+                                                class="form-control" type="date" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="BiosDate-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_Domain" class="form-label">Domain</label>
+                                            <label for="ComputerInfo_Domain" class="form-label">
+                                                Domain
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.Domain" value="@Model.ComputerInfo?.Domain"
-                                                class="form-control" />
+                                                class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="Domain-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_SMBiosVersion" class="form-label">SMBios
-                                                Version</label>
+                                            <label for="ComputerInfo_SMBiosVersion" class="form-label">
+                                                SMBios Version
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.SMBiosVersion"
-                                                value="@Model.ComputerInfo?.SMBiosVersion" class="form-control" />
+                                                value="@Model.ComputerInfo?.SMBiosVersion" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="SMBiosVersion-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_BiosVersion" class="form-label">BIOS
-                                                Version</label>
+                                            <label for="ComputerInfo_BiosVersion" class="form-label">
+                                                BIOS Version
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.BiosVersion"
-                                                value="@Model.ComputerInfo?.BiosVersion" class="form-control" />
+                                                value="@Model.ComputerInfo?.BiosVersion" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="BiosVersion-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="ComputerInfo_BiosManufacturer" class="form-label">BIOS
-                                                Manufacturer</label>
+                                            <label for="ComputerInfo_BiosManufacturer" class="form-label">
+                                                BIOS Manufacturer
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="ComputerInfo.BiosManufacturer"
-                                                value="@Model.ComputerInfo?.BiosManufacturer" class="form-control" />
+                                                value="@Model.ComputerInfo?.BiosManufacturer" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="BiosManufacturer-required">This field is required</span>
                                         </div>
                                     </div>
                                 </div>
@@ -195,38 +344,52 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_Name" class="form-label">OS Name</label>
+                                            <label for="OperatingSystemInfo_Name" class="form-label">
+                                                OS Name
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="OperatingSystemInfo.Name"
-                                                value="@Model.OperatingSystemInfo?.Name" class="form-control" />
+                                                value="@Model.OperatingSystemInfo?.Name" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="OSName-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_Version" class="form-label">Version</label>
+                                            <label for="OperatingSystemInfo_Version" class="form-label">
+                                                Version
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="OperatingSystemInfo.Version"
-                                                value="@Model.OperatingSystemInfo?.Version" class="form-control" />
+                                                value="@Model.OperatingSystemInfo?.Version" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="OSVersion-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_BuildNumber" class="form-label">Build
-                                                Number</label>
+                                            <label for="OperatingSystemInfo_BuildNumber" class="form-label">
+                                                Build Number
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="OperatingSystemInfo.BuildNumber"
                                                 value="@Model.OperatingSystemInfo?.BuildNumber" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_ServicePack" class="form-label">Service
-                                                Pack</label>
+                                            <label for="OperatingSystemInfo_ServicePack" class="form-label">
+                                                Service Pack
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="OperatingSystemInfo.ServicePack"
                                                 value="@Model.OperatingSystemInfo?.ServicePack" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="OperatingSystemInfo_ProductId" class="form-label">Product
-                                                ID</label>
+                                            <label for="OperatingSystemInfo_ProductId" class="form-label">
+                                                Product ID
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="OperatingSystemInfo.ProductId"
                                                 value="@Model.OperatingSystemInfo?.ProductId" class="form-control" />
                                         </div>
@@ -242,18 +405,25 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="MemoryDetails_RAM" class="form-label">RAM (GB)</label>
+                                            <label for="MemoryDetails_RAM" class="form-label">
+                                                RAM (GB)
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="MemoryDetails.RAM" value="@Model.MemoryDetails?.RAM"
-                                                class="form-control" type="number" />
+                                                class="form-control" type="number" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="RAM-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="MemoryDetails_VirtualMemory" class="form-label">Virtual Memory
-                                                (GB)</label>
+                                            <label for="MemoryDetails_VirtualMemory" class="form-label">
+                                                Virtual Memory (GB)
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="MemoryDetails.VirtualMemory"
                                                 value="@Model.MemoryDetails?.VirtualMemory" class="form-control"
-                                                type="number" />
+                                                type="number" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="VirtualMemory-required">This field is required</span>
                                         </div>
                                     </div>
                                 </div>
@@ -267,32 +437,44 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_ProcessorInfo" class="form-label">Processor
-                                                Info</label>
+                                            <label for="Processor_ProcessorInfo" class="form-label">
+                                                Processor Info
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="Processor.ProcessorInfo"
-                                                value="@Model.Processor?.ProcessorInfo" class="form-control" />
+                                                value="@Model.Processor?.ProcessorInfo" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="ProcessorInfo-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_Manufacturer" class="form-label">Manufacturer</label>
+                                            <label for="Processor_Manufacturer" class="form-label">
+                                                Manufacturer
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="Processor.Manufacturer" value="@Model.Processor?.Manufacturer"
-                                                class="form-control" />
+                                                class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="ProcessorManufacturer-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_ClockSpeedMHz" class="form-label">Clock Speed
-                                                (MHz)</label>
+                                            <label for="Processor_ClockSpeedMHz" class="form-label">
+                                                Clock Speed (MHz)
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="Processor.ClockSpeedMHz"
                                                 value="@Model.Processor?.ClockSpeedMHz" class="form-control"
-                                                type="number" />
+                                                type="number" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="ClockSpeedMHz-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="Processor_NumberOfCores" class="form-label">Number of
-                                                Cores</label>
+                                            <label for="Processor_NumberOfCores" class="form-label">
+                                                Number of Cores
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="Processor.NumberOfCores"
                                                 value="@Model.Processor?.NumberOfCores" class="form-control"
                                                 type="number" />
@@ -305,34 +487,47 @@
                         <!-- Hard Disk Section -->
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="text-sm mb-3 fw-bold">Hard Disk</h6>
+                                <h6 class="text-sm mb-3 fw-bold">Hard Disk Information</h6>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="HardDisk_Model" class="form-label">Model</label>
+                                            <label for="HardDisk_Model" class="form-label">
+                                                Model
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="HardDisk.Model" value="@Model.HardDisk?.Model"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="HardDisk_SerialNumber" class="form-label">Serial Number</label>
+                                            <label for="HardDisk_SerialNumber" class="form-label">
+                                                Serial Number
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="HardDisk.SerialNumber" value="@Model.HardDisk?.SerialNumber"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="HardDisk_Manufacturer" class="form-label">Manufacturer</label>
+                                            <label for="HardDisk_Manufacturer" class="form-label">
+                                                Manufacturer
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="HardDisk.Manufacturer" value="@Model.HardDisk?.Manufacturer"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="HardDisk_CapacityGB" class="form-label">Capacity (GB)</label>
+                                            <label for="HardDisk_CapacityGB" class="form-label">
+                                                Capacity (GB)
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="HardDisk.CapacityGB" value="@Model.HardDisk?.CapacityGB"
-                                                class="form-control" type="number" />
+                                                class="form-control" type="number" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="CapacityGB-required">This field is required</span>
                                         </div>
                                     </div>
                                 </div>
@@ -342,7 +537,7 @@
                         <!-- Keyboard Section -->
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="text-sm mb-3 fw-bold">Keyboard</h6>
+                                <h6 class="text-sm mb-3 fw-bold">Keyboard Information</h6>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
@@ -372,7 +567,7 @@
                         <!-- Mouse Section -->
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="text-sm mb-3 fw-bold">Mouse</h6>
+                                <h6 class="text-sm mb-3 fw-bold">Mouse Information</h6>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
@@ -409,7 +604,7 @@
                         <!-- Monitor Section -->
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h6 class="text-sm mb-3 fw-bold">Monitor</h6>
+                                <h6 class="text-sm mb-3 fw-bold">Monitor Information</h6>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
@@ -450,14 +645,18 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_Status" class="form-label">Asset Status</label>
-                                            <select name="AssetState.Status" class="form-select">
+                                            <label for="AssetState_Status" class="form-label">
+                                                Asset Status
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <select name="AssetState.Status" class="form-select" required data-required="true">
+                                                <option value="">Select Status...</option>
                                                 <option value="1"
-                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">
-                                                    In Use</option>
-                                                <option value="2"
                                                     selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">
                                                     In Store</option>
+                                                <option value="2"
+                                                    selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">
+                                                    In Use</option>
                                                 <option value="3"
                                                     selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">
                                                     In Repair</option>
@@ -468,43 +667,65 @@
                                                     selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">
                                                     Disposed</option>
                                             </select>
+                                            <span class="form-error-message submit-validation-hidden" id="AssetStatus-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_AssociatedTo" class="form-label">Associated
-                                                To</label>
+                                            <label for="AssetState_AssociatedTo" class="form-label">
+                                                Associated To
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="AssetState.AssociatedTo"
                                                 value="@Model.AssetState?.AssociatedTo" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_Site" class="form-label">Site</label>
+                                            <label for="AssetState_Site" class="form-label">
+                                                Site
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="AssetState.Site" value="@Model.AssetState?.Site"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_StateComments" class="form-label">State
-                                                Comments</label>
+                                            <label for="AssetState_StateComments" class="form-label">
+                                                State Comments
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="AssetState.StateComments"
                                                 value="@Model.AssetState?.StateComments" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_UserId" class="form-label">User ID</label>
+                                            <label for="AssetState_UserId" class="form-label">
+                                                User ID
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="AssetState.UserId" value="@Model.AssetState?.UserId"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="AssetState_Department" class="form-label">Department</label>
-                                            <input name="AssetState.Department" value="@Model.AssetState?.Department"
-                                                class="form-control" />
+                                            <label for="AssetState_Department" class="form-label">
+                                                Department
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <select name="AssetState.Department" class="form-select" required data-required="true">
+                                                <option value="">Select Department...</option>
+                                                <option value="IT" selected="@(Model.AssetState?.Department == "IT")">IT</option>
+                                                <option value="HR" selected="@(Model.AssetState?.Department == "HR")">HR</option>
+                                                <option value="Finance" selected="@(Model.AssetState?.Department == "Finance")">Finance</option>
+                                                <option value="Operations" selected="@(Model.AssetState?.Department == "Operations")">Operations</option>
+                                                <option value="Sales" selected="@(Model.AssetState?.Department == "Sales")">Sales</option>
+                                                <option value="Marketing" selected="@(Model.AssetState?.Department == "Marketing")">Marketing</option>
+                                            </select>
+                                            <span class="form-error-message submit-validation-hidden" id="Department-required">This field is required</span>
                                         </div>
                                     </div>
                                 </div>
@@ -518,65 +739,88 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_IPAddress" class="form-label">IP Address</label>
+                                            <label for="NetworkDetails_IPAddress" class="form-label">
+                                                IP Address
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="NetworkDetails.IPAddress"
-                                                value="@Model.NetworkDetails?.IPAddress" class="form-control" />
+                                                value="@Model.NetworkDetails?.IPAddress" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="IPAddress-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_MACAddress" class="form-label">MAC
-                                                Address</label>
+                                            <label for="NetworkDetails_MACAddress" class="form-label">
+                                                MAC Address
+                                                <span class="field-required">*</span>
+                                            </label>
                                             <input name="NetworkDetails.MACAddress"
-                                                value="@Model.NetworkDetails?.MACAddress" class="form-control" />
+                                                value="@Model.NetworkDetails?.MACAddress" class="form-control" required data-required="true" />
+                                            <span class="form-error-message submit-validation-hidden" id="MACAddress-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_NIC" class="form-label">NIC</label>
+                                            <label for="NetworkDetails_NIC" class="form-label">
+                                                NIC
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="NetworkDetails.NIC" value="@Model.NetworkDetails?.NIC"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_Network" class="form-label">Network</label>
+                                            <label for="NetworkDetails_Network" class="form-label">
+                                                Network
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="NetworkDetails.Network" value="@Model.NetworkDetails?.Network"
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DefaultGateway" class="form-label">Default
-                                                Gateway</label>
+                                            <label for="NetworkDetails_DefaultGateway" class="form-label">
+                                                Default Gateway
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="NetworkDetails.DefaultGateway"
                                                 value="@Model.NetworkDetails?.DefaultGateway" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DHCPEnabled" class="form-label">DHCP
-                                                Enabled</label>
-                                            <select name="NetworkDetails.DHCPEnabled" class="form-select">
+                                            <label for="NetworkDetails_DHCPEnabled" class="form-label">
+                                                DHCP Enabled
+                                                <span class="field-required">*</span>
+                                            </label>
+                                            <select name="NetworkDetails.DHCPEnabled" class="form-select" required data-required="true">
+                                                <option value="">-- Select Option --</option>
                                                 <option value="true"
                                                     selected="@(Model.NetworkDetails?.DHCPEnabled == true)">Yes</option>
                                                 <option value="false"
                                                     selected="@(Model.NetworkDetails?.DHCPEnabled == false)">No</option>
                                             </select>
+                                            <span class="form-error-message submit-validation-hidden" id="DHCPEnabled-required">This field is required</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DHCPServer" class="form-label">DHCP
-                                                Server</label>
+                                            <label for="NetworkDetails_DHCPServer" class="form-label">
+                                                DHCP Server
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="NetworkDetails.DHCPServer"
                                                 value="@Model.NetworkDetails?.DHCPServer" class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="NetworkDetails_DNSHostname" class="form-label">DNS
-                                                Hostname</label>
+                                            <label for="NetworkDetails_DNSHostname" class="form-label">
+                                                DNS Hostname
+                                                <span class="field-optional">(Optional)</span>
+                                            </label>
                                             <input name="NetworkDetails.DNSHostname"
                                                 value="@Model.NetworkDetails?.DNSHostname" class="form-control" />
                                         </div>
@@ -586,9 +830,17 @@
                         </div>
 
                         <!-- Form Actions -->
-                        <div class="d-flex justify-content-end gap-2">
-                            <a asp-action="Computers" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update Computer</button>
+                        <div class="row mt-3">
+                            <div class="col-12 text-end">
+                                <a asp-action="Computers" class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i>
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                     Update Computer
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -737,41 +989,41 @@
     </div>
 </div>
 
-<!-- Modal إضافة منتج جديد -->
+<!-- Modal Add New Product -->
 <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addProductModalLabel">إضافة منتج جديد</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addProductForm">
                     <div class="mb-3">
-                        <label for="productType" class="form-label">نوع المنتج <span
+                        <label for="productType" class="form-label">Product Type <span
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productType" value="Computer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productName" class="form-label">اسم المنتج <span
+                        <label for="productName" class="form-label">Product Name <span
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="manufacturer" class="form-label">الشركة المصنعة <span
+                        <label for="manufacturer" class="form-label">Manufacturer <span
                                 class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="manufacturer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="partNo" class="form-label">رقم القطعة</label>
+                        <label for="partNo" class="form-label">Part No.</label>
                         <input type="text" class="form-control" id="partNo">
                     </div>
                     <div class="mb-3">
-                        <label for="cost" class="form-label">التكلفة (ريال)</label>
+                        <label for="cost" class="form-label">Cost (SAR)</label>
                         <input type="number" step="0.01" class="form-control" id="cost" value="0">
                     </div>
                     <div class="mb-3">
-                        <label for="description" class="form-label">الوصف</label>
+                        <label for="description" class="form-label">Description</label>
                         <textarea class="form-control" id="description" rows="3"></textarea>
                     </div>
                 </form>
@@ -779,11 +1031,11 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
-                    إلغاء
+                    Cancel
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveProduct()">
                     <i class="fas fa-save me-1"></i>
-                    حفظ
+                    Save
                 </button>
             </div>
         </div>
@@ -839,14 +1091,14 @@
                         form.reset();
                         document.getElementById('vendorCurrency').value = 'SR';
 
-                        alert('✅ تم إضافة المورد بنجاح');
+                        alert('✅ Vendor added successfully');
                     } else {
-                        alert('❌ حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                        alert('❌ Error: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('❌ حدث خطأ أثناء حفظ المورد: ' + error.message);
+                    alert('❌ Error saving vendor: ' + error.message);
                 });
         }
 
@@ -885,15 +1137,117 @@
                         form.reset();
                         document.getElementById('productType').value = 'Computer';
 
-                        alert('✅ تم إضافة المنتج بنجاح');
+                        alert('✅ Product added successfully');
                     } else {
-                        alert('❌ حدث خطأ: ' + (data.message || 'خطأ غير معروف'));
+                        alert('❌ Error: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('❌ حدث خطأ أثناء حفظ المنتج: ' + error.message);
+                    alert('❌ Error saving product: ' + error.message);
                 });
         }
+
+        // Form Validation Script for EditComputer
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[asp-action="EditComputer"]');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            // List of required fields (matching CreateComputer)
+            const requiredFields = [
+                'Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 
+                'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate',
+                'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 
+                'SMBiosVersion', 'BiosVersion', 'BiosManufacturer',
+                'OSName', 'OSVersion',
+                'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer',
+                'ClockSpeedMHz', 'CapacityGB', 'AssetStatus', 'Department',
+                'IPAddress', 'MACAddress', 'DHCPEnabled'
+            ];
+
+            submitBtn.addEventListener('click', function(e) {
+                let isValid = true;
+                const errors = [];
+
+                // Check all required fields
+                requiredFields.forEach(fieldName => {
+                    const field = form.querySelector(`[name="${fieldName}"]`);
+                    if (!field) return;
+
+                    const value = field.value ? field.value.trim() : '';
+                    const errorSpan = document.getElementById(`${fieldName}-required`);
+
+                    if (!value) {
+                        isValid = false;
+                        
+                        // Add visual error state
+                        field.classList.add('is-invalid-empty');
+                        
+                        // Show error message
+                        if (errorSpan) {
+                            errorSpan.classList.remove('submit-validation-hidden');
+                        }
+                        
+                        errors.push(field.parentElement.querySelector('label')?.textContent?.trim() || fieldName);
+                    } else {
+                        // Remove visual error state if field is now filled
+                        field.classList.remove('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.add('submit-validation-hidden');
+                        }
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid-empty');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                    
+                    alert('❌ Please fill in all required fields:\n\n' + errors.join('\n'));
+                    return false;
+                }
+            });
+
+            // Real-time validation on field change
+            requiredFields.forEach(fieldName => {
+                const field = form.querySelector(`[name="${fieldName}"]`);
+                if (!field) return;
+
+                field.addEventListener('change', function() {
+                    const value = this.value ? this.value.trim() : '';
+                    const errorSpan = document.getElementById(`${fieldName}-required`);
+
+                    if (value) {
+                        this.classList.remove('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.add('submit-validation-hidden');
+                        }
+                    } else {
+                        this.classList.add('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.remove('submit-validation-hidden');
+                        }
+                    }
+                });
+
+                field.addEventListener('blur', function() {
+                    const value = this.value ? this.value.trim() : '';
+                    const errorSpan = document.getElementById(`${fieldName}-required`);
+
+                    if (!value) {
+                        this.classList.add('is-invalid-empty');
+                        if (errorSpan) {
+                            errorSpan.classList.remove('submit-validation-hidden');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 }
