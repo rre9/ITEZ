@@ -863,6 +863,7 @@ public class AssetsController : Controller
         {
             var existingRouter = await _context.Routers
                 .Include(r => r.NetworkDetails)
+                .Include(r => r.AssetState)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (existingRouter == null)
@@ -881,6 +882,18 @@ public class AssetsController : Controller
             existingRouter.WarrantyExpiryDate = model.WarrantyExpiryDate;
             existingRouter.AssetStateId = model.AssetStateId;
             existingRouter.UpdatedAt = DateTime.UtcNow;
+
+            // Update AssetState if exists
+            if (existingRouter.AssetState != null && model.AssetState != null)
+            {
+                existingRouter.AssetState.Status = model.AssetState.Status;
+                existingRouter.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
+                existingRouter.AssetState.Site = model.AssetState.Site;
+                existingRouter.AssetState.UserId = model.AssetState.UserId;
+                existingRouter.AssetState.Department = model.AssetState.Department;
+                existingRouter.AssetState.StateComments = model.AssetState.StateComments;
+                existingRouter.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
 
             // Update NetworkDetails if exists
             if (existingRouter.NetworkDetails != null && model.NetworkDetails != null)
