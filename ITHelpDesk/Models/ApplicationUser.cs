@@ -8,5 +8,7 @@ public class ApplicationUser : IdentityUser
     [Required]
     [MaxLength(150)]
     public string FullName { get; set; } = default!;
+    
+    public bool IsActive { get; set; } = true;
 }
 
