@@ -181,7 +181,9 @@ else
                                 </div>
                                 <div class="spec-content">
                                     <div class="spec-label">Location</div>
-                                    <div class="spec-value">@item.Location</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.Location</span>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -225,6 +227,306 @@ else
                                 </div>
                             </div>
                         }
+
+                        <!-- NIC -->
+                        @if (item.NetworkDetails != null && !string.IsNullOrEmpty(item.NetworkDetails.NIC))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16" height="16">
+                                        <path d="M32 96C14.3 96 0 110.3 0 128V384c0 17.7 14.3 32 32 32H608c17.7 0 32-14.3 32-32V128c0-17.7-14.3-32-32-32H32zm64 64h64c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H96c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16zm160 0h256c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H256c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16zM96 304H544c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H96c-8.8 0-16-7.2-16-16V320c0-8.8 7.2-16 16-16z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">NIC</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.NetworkDetails.NIC</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Network -->
+                        @if (item.NetworkDetails != null && !string.IsNullOrEmpty(item.NetworkDetails.Network))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16" height="16">
+                                        <path d="M256 64H384v64H256V64zM240 0c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48h48v32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v32H80c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H240c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H192V288H448v32H400c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H560c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H512V288h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V192h48c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H240zM96 448V384H224v64H96zm320-64H544v64H416V384z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Network</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.NetworkDetails.Network</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Default Gateway -->
+                        @if (item.NetworkDetails != null && !string.IsNullOrEmpty(item.NetworkDetails.DefaultGateway))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                        <path d="M256 32C132.3 32 32 132.3 32 256s100.3 224 224 224 224-100.3 224-224S379.7 32 256 32zm0 64c24.3 0 44 19.7 44 44s-19.7 44-44 44-44-19.7-44-44 19.7-44 44-44zm0 320c-52.9 0-99.5-27.6-127-69.4 2.5-42.6 85-66 127-66s124.5 23.4 127 66C355.5 388.4 308.9 416 256 416z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Default Gateway</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.NetworkDetails.DefaultGateway</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- DHCP -->
+                        @if (item.NetworkDetails != null)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                        <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">DHCP</div>
+                                    <div class="spec-value">
+                                        @if (item.NetworkDetails.DHCPEnabled)
+                                        {
+                                            <span class="badge bg-success">Enabled</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Disabled</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- DNS Hostname -->
+                        @if (item.NetworkDetails != null && !string.IsNullOrEmpty(item.NetworkDetails.DNSHostname))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16" height="16">
+                                        <path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192H131.2c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">DNS Hostname</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.NetworkDetails.DNSHostname</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Acquisition Date -->
+                        @if (item.AcquisitionDate.HasValue)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16">
+                                        <path d="M152 64c0-8.8 7.2-16 16-16h16V16c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16V48h16c8.8 0 16 7.2 16 16v32H152V64zm240 64V448c0 35.3-28.7 64-64 64H120c-35.3 0-64-28.7-64-64V128H392zm-88 96H144c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16H304c8.8 0 16-7.2 16-16V208c0-8.8-7.2-16-16-16z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Acquisition Date</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.AcquisitionDate.Value.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Expiry Date -->
+                        @if (item.ExpiryDate.HasValue)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16">
+                                        <path d="M152 64c0-8.8 7.2-16 16-16h16V16c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16V48h16c8.8 0 16 7.2 16 16v32H152V64zm240 64V448c0 35.3-28.7 64-64 64H120c-35.3 0-64-28.7-64-64V128H392zm-80 192c8.8 0 16-7.2 16-16V208c0-8.8-7.2-16-16-16H136c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16H312zm-64 48c0-13.3-10.7-24-24-24s-24 10.7-24 24s10.7 24 24 24s24-10.7 24-24z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Expiry Date</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.ExpiryDate.Value.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Warranty Expiry Date -->
+                        @if (item.WarrantyExpiryDate.HasValue)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16" height="16">
+                                        <path d="M152 64c0-8.8 7.2-16 16-16h16V16c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16V48h16c8.8 0 16 7.2 16 16v32H152V64zm240 64V448c0 35.3-28.7 64-64 64H120c-35.3 0-64-28.7-64-64V128H392zm-85.5 106.4c6.2-6.2 6.2-16.4 0-22.6l-22.6-22.6c-6.2-6.2-16.4-6.2-22.6 0L224 234.7l-34.3-34.3c-6.2-6.2-16.4-6.2-22.6 0l-22.6 22.6c-6.2 6.2-6.2 16.4 0 22.6L178.7 272l-34.3 34.3c-6.2 6.2-6.2 16.4 0 22.6l22.6 22.6c6.2 6.2 16.4 6.2 22.6 0L224 309.3l34.3 34.3c6.2 6.2 16.4 6.2 22.6 0l22.6-22.6c6.2-6.2 6.2-16.4 0-22.6L269.3 272l37.2-37.6z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Warranty Expiry</div>
+                                    <div class="spec-value">
+                                        <span class="badge-spec">@item.WarrantyExpiryDate.Value.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Purchase Cost -->
+                        @if (item.PurchaseCost > 0)
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" width="16" height="16">
+                                        <path d="M160 0c17.7 0 32 14.3 32 32V67.7c1.6 .2 3.1 .4 4.7 .7c.4 .1 .7 .1 1.1 .2l48 8.8c17.4 3.2 28.9 19.9 25.7 37.2s-19.9 28.9-37.2 25.7l-47.5-8.7c-31.3-4.6-58.9-1.5-78.3 6.2s-27.2 18.3-29 28.1c-2 10.7-.5 16.7 1.2 20.4c1.8 3.9 5.5 8.3 12.8 13.2c16.3 10.7 41.3 17.7 73.7 26.3l2.9 .8c28.6 7.6 63.6 16.8 89.6 33.8c14.2 9.3 27.6 21.9 35.9 39.5c8.5 17.9 10.3 37.9 6.4 59.2c-6.9 38-33.1 63.4-65.6 76.7c-13.7 5.6-28.6 9.2-44.4 11V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V445.1c-.4-.1-.9-.1-1.3-.2l-.2 0 0 0c-24.4-3.8-64.5-14.3-91.5-26.3c-16.1-7.2-23.4-26.1-16.2-42.2s26.1-23.4 42.2-16.2c20.9 9.3 55.3 18.5 75.2 21.6c31.9 4.7 58.2 2 76-5.3c16.9-6.9 24.6-16.9 26.8-28.9c1.9-10.6 .4-16.7-1.3-20.4c-1.9-4-5.6-8.4-13-13.3c-16.4-10.7-41.5-17.7-74-26.3l-2.8-.7 0 0C119.4 279.3 84.4 270 58.4 253c-14.2-9.3-27.5-22-35.8-39.6c-8.4-17.9-10.1-37.9-6.1-59.2C23.7 116 52.3 91.2 84.8 78.3c13.3-5.3 27.9-8.9 43.2-11V32c0-17.7 14.3-32 32-32z" />
+                                    </svg>
+                                </div>
+                                <div class="spec-content">
+                                    <div class="spec-label">Purchase Cost</div>
+                                    <div class="spec-value text-success fw-bold">@item.PurchaseCost.ToString("N2") SAR</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Expandable Details -->
+                    <div class="additional-details mt-3">
+                        <button class="btn-toggle-details" type="button" data-bs-toggle="collapse" data-bs-target="#details-@item.Id">
+                            <i class="fa-solid fa-chevron-down me-2"></i>View Additional Details
+                        </button>
+
+                        <div class="collapse" id="details-@item.Id">
+                            <div class="details-content">
+                                <div class="details-grid">
+                                    <!-- Asset State Details -->
+                                    @if (item.AssetState != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-box me-2"></i>Asset State Details
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.AssetState.AssociatedTo))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Associated To:</span>
+                                                        <span class="detail-val">@item.AssetState.AssociatedTo</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.Site))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Site:</span>
+                                                        <span class="detail-val">@item.AssetState.Site</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.UserId))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">User:</span>
+                                                        <span class="detail-val">@item.AssetState.UserId</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.Department))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Department:</span>
+                                                        <span class="detail-val">@item.AssetState.Department</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.AssetState.StateComments))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">State Comments:</span>
+                                                        <span class="detail-val">@item.AssetState.StateComments</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Network Details -->
+                                    @if (item.NetworkDetails != null)
+                                    {
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-wifi me-2"></i>Network Details
+                                            </h6>
+                                            <div class="detail-list">
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.NIC))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">NIC:</span>
+                                                        <span class="detail-val">@item.NetworkDetails.NIC</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.Network))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Network:</span>
+                                                        <span class="detail-val">@item.NetworkDetails.Network</span>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DefaultGateway))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">Gateway:</span>
+                                                        <span class="detail-val code">@item.NetworkDetails.DefaultGateway</span>
+                                                    </div>
+                                                }
+                                                <div class="detail-item">
+                                                    <span class="detail-key">DHCP:</span>
+                                                    <span class="detail-val">
+                                                        @if (item.NetworkDetails.DHCPEnabled)
+                                                        {
+                                                            <span class="badge bg-success">Enabled</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">Disabled</span>
+                                                        }
+                                                    </span>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DNSHostname))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">DNS Hostname:</span>
+                                                        <span class="detail-val">@item.NetworkDetails.DNSHostname</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Additional Info -->
+                                    <div class="detail-section">
+                                        <h6 class="detail-section-title">
+                                            <i class="fa-solid fa-info-circle me-2"></i>Additional Information
+                                        </h6>
+                                        <div class="detail-list">
+                                            <div class="detail-item">
+                                                <span class="detail-key">Created:</span>
+                                                <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</span>
+                                            </div>
+                                            @if (item.Vendor != null)
+                                            {
+                                                <div class="detail-item">
+                                                    <span class="detail-key">Vendor:</span>
+                                                    <span class="detail-val">@item.Vendor.VendorName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -586,6 +888,97 @@ else
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-size: 0.85rem;
+        }
+
+        /* Additional Details */
+        .additional-details {
+            margin-top: 1rem;
+        }
+
+        .btn-toggle-details {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 10px;
+            color: #3b82f6;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-toggle-details:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .details-content {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 10px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-section {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .detail-section-title {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 0.875rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-key {
+            font-weight: 600;
+            color: #6b7280;
+            min-width: 120px;
+        }
+
+        .detail-val {
+            color: #1f2937;
+            text-align: right;
+            flex: 1;
+        }
+
+        .detail-val.code {
+            font-family: 'Courier New', Courier, monospace;
+            background: #f3f4f6;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
         }
 
         /* Card Footer */

@@ -1212,6 +1212,7 @@ public class AssetsController : Controller
         try
         {
             var existingSwitch = await _context.Switches
+                .Include(s => s.AssetState)
                 .Include(s => s.NetworkDetails)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -1231,6 +1232,18 @@ public class AssetsController : Controller
             existingSwitch.WarrantyExpiryDate = model.WarrantyExpiryDate;
             existingSwitch.AssetStateId = model.AssetStateId;
             existingSwitch.UpdatedAt = DateTime.UtcNow;
+
+            // Update AssetState if exists
+            if (existingSwitch.AssetState != null && model.AssetState != null)
+            {
+                existingSwitch.AssetState.Status = model.AssetState.Status;
+                existingSwitch.AssetState.AssociatedTo = model.AssetState.AssociatedTo;
+                existingSwitch.AssetState.Site = model.AssetState.Site;
+                existingSwitch.AssetState.UserId = model.AssetState.UserId;
+                existingSwitch.AssetState.Department = model.AssetState.Department;
+                existingSwitch.AssetState.StateComments = model.AssetState.StateComments;
+                existingSwitch.AssetState.UpdatedAt = DateTime.UtcNow;
+            }
 
             // Update NetworkDetails if exists
             if (existingSwitch.NetworkDetails != null && model.NetworkDetails != null)
