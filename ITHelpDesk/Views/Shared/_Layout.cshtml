@@ -63,19 +63,19 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="fa-solid fa-house"></i>Home
+                                <i class="fa-solid fa-house"></i>@Localizer["Home"]
                             </a>
                         </li>
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="SelectRequestType">
-                                    <i class="fa-solid fa-plus"></i>Submit Ticket
+                                    <i class="fa-solid fa-plus"></i>@Localizer["SubmitTicket"]
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Tickets" asp-action="MyTickets">
-                                    <i class="fa-solid fa-user-check"></i>My Tickets
+                                    <i class="fa-solid fa-user-check"></i>@Localizer["MyTickets"]
                                 </a>
                             </li>
                             @if (User.IsInRole("Manager") || User.IsInRole("Security"))
@@ -90,7 +90,7 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Tickets" asp-action="MyTasks">
-                                        <i class="fa-solid fa-tasks"></i>Tasks
+                                        <i class="fa-solid fa-tasks"></i>@Localizer["Tasks"]
                                     </a>
                                 </li>
                             }
