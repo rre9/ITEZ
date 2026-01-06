@@ -1628,7 +1628,12 @@ public class AssetsController : Controller
 
             // Create Hard Disk
             HardDisk? hardDisk = null;
-            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            var hasHardDiskInput = !string.IsNullOrEmpty(model.HardDiskModel)
+                || !string.IsNullOrEmpty(model.HardDiskSerialNumber)
+                || !string.IsNullOrEmpty(model.HardDiskManufacturer)
+                || model.CapacityGB.HasValue;
+
+            if (hasHardDiskInput)
             {
                 hardDisk = new HardDisk
                 {
@@ -2238,11 +2243,17 @@ public class AssetsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateServer(ServerCreateViewModel model)
     {
-        if (!ModelState.IsValid)
+        // Check only required fields
+        if (string.IsNullOrEmpty(model.Name) || model.ProductId == 0 || 
+            string.IsNullOrEmpty(model.IPAddress) || string.IsNullOrEmpty(model.MACAddress) ||
+            model.ExpiryDate == null || model.AcquisitionDate == null || 
+            model.WarrantyExpiryDate == null || model.VendorId == null ||
+            model.PurchaseCost == null)
         {
             ViewBag.Products = await _context.Products.ToListAsync();
             ViewBag.Vendors = await _context.Vendors.ToListAsync();
             ViewBag.AssetStates = Enum.GetValues(typeof(AssetStatusEnum)).Cast<AssetStatusEnum>().ToList();
+            TempData["ErrorMessage"] = "Please fill in all required fields";
             return View(model);
         }
 
@@ -2382,7 +2393,7 @@ public class AssetsController : Controller
             // Create Asset State
             var assetState = new AssetState
             {
-                Status = model.Status,
+                Status = model.AssetStatus.HasValue ? (AssetStatusEnum)model.AssetStatus : AssetStatusEnum.InStore,
                 AssociatedTo = model.AssociatedTo,
                 Site = model.Site,
                 StateComments = model.StateComments,
@@ -2563,7 +2574,8 @@ public class AssetsController : Controller
             return NotFound();
         }
 
-        if (!ModelState.IsValid)
+        // Check only required fields - don't validate ModelState strictly
+        if (string.IsNullOrEmpty(model.Name) || model.ProductId == 0)
         {
             ViewBag.Products = await _context.Products.ToListAsync();
             ViewBag.Vendors = await _context.Vendors.ToListAsync();
@@ -2650,7 +2662,12 @@ public class AssetsController : Controller
             }
 
             // Update Hard Disk
-            if (!string.IsNullOrEmpty(model.HardDiskModel))
+            var hasHardDiskInput = !string.IsNullOrEmpty(model.HardDiskModel)
+                || !string.IsNullOrEmpty(model.HardDiskSerialNumber)
+                || !string.IsNullOrEmpty(model.HardDiskManufacturer)
+                || model.CapacityGB.HasValue;
+
+            if (hasHardDiskInput)
             {
                 if (server.HardDisk == null)
                 {

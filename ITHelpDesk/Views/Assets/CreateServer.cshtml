@@ -659,11 +659,11 @@
                                 <div class="row">
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
+                                        <label asp-for="AssetStatus" class="form-label">
                                             Asset is Currently
                                             <span class="field-required">*</span>
                                         </label>
-                                        <select id="AssetStatus" name="AssetStatus" class="form-select" required data-required="true">
+                                        <select asp-for="AssetStatus" class="form-select" required data-required="true">
                                             <option value="">Select Status...</option>
                                             <option value="2">In Store</option>
                                             <option value="1">In Use</option>

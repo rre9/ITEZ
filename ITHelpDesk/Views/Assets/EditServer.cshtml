@@ -669,20 +669,20 @@
                                 <div class="row">
 
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">
+                                        <label asp-for="Status" class="form-label">
                                             Asset is Currently
                                             <span class="field-required">*</span>
                                         </label>
-                                        <select id="AssetStatus" name="AssetStatus" class="form-select" required data-required="true">
+                                        <select asp-for="Status" class="form-select" required data-required="true">
                                             <option value="">Select Status...</option>
-                                            <option value="2">In Store</option>
-                                            <option value="1">In Use</option>
+                                            <option value="1">In Store</option>
+                                            <option value="2">In Use</option>
                                             <option value="3">In Repair</option>
                                             <option value="4">Expired</option>
                                             <option value="5">Disposed</option>
                                         </select>
-                                        <span asp-validation-for="AssetStatus" class="text-danger"></span>
-                                        <span class="form-error-message submit-validation-hidden" id="AssetStatus-required">This field is required</span>
+                                        <span asp-validation-for="Status" class="text-danger"></span>
+                                        <span class="form-error-message submit-validation-hidden" id="Status-required">This field is required</span>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
@@ -803,8 +803,7 @@
                                             DHCP Enabled
                                             <span class="field-required">*</span>
                                         </label>
-                                        <select id="DHCPEnabled" name="DHCPEnabled" class="form-select" required
-                                            data-required="true">
+                                        <select asp-for="DHCPEnabled" class="form-select" required data-required="true">
                                             <option value="">-- Select --</option>
                                             <option value="false">False</option>
                                             <option value="true">True</option>
@@ -1101,7 +1100,7 @@
             const form = document.querySelector('form[asp-action="EditServer"]');
             if (form) {
                 form.addEventListener('submit', function (e) {
-                    const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 'SMBiosVersion', 'BiosVersion', 'BiosManufacturer', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'AssetStatus', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
+                    const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 'SMBiosVersion', 'BiosVersion', 'BiosManufacturer', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'Status', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
                     let hasErrors = false;
 
                     // Check required fields
@@ -1130,7 +1129,7 @@
                 });
 
                 // Real-time validation on field change/blur
-                const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 'SMBiosVersion', 'BiosVersion', 'BiosManufacturer', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'AssetStatus', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
+                const requiredFields = ['Name', 'ProductId', 'SerialNumber', 'VendorId', 'PurchaseCost', 'ExpiryDate', 'AcquisitionDate', 'WarrantyExpiryDate', 'ServiceTag', 'ComputerManufacturer', 'BiosDate', 'Domain', 'SMBiosVersion', 'BiosVersion', 'BiosManufacturer', 'OSName', 'OSVersion', 'RAM', 'VirtualMemory', 'ProcessorInfo', 'ProcessorManufacturer', 'ClockSpeedMHz', 'CapacityGB', 'Status', 'Department', 'IPAddress', 'MACAddress', 'DHCPEnabled'];
                 requiredFields.forEach(fieldName => {
                     const input = document.querySelector(`[name="${fieldName}"]`);
                     if (input) {
