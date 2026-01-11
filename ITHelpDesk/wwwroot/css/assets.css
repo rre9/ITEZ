@@ -118,15 +118,14 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .btn-excel {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-    }
-
-    .btn-excel span {
-        display: none;
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
     }
 
     .btn-excel i {
-        margin: 0 !important;
+        margin-right: 0.5rem !important;
     }
 }
