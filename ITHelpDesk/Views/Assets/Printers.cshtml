@@ -1,19 +1,23 @@
 @model List<ITHelpDesk.Models.Assets.Printer>
 @using ITHelpDesk.Models.Assets
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Printers";
+    var isRtl = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+    ViewData["Title"] = Localizer["Printers"];
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/assets.css" />
 }
 
+<div class="printers-page @(isRtl ? "rtl" : "ltr")" dir="@(isRtl ? "rtl" : "ltr")">
 <div class="computers-header mb-4">
     <div class="container-fluid px-0">
         <div class="row align-items-center">
             <div class="col-lg-8 mb-3 mb-lg-0">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box me-3">
+                    <div class="icon-box @(isRtl ? "ms-3" : "me-3")">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="32"
                             height="32">
                             <path
@@ -21,25 +25,26 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="page-title mb-1">Printers</h1>
+                        <h1 class="page-title mb-1">@Localizer["Printers"]</h1>
                         <p class="page-subtitle mb-0">
-                            <i class="fa-solid fa-chart-line me-2"></i>
-                            Manage and monitor <span class="fw-bold text-primary">@Model.Count</span> printers in
-                            your
-                            organization
+                            <i class="fa-solid fa-chart-line @(isRtl ? "ms-2" : "me-2")"></i>
+                            @Localizer["Manage and monitor"] <span class="fw-bold text-primary">@Model.Count</span> @Localizer["printers in your organization"]
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 text-lg-end">
-                <a asp-action="ExportPrintersToExcel" class="btn btn-excel me-2"
-                    title="Export all printers to Excel file">
-                    <i class="fa-solid fa-file-excel me-2"></i>
-                    <span>Export to Excel</span>
-                </a>
-                <a asp-action="CreatePrinter" class="btn btn-primary btn-add-new">
-                    <i class="fa-solid fa-plus-circle me-2"></i>Add New Printer
-                </a>
+            <div class="col-lg-4">
+                <div class="d-grid gap-2 d-sm-flex justify-content-lg-end">
+                    <a asp-action="ExportPrintersToExcel" class="btn btn-excel @(isRtl ? "ms-2" : "me-2")"
+                        title="@Localizer["Export all printers to Excel file"]">
+                        <i class="fa-solid fa-file-excel @(isRtl ? "ms-2" : "me-2")"></i>
+                        <span>@Localizer["Export to Excel"]</span>
+                    </a>
+                    <a asp-action="CreatePrinter" class="btn btn-primary btn-add-new">
+                        <i class="fa-solid fa-plus-circle @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Add New Printer"]
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
@@ -62,17 +67,33 @@
                     d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zM432 248a24 24 0 1 1 0 48 24 24 0 1 1 0-48z" />
             </svg>
         </div>
-        <h3 class="empty-state-title">No Printers Found</h3>
-        <p class="empty-state-text">Get started by adding your first printer to manage your smartphones and tablets.
+        <h3 class="empty-state-title">@Localizer["No Printers Found"]</h3>
+        <p class="empty-state-text">@Localizer["Get started by adding your first printer to manage your printers."]
         </p>
         <a asp-action="CreatePrinter" class="btn btn-primary btn-lg mt-3">
-            <i class="fa-solid fa-plus-circle me-2"></i>Add Your First Printer
+            <i class="fa-solid fa-plus-circle @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Add Your First Printer"]
         </a>
     </div>
 }
 else
 {
-    <div class="computers-grid">
+    <!-- View Controls: Compact toggle + Expand/Collapse all -->
+    @* <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <div class="btn-group" role="group" aria-label="Expand/Collapse">
+            <button type="button" id="expandAll" class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-angles-down me-1"></i>Expand all
+            </button>
+            <button type="button" id="collapseAll" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-angles-up me-1"></i>Collapse all
+            </button>
+        </div>
+        <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="compactToggle" />
+            <label class="form-check-label" for="compactToggle">Compact mode</label>
+        </div>
+    </div> *@
+
+    <div class="computers-grid" id="printerGrid">
         @foreach (var item in Model)
         {
             <div class="computer-card">
@@ -101,7 +122,7 @@ else
                                 }
                             </div>
                         </div>
-                        <div class="computer-actions">
+                        <div class="computer-actions d-flex align-items-center gap-2">
                             @if (item.AssetState != null)
                             {
                                 var statusClass = item.AssetState.Status switch
@@ -112,16 +133,16 @@ else
                                     AssetStatusEnum.Expired => "status-expired",
                                     AssetStatusEnum.Disposed => "status-disposed",
                                     _ => "status-unknown"
-                                };
+                                            };
                                 var statusText = item.AssetState.Status switch
                                 {
-                                    AssetStatusEnum.InStore => "In Store",
-                                    AssetStatusEnum.InUse => "In Use",
-                                    AssetStatusEnum.InRepair => "In Repair",
-                                    AssetStatusEnum.Expired => "Expired",
-                                    AssetStatusEnum.Disposed => "Disposed",
-                                    _ => "Unknown"
-                                };
+                                    AssetStatusEnum.InStore => Localizer["InStore"].Value,
+                                    AssetStatusEnum.InUse => Localizer["InUse"].Value,
+                                    AssetStatusEnum.InRepair => Localizer["InRepair"].Value,
+                                    AssetStatusEnum.Expired => Localizer["Expired"].Value,
+                                    AssetStatusEnum.Disposed => Localizer["Disposed"].Value,
+                                    _ => Localizer["Unknown"].Value
+                                            };
                                 var statusIcon = item.AssetState.Status switch
                                 {
                                     AssetStatusEnum.InStore => "fa-box",
@@ -130,15 +151,23 @@ else
                                     AssetStatusEnum.Expired => "fa-exclamation-triangle",
                                     AssetStatusEnum.Disposed => "fa-trash",
                                     _ => "fa-question-circle"
-                                };
+                                            };
                                 <span class="status-badge @statusClass">
-                                    <i class="fa-solid @statusIcon me-1"></i>@statusText
+                                    <i class="fa-solid @statusIcon @(isRtl ? "ms-1" : "me-1")"></i>@statusText
                                 </span>
                             }
+                                <button class="btn btn-sm btn-outline-primary toggle-details" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#card-@item.Id"
+                                    aria-expanded="true" aria-controls="card-@item.Id" title="@Localizer["Toggle details"]">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="14" height="14">
+                                    <path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
 
+                <div id="card-@item.Id" class="collapse show">
                 <div class="computer-card-body">
                     <div class="specs-grid">
                         <!-- Basic Info -->
@@ -151,7 +180,7 @@ else
                                 </svg>
                             </div>
                             <div class="spec-content">
-                                <div class="spec-label">Serial Number</div>
+                                <div class="spec-label">@Localizer["Serial Number"]</div>
                                 <div class="spec-value">
                                     <span class="badge-spec">@(item.SerialNumber ?? "—")</span>
                                 </div>
@@ -169,7 +198,7 @@ else
                                     </svg>
                                 </div>
                                 <div class="spec-content">
-                                    <div class="spec-label">Asset Tag</div>
+                                    <div class="spec-label">@Localizer["Asset Tag"]</div>
                                     <div class="spec-value">
                                         <span class="badge-tag">@item.AssetTag</span>
                                     </div>
@@ -191,7 +220,7 @@ else
                                         </svg>
                                     </div>
                                     <div class="spec-content">
-                                        <div class="spec-label">IP Address</div>
+                                        <div class="spec-label">@Localizer["IP Address"]</div>
                                         <div class="spec-value">
                                             <span class="badge-spec code">@item.NetworkDetails.IPAddress</span>
                                         </div>
@@ -209,7 +238,7 @@ else
                                         </svg>
                                     </div>
                                     <div class="spec-content">
-                                        <div class="spec-label">MAC Address</div>
+                                        <div class="spec-label">@Localizer["MAC Address"]</div>
                                         <div class="spec-value">
                                             <span class="badge-spec code">@item.NetworkDetails.MACAddress</span>
                                         </div>
@@ -230,7 +259,7 @@ else
                                     </svg>
                                 </div>
                                 <div class="spec-content">
-                                    <div class="spec-label">Associated To</div>
+                                    <div class="spec-label">@Localizer["Associated To"]</div>
                                     <div class="spec-value">
                                         <span class="badge-spec">@item.AssetState.AssociatedTo</span>
                                     </div>
@@ -254,7 +283,7 @@ else
                                     </svg>
                                 </div>
                                 <div class="spec-content">
-                                    <div class="spec-label">Location</div>
+                                    <div class="spec-label">@Localizer["Location"]</div>
                                     <div class="spec-value">
                                         <span class="badge-spec">@item.Location</span>
                                     </div>
@@ -274,7 +303,7 @@ else
                                     </svg>
                                 </div>
                                 <div class="spec-content">
-                                    <div class="spec-label">Purchase Cost</div>
+                                    <div class="spec-label">@Localizer["Purchase Cost"]</div>
                                     <div class="spec-value text-success fw-bold">@item.PurchaseCost.ToString("N2") SAR</div>
                                 </div>
                             </div>
@@ -285,7 +314,7 @@ else
                     <div class="additional-details mt-3">
                         <button class="btn-toggle-details" type="button" data-bs-toggle="collapse"
                             data-bs-target="#details-@item.Id">
-                            <i class="fa-solid fa-chevron-down me-2"></i>View Additional Details
+                            <i class="fa-solid fa-chevron-down @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["View Additional Details"]
                         </button>
 
                         <div class="collapse" id="details-@item.Id">
@@ -295,27 +324,27 @@ else
                                     <!-- Asset & Warranty Info -->
                                     <div class="detail-section">
                                         <h6 class="detail-section-title">
-                                            <i class="fa-solid fa-calendar-check me-2"></i>Asset & Warranty Information
+                                            <i class="fa-solid fa-calendar-check @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Asset & Warranty Information"]
                                         </h6>
                                         <div class="detail-list">
                                             @if (item.AcquisitionDate.HasValue)
                                             {
                                                 <div class="detail-item">
-                                                    <span class="detail-key">Acquisition Date:</span>
+                                                    <span class="detail-key">@Localizer["Acquisition Date"]:</span>
                                                     <span class="detail-val">@item.AcquisitionDate.Value.ToString("MMM dd, yyyy")</span>
                                                 </div>
                                             }
                                             @if (item.ExpiryDate.HasValue)
                                             {
                                                 <div class="detail-item">
-                                                    <span class="detail-key">Expiry Date:</span>
+                                                    <span class="detail-key">@Localizer["Expiry Date"]:</span>
                                                     <span class="detail-val">@item.ExpiryDate.Value.ToString("MMM dd, yyyy")</span>
                                                 </div>
                                             }
                                             @if (item.WarrantyExpiryDate.HasValue)
                                             {
                                                 <div class="detail-item">
-                                                    <span class="detail-key">Warranty Expiry Date:</span>
+                                                    <span class="detail-key">@Localizer["Warranty Expiry Date"]:</span>
                                                     <span class="detail-val">@item.WarrantyExpiryDate.Value.ToString("MMM dd, yyyy")</span>
                                                 </div>
                                             }
@@ -327,34 +356,34 @@ else
                                     {
                                         <div class="detail-section">
                                             <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-box me-2"></i>Asset State Details
+                                                <i class="fa-solid fa-box @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Asset State Details"]
                                             </h6>
                                             <div class="detail-list">
                                                 @if (!string.IsNullOrEmpty(item.AssetState.AssociatedTo))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Associated To:</span>
+                                                        <span class="detail-key">@Localizer["Associated To"]:</span>
                                                         <span class="detail-val">@item.AssetState.AssociatedTo</span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(item.AssetState.Site))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Site:</span>
+                                                        <span class="detail-key">@Localizer["Site"]:</span>
                                                         <span class="detail-val">@item.AssetState.Site</span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(item.AssetState.Department))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Department:</span>
+                                                        <span class="detail-key">@Localizer["Department"]:</span>
                                                         <span class="detail-val">@item.AssetState.Department</span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(item.AssetState.StateComments))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">State Comments:</span>
+                                                        <span class="detail-key">@Localizer["StateComments"]:</span>
                                                         <span class="detail-val">@item.AssetState.StateComments</span>
                                                     </div>
                                                 }
@@ -367,27 +396,27 @@ else
                                     {
                                         <div class="detail-section">
                                             <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-wifi me-2"></i>Network Details
+                                                <i class="fa-solid fa-wifi @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Network Details"]
                                             </h6>
                                             <div class="detail-list">
                                                 @if (!string.IsNullOrEmpty(item.NetworkDetails.NIC))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">NIC:</span>
+                                                        <span class="detail-key">@Localizer["NIC"]:</span>
                                                         <span class="detail-val">@item.NetworkDetails.NIC</span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(item.NetworkDetails.Network))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Network:</span>
+                                                        <span class="detail-key">@Localizer["Network"]:</span>
                                                         <span class="detail-val">@item.NetworkDetails.Network</span>
                                                     </div>
                                                 }
                                                 @if (!string.IsNullOrEmpty(item.NetworkDetails.DHCPServer))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">DHCP Server:</span>
+                                                        <span class="detail-key">@Localizer["DHCP Server"]:</span>
                                                         <span class="detail-val code">@item.NetworkDetails.DHCPServer</span>
                                                     </div>
                                                 }
@@ -400,22 +429,22 @@ else
                                     {
                                         <div class="detail-section">
                                             <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-wifi me-2"></i>Network Configuration
+                                                <i class="fa-solid fa-wifi @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Network Configuration"]
                                             </h6>
                                             <div class="detail-list">
                                                 @if (!string.IsNullOrEmpty(item.NetworkDetails.DefaultGateway))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">Gateway:</span>
+                                                        <span class="detail-key">@Localizer["Default Gateway"]:</span>
                                                         <span class="detail-val code">@item.NetworkDetails.DefaultGateway</span>
                                                     </div>
                                                 }
                                                 @if (item.NetworkDetails.DHCPEnabled)
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">DHCP:</span>
+                                                        <span class="detail-key">@Localizer["DHCPEnabled"]:</span>
                                                         <span class="detail-val">
-                                                            <span class="badge bg-success">Enabled</span>
+                                                            <span class="badge bg-success">@Localizer["Enabled"]</span>
                                                             @if (!string.IsNullOrEmpty(item.NetworkDetails.DHCPServer))
                                                             {
                                                                 <span class="ms-1">(@item.NetworkDetails.DHCPServer)</span>
@@ -426,7 +455,7 @@ else
                                                 @if (!string.IsNullOrEmpty(item.NetworkDetails.DNSHostname))
                                                 {
                                                     <div class="detail-item">
-                                                        <span class="detail-key">DNS Hostname:</span>
+                                                        <span class="detail-key">@Localizer["DNS Hostname"]:</span>
                                                         <span class="detail-val">@item.NetworkDetails.DNSHostname</span>
                                                     </div>
                                                 }
@@ -437,17 +466,17 @@ else
                                     <!-- Additional Info -->
                                     <div class="detail-section">
                                         <h6 class="detail-section-title">
-                                            <i class="fa-solid fa-info-circle me-2"></i>Additional Information
+                                            <i class="fa-solid fa-info-circle @(isRtl ? "ms-2" : "me-2")"></i>@Localizer["Additional Information"]
                                         </h6>
                                         <div class="detail-list">
                                             <div class="detail-item">
-                                                <span class="detail-key">Created:</span>
+                                                <span class="detail-key">@Localizer["Created"]:</span>
                                                 <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy                                          hh:mm tt")</span>
                                             </div>
                                             @if (item.Vendor != null)
                                             {
                                                 <div class="detail-item">
-                                                    <span class="detail-key">Vendor:</span>
+                                                    <span class="detail-key">@Localizer["Vendor"]:</span>
                                                     <span class="detail-val">@item.Vendor.VendorName</span>
                                                 </div>
                                             }
@@ -463,10 +492,10 @@ else
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="computer-meta">
                             <i class="fa-solid fa-clock me-1"></i>
-                            <span>Added @item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                            <span>@Localizer["Added"] @item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
                         </div>
                         <div class="computer-buttons">
-                            <a class="btn-action btn-edit" asp-action="EditPrinter" asp-route-id="@item.Id" title="Edit">
+                            <a class="btn-action btn-edit" asp-action="EditPrinter" asp-route-id="@item.Id" title="@Localizer["Edit"]">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
                                     height="16">
                                     <path
@@ -476,7 +505,7 @@ else
                             @if (User.IsInRole("Admin") || User.IsInRole("Support") || User.IsInRole("IT"))
                             {
                                 <button type="button" class="btn-action btn-delete" onclick="confirmDelete(@item.Id, '@item.Name')"
-                                    title="Delete">
+                                    title="@Localizer["Delete"]">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
                                         height="16">
                                         <path
@@ -486,6 +515,7 @@ else
                             }
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         }
@@ -497,24 +527,24 @@ else
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <h5 class="modal-title" id="deleteModalLabel">@Localizer["Confirm Delete"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete <strong id="printerName"></strong>?
+                @Localizer["Are you sure you want to delete"] <strong id="printerName"></strong>?
                 <div class="alert alert-warning mt-3 mb-0">
-                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                    All related information for this printer will be permanently deleted and cannot be recovered.
+                    <i class="fa-solid fa-exclamation-triangle @(isRtl ? "ms-2" : "me-2")"></i>
+                    @Localizer["All related information for this printer will be permanently deleted and cannot be recovered."]
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-times me-1"></i>
-                    Cancel
+                    <i class="fa-solid fa-times @(isRtl ? "ms-1" : "me-1")"></i>
+                    @Localizer["Cancel"]
                 </button>
                 <button type="button" class="btn btn-danger" onclick="submitDelete()">
-                    <i class="fa-solid fa-trash me-1"></i>
-                    Delete
+                    <i class="fa-solid fa-trash @(isRtl ? "ms-1" : "me-1")"></i>
+                    @Localizer["Delete"]
                 </button>
             </div>
         </div>
@@ -526,10 +556,7 @@ else
     <input type="hidden" id="deleteId" name="id" />
 </form>
 
-<form id="deleteForm" method="post" asp-action="DeletePrinter" style="display: none;">
-    @Html.AntiForgeryToken()
-    <input type="hidden" id="deleteId" name="id" />
-</form>
+</div>
 
 @section Scripts {
     <script>
@@ -548,6 +575,47 @@ else
         function submitDelete() {
             document.getElementById('deleteForm').submit();
         }
+
+        // Compact mode + expand/collapse helpers
+        (function () {
+            const grid = document.getElementById('printerGrid');
+            const compactToggle = document.getElementById('compactToggle');
+            const expandAllBtn = document.getElementById('expandAll');
+            const collapseAllBtn = document.getElementById('collapseAll');
+
+            const prefKey = 'printers-compact-mode';
+            const saved = localStorage.getItem(prefKey) === '1';
+            if (saved) compactToggle.checked = true;
+
+            function setCompact(on) {
+                if (!grid) return;
+                if (on) {
+                    grid.classList.add('compact');
+                    document.querySelectorAll('#printerGrid .collapse.show').forEach(el => {
+                        bootstrap.Collapse.getOrCreateInstance(el).hide();
+                    });
+                } else {
+                    grid.classList.remove('compact');
+                    document.querySelectorAll('#printerGrid .collapse').forEach(el => {
+                        bootstrap.Collapse.getOrCreateInstance(el).show();
+                    });
+                }
+                localStorage.setItem(prefKey, on ? '1' : '0');
+            }
+
+            setCompact(compactToggle?.checked);
+            compactToggle?.addEventListener('change', (e) => setCompact(e.target.checked));
+            expandAllBtn?.addEventListener('click', () => {
+                document.querySelectorAll('#printerGrid .collapse').forEach(el => {
+                    bootstrap.Collapse.getOrCreateInstance(el).show();
+                });
+            });
+            collapseAllBtn?.addEventListener('click', () => {
+                document.querySelectorAll('#printerGrid .collapse.show').forEach(el => {
+                    bootstrap.Collapse.getOrCreateInstance(el).hide();
+                });
+            });
+        })();
     </script>
 }
 
@@ -654,6 +722,12 @@ else
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
         gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* Compact grid reduces card width */
+    .computers-grid.compact {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     }
 
     @@media (max-width: 768px) {
@@ -676,6 +750,12 @@ else
         box-shadow: var(--card-shadow-hover);
         transform: translateY(-4px);
         border-color: #3b82f6;
+    }
+
+    /* Toggle details button */
+    .toggle-details {
+        padding: 4px 8px;
+        border-radius: 8px;
     }
 
     /* Card Header */
@@ -1021,6 +1101,40 @@ else
 
     .modal-header .btn-close {
         filter: brightness(0) invert(1);
+    }
+
+    /* RTL adjustments */
+    .printers-page.rtl {
+        direction: rtl;
+        text-align: right;
+    }
+
+    .printers-page.rtl .computer-info {
+        gap: 1rem;
+    }
+
+    .printers-page.rtl .computer-icon {
+        margin-left: 1rem;
+    }
+
+    .printers-page.rtl .spec-item {
+        gap: 0.75rem;
+    }
+
+    .printers-page.rtl .spec-content {
+        text-align: right;
+    }
+
+    .printers-page.rtl .detail-item {
+        column-gap: 0.5rem;
+    }
+
+    .printers-page.rtl .detail-key {
+        text-align: right;
+    }
+
+    .printers-page.rtl .detail-val {
+        text-align: left;
     }
 
     /* Animations */

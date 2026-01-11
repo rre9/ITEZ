@@ -264,10 +264,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Access Point</h3>
+                                    <h3 class="asset-type-title">@Localizer["Access Points"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.AccessPoints.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreateAccessPoint", "Assets")" class="add-asset-btn"
@@ -278,25 +278,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.AccessPoints.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.AccessPoints.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.AccessPoints.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.AccessPoints.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("AccessPoints", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"]<i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -312,10 +312,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Computer</h3>
+                                    <h3 class="asset-type-title">@Localizer["Computer"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.Computers.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreateComputer", "Assets")" class="add-asset-btn"
@@ -326,25 +326,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.Computers.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.Computers.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.Computers.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.Computers.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("Computers", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"] <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -360,10 +360,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Server</h3>
+                                    <h3 class="asset-type-title">@Localizer["Server"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.Servers.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreateServer", "Assets")" class="add-asset-btn"
@@ -374,25 +374,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.Servers.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.Servers.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.Servers.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.Servers.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("Servers", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"] <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -408,10 +408,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Mobile</h3>
+                                    <h3 class="asset-type-title">@Localizer["Mobile"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.Smartphones.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreateMobile", "Assets")" class="add-asset-btn"
@@ -422,25 +422,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.Smartphones.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.Smartphones.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.Smartphones.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.Smartphones.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("Mobiles", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"] <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -456,10 +456,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Printer</h3>
+                                    <h3 class="asset-type-title">@Localizer["Printer"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.Printers.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreatePrinter", "Assets")" class="add-asset-btn"
@@ -470,25 +470,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.Printers.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.Printers.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.Printers.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.Printers.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("Printers", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"] <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -504,10 +504,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Router</h3>
+                                    <h3 class="asset-type-title">@Localizer["Router"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.Routers.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreateRouter", "Assets")" class="add-asset-btn"
@@ -518,25 +518,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.Routers.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.Routers.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.Routers.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.Routers.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("Routers", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"] <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -552,10 +552,10 @@
                                         style="width: 48px; height: 48px; object-fit: contain;" />
                                 </div>
                                 <div class="asset-info">
-                                    <h3 class="asset-type-title">Switch</h3>
+                                    <h3 class="asset-type-title">@Localizer["Switch"]</h3>
                                     <div class="asset-total-badge">
                                         <span>@Model.Switches.Total</span>
-                                        <small>Total</small>
+                                        <small>@Localizer["Total"]</small>
                                     </div>
                                 </div>
                                 <a href="@Url.Action("CreateSwitch", "Assets")" class="add-asset-btn"
@@ -566,25 +566,25 @@
 
                             <div class="asset-stats-grid">
                                 <div class="stat-box in-use">
-                                    <div class="stat-label">In Use</div>
+                                    <div class="stat-label">@Localizer["In Use"]</div>
                                     <div class="stat-value">@Model.Switches.InUse</div>
                                 </div>
                                 <div class="stat-box in-store">
-                                    <div class="stat-label">In Store</div>
+                                    <div class="stat-label">@Localizer["In Store"]</div>
                                     <div class="stat-value">@Model.Switches.InStore</div>
                                 </div>
                                 <div class="stat-box in-repair">
-                                    <div class="stat-label">In Repair</div>
+                                    <div class="stat-label">@Localizer["In Repair"]</div>
                                     <div class="stat-value">@Model.Switches.InRepair</div>
                                 </div>
                                 <div class="stat-box others">
-                                    <div class="stat-label">Others</div>
+                                    <div class="stat-label">@Localizer["Others"]</div>
                                     <div class="stat-value">@Model.Switches.Others</div>
                                 </div>
                             </div>
 
                             <a href="@Url.Action("Switches", "Assets")" class="btn view-all-btn w-100">
-                                View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                                @Localizer["View All"] <i class="fa-solid fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>

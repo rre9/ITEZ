@@ -1,6 +1,7 @@
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
 @model ITHelpDesk.Models.Assets.Printer
 @{
-    ViewData["Title"] = "Edit Printer";
+    ViewData["Title"] = @Localizer["Edit Printer"];
 }
 
 <style>
@@ -52,7 +53,7 @@
         line-height: 1;
     }
 
-    /* Required/Optional Field Indicators */
+    /* Validation styles */
     .field-required {
         color: #dc3545;
         font-weight: 600;
@@ -61,32 +62,41 @@
     .field-optional {
         color: #6c757d;
         font-size: 0.875rem;
-        font-weight: 500;
     }
 
-    /* Validation styling */
-    .form-control.is-invalid-empty,
-    .form-select.is-invalid-empty {
-        border-color: #dc3545;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath fill='%23dc3545' d='M6.8 3.8H5.2V6h1.6V3.8Zm0 4.4H5.2V8h1.6v-1.8Z'/%3e%3c/svg%3e");
-    }
-
-    .form-control.is-invalid-empty:focus,
-    .form-select.is-invalid-empty:focus {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    .is-invalid-empty {
+        /* Border removed - only show error message */
     }
 
     .form-error-message {
-        display: block;
         color: #dc3545;
         font-size: 0.875rem;
+        display: block;
         margin-top: 0.25rem;
-        font-weight: 500;
     }
 
     .submit-validation-hidden {
         display: none;
+    }
+
+    /* RTL Support for select-with-add */
+    [dir="rtl"] .select-with-add .form-select {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: var(--bs-border-radius, 0.375rem);
+        border-bottom-right-radius: var(--bs-border-radius, 0.375rem);
+        border-left: none;
+        border-right: 1px solid #ced4da;
+        padding-left: 2.5rem;
+        padding-right: 0.75rem;
+        background-position: left 0.75rem center;
+    }
+
+    [dir="rtl"] .select-with-add .btn-add {
+        border-top-left-radius: var(--bs-border-radius, 0.375rem);
+        border-bottom-left-radius: var(--bs-border-radius, 0.375rem);
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 </style>
 
@@ -96,7 +106,7 @@
             <div class="card mb-4">
                 <div class="card-header pb-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5>Edit Printer</h5>
+                        <h5>@Localizer["Edit Printer"]</h5>
 
                     </div>
                 </div>
@@ -112,23 +122,23 @@
                                 <!-- Basic Information Section -->
                                 <div class="card mb-3">
                                     <div class="card-body">
-                                        <h6 class="text-sm mb-3 fw-bold">Basic Information</h6>
+                                        <h6 class="text-sm mb-3 fw-bold">@Localizer["Basic Information"]</h6>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="Name" class="form-label">Name <span class="field-required">*</span></label>
+                                                    <label asp-for="Name" class="form-label">@Localizer["Name"] <span class="field-required">*</span></label>
                                                     <input asp-for="Name" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="Name" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="Name-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="Name-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="ProductId" class="form-label">Product <span class="field-required">*</span></label>
+                                                    <label asp-for="ProductId" class="form-label">@Localizer["Product"] <span class="field-required">*</span></label>
                                                     <div class="select-with-add">
                                                         <select asp-for="ProductId" class="form-select" required data-required="true">
-                                                            <option value="">-- Select Product --</option>
+                                                            <option value="">@Localizer["-- Select Product --"]</option>
                                                             @foreach (var product in (ViewBag.Products as List<ITHelpDesk.Models.Assets.Product>) ?? new List<ITHelpDesk.Models.Assets.Product>())
                                                             {
                                                                 <option value="@product.Id">@product.ProductName - @product.Manufacturer</option>
@@ -137,7 +147,7 @@
                                                         <button type="button" class="btn btn-sm btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#addProductModal"></button>
                                                     </div>
                                                     <span asp-validation-for="ProductId" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="ProductId-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="ProductId-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -147,20 +157,20 @@
                                 <!-- Asset Details Section -->
                                 <div class="card mb-3">
                                     <div class="card-body">
-                                        <h6 class="text-sm mb-3 fw-bold">Asset Details</h6>
+                                        <h6 class="text-sm mb-3 fw-bold">@Localizer["Asset Details"]</h6>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="SerialNumber" class="form-label">Serial Number <span class="field-required">*</span></label>
+                                                    <label asp-for="SerialNumber" class="form-label">@Localizer["Serial Number"] <span class="field-required">*</span></label>
                                                     <input asp-for="SerialNumber" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="SerialNumber" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="SerialNumber-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="SerialNumber-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="AssetTag" class="form-label">Asset Tag <span class="field-optional">(Optional)</span></label>
+                                                    <label asp-for="AssetTag" class="form-label">@Localizer["Asset Tag"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input asp-for="AssetTag" class="form-control" />
                                                     <span asp-validation-for="AssetTag" class="text-danger"></span>
                                                 </div>
@@ -168,10 +178,10 @@
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="VendorId" class="form-label">Vendor <span class="field-required">*</span></label>
+                                                    <label asp-for="VendorId" class="form-label">@Localizer["Vendor"] <span class="field-required">*</span></label>
                                                     <div class="select-with-add">
                                                         <select asp-for="VendorId" class="form-select" required data-required="true">
-                                                            <option value="">-- Select Vendor --</option>
+                                                            <option value="">@Localizer["-- Select Vendor --"]</option>
                                                             @foreach (var vendor in (ViewBag.Vendors as List<ITHelpDesk.Models.Assets.Vendor>) ?? new List<ITHelpDesk.Models.Assets.Vendor>())
                                                             {
                                                                 <option value="@vendor.Id">@vendor.VendorName</option>
@@ -180,49 +190,49 @@
                                                         <button type="button" class="btn btn-sm btn-primary btn-add" data-bs-toggle="modal" data-bs-target="#addVendorModal"></button>
                                                     </div>
                                                     <span asp-validation-for="VendorId" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="VendorId-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="VendorId-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="PurchaseCost" class="form-label">Purchase Cost (SAR) <span class="field-required">*</span></label>
+                                                    <label asp-for="PurchaseCost" class="form-label">@Localizer["Purchase Cost"] (@Localizer["SAR"]) <span class="field-required">*</span></label>
                                                     <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="PurchaseCost" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="PurchaseCost-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="PurchaseCost-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="AcquisitionDate" class="form-label">Acquisition Date <span class="field-required">*</span></label>
+                                                    <label asp-for="AcquisitionDate" class="form-label">@Localizer["Acquisition Date"] <span class="field-required">*</span></label>
                                                     <input asp-for="AcquisitionDate" type="date" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="AcquisitionDate" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="AcquisitionDate-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="AcquisitionDate-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="WarrantyExpiryDate" class="form-label">Warranty Expiry Date <span class="field-required">*</span></label>
+                                                    <label asp-for="WarrantyExpiryDate" class="form-label">@Localizer["Warranty Expiry"] <span class="field-required">*</span></label>
                                                     <input asp-for="WarrantyExpiryDate" type="date" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="WarrantyExpiryDate" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="WarrantyExpiryDate-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="WarrantyExpiryDate-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="ExpiryDate" class="form-label">Expiry Date <span class="field-required">*</span></label>
+                                                    <label asp-for="ExpiryDate" class="form-label">@Localizer["Expiry Date"] <span class="field-required">*</span></label>
                                                     <input asp-for="ExpiryDate" type="date" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="ExpiryDate-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="ExpiryDate-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label asp-for="Location" class="form-label">Location <span class="field-optional">(Optional)</span></label>
+                                                    <label asp-for="Location" class="form-label">@Localizer["Location"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input asp-for="Location" class="form-control" />
                                                     <span asp-validation-for="Location" class="text-danger"></span>
                                                 </div>
@@ -234,56 +244,56 @@
                                 <!-- Asset State Section -->
                                 <div class="card mb-3">
                                     <div class="card-body">
-                                        <h6 class="text-sm mb-3 fw-bold">Asset State</h6>
+                                        <h6 class="text-sm mb-3 fw-bold">@Localizer["Asset State"]</h6>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">Asset Status <span class="field-required">*</span></label>
+                                                    <label class="form-label">@Localizer["Asset Status"] <span class="field-required">*</span></label>
                                                     <select name="AssetState.Status" class="form-select" required data-required="true">
-                                                        <option value="">-- Select Status --</option>
-                                                        <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">In Store</option>
-                                                        <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">In Use</option>
-                                                        <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">In Repair</option>
-                                                        <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">Expired</option>
-                                                        <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">Disposed</option>
+                                                        <option value="">@Localizer["-- Select Status --"]</option>
+                                                        <option value="1" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InStore)">@Localizer["In Store"]</option>
+                                                        <option value="2" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InUse)">@Localizer["In Use"]</option>
+                                                        <option value="3" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.InRepair)">@Localizer["In Repair"]</option>
+                                                        <option value="4" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Expired)">@Localizer["Expired"]</option>
+                                                        <option value="5" selected="@(Model.AssetState?.Status == ITHelpDesk.Models.Assets.AssetStatusEnum.Disposed)">@Localizer["Disposed"]</option>
                                                     </select>
-                                                    <span class="form-error-message submit-validation-hidden" id="AssetState.Status-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="AssetState.Status-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">Associated To <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["Associated To"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="AssetState.AssociatedTo" value="@Model.AssetState?.AssociatedTo" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">Site <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["Site"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="AssetState.Site" value="@Model.AssetState?.Site" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">State Comments <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["State Comments"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <textarea name="AssetState.StateComments" class="form-control" rows="2">@Model.AssetState?.StateComments</textarea>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">User ID <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["User ID"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="AssetState.UserId" value="@Model.AssetState?.UserId" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">Department <span class="field-required">*</span></label>
+                                                    <label class="form-label">@Localizer["Department"] <span class="field-required">*</span></label>
                                                     <input type="text" name="AssetState.Department" value="@Model.AssetState?.Department" class="form-control" required data-required="true" />
-                                                    <span class="form-error-message submit-validation-hidden" id="AssetState.Department-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="AssetState.Department-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -293,69 +303,69 @@
                                 <!-- Network Details Section -->
                                 <div class="card mb-3">
                                     <div class="card-body">
-                                        <h6 class="text-sm mb-3 fw-bold">Network Details</h6>
+                                        <h6 class="text-sm mb-3 fw-bold">@Localizer["Network Details"]</h6>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">IP Address <span class="field-required">*</span></label>
+                                                    <label class="form-label">@Localizer["IP Address"] <span class="field-required">*</span></label>
                                                     <input type="text" name="NetworkDetails.IPAddress" value="@Model.NetworkDetails?.IPAddress" class="form-control" required data-required="true" />
                                                       <span asp-validation-for="NetworkDetails.IPAddress" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="NetworkDetails.IPAddress-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="NetworkDetails.IPAddress-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">MAC Address <span class="field-required">*</span></label>
+                                                    <label class="form-label">@Localizer["MAC Address"] <span class="field-required">*</span></label>
                                                     <input type="text" name="NetworkDetails.MACAddress" value="@Model.NetworkDetails?.MACAddress" class="form-control" required data-required="true" />
                                                     <span asp-validation-for="NetworkDetails.MACAddress" class="text-danger"></span>
-                                                    <span class="form-error-message submit-validation-hidden" id="NetworkDetails.MACAddress-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="NetworkDetails.MACAddress-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">NIC <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["NIC"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="NetworkDetails.NIC" value="@Model.NetworkDetails?.NIC" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">Network <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["Network"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="NetworkDetails.Network" value="@Model.NetworkDetails?.Network" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">Default Gateway <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["Default Gateway"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="NetworkDetails.DefaultGateway" value="@Model.NetworkDetails?.DefaultGateway" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">DHCP Enabled <span class="field-required">*</span></label>
+                                                    <label class="form-label">@Localizer["DHCP Enabled"] <span class="field-required">*</span></label>
                                                     <select name="NetworkDetails.DHCPEnabled" class="form-select" required data-required="true">
-                                                        <option value="">-- Select --</option>
-                                                        <option value="true" selected="@(Model.NetworkDetails?.DHCPEnabled == true)">True</option>
-                                                        <option value="false" selected="@(Model.NetworkDetails?.DHCPEnabled == false)">False</option>
+                                                        <option value="">@Localizer["-- Select --"]</option>
+                                                        <option value="true" selected="@(Model.NetworkDetails?.DHCPEnabled == true)">@Localizer["True"]</option>
+                                                        <option value="false" selected="@(Model.NetworkDetails?.DHCPEnabled == false)">@Localizer["False"]</option>
                                                     </select>
-                                                    <span class="form-error-message submit-validation-hidden" id="NetworkDetails.DHCPEnabled-required">This field is required</span>
+                                                    <span class="form-error-message submit-validation-hidden" id="NetworkDetails.DHCPEnabled-required">@Localizer["This field is required"]</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">DHCP Server <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["DHCP Server"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="NetworkDetails.DHCPServer" value="@Model.NetworkDetails?.DHCPServer" class="form-control" />
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label">DNS Hostname <span class="field-optional">(Optional)</span></label>
+                                                    <label class="form-label">@Localizer["DNS Hostname"] <span class="field-optional">@Localizer["Optional"]</span></label>
                                                     <input type="text" name="NetworkDetails.DNSHostname" value="@Model.NetworkDetails?.DNSHostname" class="form-control" />
                                                 </div>
                                             </div>
@@ -368,10 +378,10 @@
                                     <div class="col-12">
                                         <div class="d-flex justify-content-end gap-2">
                                             <a asp-action="Printers" class="btn btn-secondary">
-                                                <i class="fa-solid fa-times me-1"></i>Cancel
+                                                <i class="fa-solid fa-times me-1"></i>@Localizer["Cancel"]
                                             </a>
                                             <button type="submit" class="btn btn-primary">
-                                                <i class="fa-solid fa-save me-1"></i>Update Printer
+                                                <i class="fa-solid fa-save me-1"></i>@Localizer["Update Printer"]
                                             </button>
                                         </div>
                                     </div>
@@ -390,33 +400,33 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <h5 class="modal-title" id="addProductModalLabel">@Localizer["Add New Product"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addProductForm">
                     <div class="mb-3">
-                        <label for="productType" class="form-label">Product Type <span class="text-danger">*</span></label>
+                        <label for="productType" class="form-label">@Localizer["Product Type"] <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productType" value="Printer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="productName" class="form-label">Product Name <span class="text-danger">*</span></label>
+                        <label for="productName" class="form-label">@Localizer["Product Name"] <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="productName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="manufacturer" class="form-label">Manufacturer <span class="text-danger">*</span></label>
+                        <label for="manufacturer" class="form-label">@Localizer["Manufacturer"] <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="manufacturer" required>
                     </div>
                     <div class="mb-3">
-                        <label for="partNo" class="form-label">Part No.</label>
+                        <label for="partNo" class="form-label">@Localizer["Part Number"]</label>
                         <input type="text" class="form-control" id="partNo">
                     </div>
                     <div class="mb-3">
-                        <label for="cost" class="form-label">Cost (SAR)</label>
+                        <label for="cost" class="form-label">@Localizer["Cost"] (@Localizer["SAR"])</label>
                         <input type="number" step="0.01" class="form-control" id="cost" value="0">
                     </div>
                     <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
+                        <label for="description" class="form-label">@Localizer["Description"]</label>
                         <textarea class="form-control" id="description" rows="3"></textarea>
                     </div>
                 </form>
@@ -424,11 +434,11 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
-                    Cancel
+                    @Localizer["Cancel"]
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveProduct()">
                     <i class="fas fa-save me-1"></i>
-                    Save
+                    @Localizer["Save"]
                 </button>
             </div>
         </div>
@@ -440,66 +450,66 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addVendorModalLabel">Add New Vendor</h5>
+                <h5 class="modal-title" id="addVendorModalLabel">@Localizer["Add New Vendor"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="addVendorForm">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="vendorName" class="form-label">Vendor Name <span class="text-danger">*</span></label>
+                            <label for="vendorName" class="form-label">@Localizer["Vendor Name"] <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="vendorName" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorCurrency" class="form-label">Currency</label>
+                            <label for="vendorCurrency" class="form-label">@Localizer["Currency"]</label>
                             <input type="text" class="form-control" id="vendorCurrency" value="SR" readonly>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorDoorNumber" class="form-label">Door Number</label>
-                            <input type="text" class="form-control" id="vendorDoorNumber">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorLandmark" class="form-label">Landmark</label>
-                            <input type="text" class="form-control" id="vendorLandmark">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorPostalCode" class="form-label">ZIP/Postal Code</label>
-                            <input type="text" class="form-control" id="vendorPostalCode">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorCountry" class="form-label">Country</label>
-                            <input type="text" class="form-control" id="vendorCountry">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorFax" class="form-label">Fax</label>
-                            <input type="text" class="form-control" id="vendorFax">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorFirstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="vendorFirstName">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorStreet" class="form-label">Street</label>
-                            <input type="text" class="form-control" id="vendorStreet">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorCity" class="form-label">City</label>
-                            <input type="text" class="form-control" id="vendorCity">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorStateProvince" class="form-label">State/Province</label>
-                            <input type="text" class="form-control" id="vendorStateProvince">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="vendorPhone" class="form-label">Phone No.</label>
+                            <label for="vendorPhone" class="form-label">@Localizer["Phone"]</label>
                             <input type="text" class="form-control" id="vendorPhone">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="vendorEmail" class="form-label">Email</label>
+                            <label for="vendorEmail" class="form-label">@Localizer["Email"]</label>
                             <input type="email" class="form-control" id="vendorEmail">
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorFax" class="form-label">@Localizer["Fax"]</label>
+                            <input type="text" class="form-control" id="vendorFax">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorFirstName" class="form-label">@Localizer["First Name"]</label>
+                            <input type="text" class="form-control" id="vendorFirstName">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorStreet" class="form-label">@Localizer["Street"]</label>
+                            <input type="text" class="form-control" id="vendorStreet">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorCity" class="form-label">@Localizer["City"]</label>
+                            <input type="text" class="form-control" id="vendorCity">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorStateProvince" class="form-label">@Localizer["State/Province"]</label>
+                            <input type="text" class="form-control" id="vendorStateProvince">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorCountry" class="form-label">@Localizer["Country"]</label>
+                            <input type="text" class="form-control" id="vendorCountry">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorPostalCode" class="form-label">@Localizer["Postal Code"]</label>
+                            <input type="text" class="form-control" id="vendorPostalCode">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorDoorNumber" class="form-label">@Localizer["Door Number"]</label>
+                            <input type="text" class="form-control" id="vendorDoorNumber">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="vendorLandmark" class="form-label">@Localizer["Landmark"]</label>
+                            <input type="text" class="form-control" id="vendorLandmark">
+                        </div>
                         <div class="col-md-12 mb-3">
-                            <label for="vendorDescription" class="form-label">Description</label>
+                            <label for="vendorDescription" class="form-label">@Localizer["Description"]</label>
                             <textarea class="form-control" id="vendorDescription" rows="2"></textarea>
                         </div>
                     </div>
@@ -508,11 +518,11 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>
-                    Cancel
+                    @Localizer["Cancel"]
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveVendor()">
                     <i class="fas fa-save me-1"></i>
-                    Save
+                    @Localizer["Save"]
                 </button>
             </div>
         </div>

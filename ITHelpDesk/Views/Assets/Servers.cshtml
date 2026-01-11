@@ -1,7 +1,7 @@
 @model List<ITHelpDesk.Models.Assets.Server>
 @using ITHelpDesk.Models.Assets
 @{
-    ViewData["Title"] = "Servers";
+    ViewData["Title"] = Localizer["Servers"];
 }
 
 @section Styles {
@@ -21,24 +21,26 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="page-title mb-1">Servers</h1>
+                        <h1 class="page-title mb-1">@Localizer["Servers"]</h1>
                         <p class="page-subtitle mb-0">
                             <i class="fa-solid fa-server me-2"></i>
-                            Manage and monitor <span class="fw-bold text-primary">@Model.Count</span> servers in your
-                            infrastructure
+                            @Localizer["Manage and monitor"] <span class="fw-bold text-primary">@Model.Count</span>
+                            @Localizer["servers in your infrastructure"]
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 text-lg-end">
-                <a asp-action="ExportServersToExcel" class="btn btn-excel me-2"
-                    title="Export all servers to Excel file">
-                    <i class="fa-solid fa-file-excel me-2"></i>
-                    <span>Export to Excel</span>
-                </a>
-                <a asp-action="CreateServer" class="btn btn-primary btn-add-new">
-                    <i class="fa-solid fa-plus-circle me-2"></i>Add New Server
-                </a>
+            <div class="col-lg-4">
+                <div class="d-grid gap-2 d-sm-flex justify-content-lg-end">
+                    <a asp-action="ExportServersToExcel" class="btn btn-excel me-2"
+                        title="@Localizer["Export all servers to Excel file"]">
+                        <i class="fa-solid fa-file-excel me-2"></i>
+                        <span>@Localizer["Export to Excel"]</span>
+                    </a>
+                    <a asp-action="CreateServer" class="btn btn-primary btn-add-new">
+                        <i class="fa-solid fa-plus-circle me-2"></i>@Localizer["Add New Server"]
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -61,16 +63,32 @@
                     d="M50.7 58.5L0 160H208V32H93.7C75.5 32 58.9 42.3 50.7 58.5zM240 160H448L397.3 58.5C389.1 42.3 372.5 32 354.3 32H240V160zm208 32H0V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V192zM64 296c0-13.3 10.7-24 24-24h80c13.3 0 24 10.7 24 24s-10.7 24-24 24H88c-13.3 0-24-10.7-24-24zm0 96c0-13.3 10.7-24 24-24h80c13.3 0 24 10.7 24 24s-10.7 24-24 24H88c-13.3 0-24-10.7-24-24zM256 296c0-13.3 10.7-24 24-24h80c13.3 0 24 10.7 24 24s-10.7 24-24 24H280c-13.3 0-24-10.7-24-24zm0 96c0-13.3 10.7-24 24-24h80c13.3 0 24 10.7 24 24s-10.7 24-24 24H280c-13.3 0-24-10.7-24-24z" />
             </svg>
         </div>
-        <h3 class="empty-state-title">No Servers Found</h3>
-        <p class="empty-state-text">Get started by adding your first server to manage your infrastructure.</p>
+        <h3 class="empty-state-title">@Localizer["No Servers Found"]</h3>
+        <p class="empty-state-text">@Localizer["Get started by adding your first server to manage your infrastructure."]</p>
         <a asp-action="CreateServer" class="btn btn-primary btn-lg mt-3">
-            <i class="fa-solid fa-plus-circle me-2"></i>Add Your First Server
+            <i class="fa-solid fa-plus-circle me-2"></i>@Localizer["Add Your First Server"]
         </a>
     </div>
 }
 else
 {
-    <div class="computers-grid">
+    <!-- View Controls: Compact toggle + Expand/Collapse all -->
+    @* <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <div class="btn-group" role="group" aria-label="Expand/Collapse">
+            <button type="button" id="expandAll" class="btn btn-outline-primary btn-sm">
+                <i class="fa-solid fa-angles-down me-1"></i>Expand all
+            </button>
+            <button type="button" id="collapseAll" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-angles-up me-1"></i>Collapse all
+            </button>
+        </div>
+        <div class="form-check form-switch m-0">
+            <input class="form-check-input" type="checkbox" id="compactToggle" />
+            <label class="form-check-label" for="compactToggle">Compact mode</label>
+        </div>
+    </div> *@
+
+                <div class="computers-grid" id="serverGrid">
         @foreach (var item in Model)
         {
             <div class="computer-card">
@@ -99,7 +117,7 @@ else
                                 }
                             </div>
                         </div>
-                        <div class="computer-actions">
+                        <div class="computer-actions d-flex align-items-center gap-2">
                             @if (item.AssetState != null)
                             {
                                 var statusClass = item.AssetState.Status switch
@@ -110,15 +128,15 @@ else
                                     AssetStatusEnum.Expired => "status-expired",
                                     AssetStatusEnum.Disposed => "status-disposed",
                                     _ => "status-unknown"
-                                };
+                                                                                            };
                                 var statusText = item.AssetState.Status switch
                                 {
-                                    AssetStatusEnum.InStore => "In Store",
-                                    AssetStatusEnum.InUse => "In Use",
-                                    AssetStatusEnum.InRepair => "In Repair",
-                                    AssetStatusEnum.Expired => "Expired",
-                                    AssetStatusEnum.Disposed => "Disposed",
-                                    _ => "Unknown"
+                                    AssetStatusEnum.InStore => Localizer["In Store"].ToString(),
+                                    AssetStatusEnum.InUse => Localizer["In Use"].ToString(),
+                                    AssetStatusEnum.InRepair => Localizer["In Repair"].ToString(),
+                                    AssetStatusEnum.Expired => Localizer["Expired"].ToString(),
+                                    AssetStatusEnum.Disposed => Localizer["Disposed"].ToString(),
+                                    _ => Localizer["Unknown"].ToString()
                                 };
                                 var statusIcon = item.AssetState.Status switch
                                 {
@@ -128,676 +146,705 @@ else
                                     AssetStatusEnum.Expired => "fa-exclamation-triangle",
                                     AssetStatusEnum.Disposed => "fa-trash",
                                     _ => "fa-question-circle"
-                                };
+                                                                                            };
                                 <span class="status-badge @statusClass">
                                     <i class="fa-solid @statusIcon me-1"></i>@statusText
                                 </span>
                             }
+                            <button class="btn btn-sm btn-outline-primary toggle-details" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#card-@item.Id" aria-expanded="true"
+                                aria-controls="card-@item.Id" title="@Localizer["Toggle details"]">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="14"
+                                    height="14">
+                                    <path
+                                        d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="computer-card-body">
-                    <div class="specs-grid">
-                        <!-- Basic Info -->
-                        <div class="spec-item">
-                            <div class="spec-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
-                                    height="16">
-                                    <path
-                                        d="M24 32C10.7 32 0 42.7 0 56V456c0 13.3 10.7 24 24 24H40c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H24zm88 0c-8.8 0-16 7.2-16 16V464c0 8.8 7.2 16 16 16s16-7.2 16-16V48c0-8.8-7.2-16-16-16zm72 0c-13.3 0-24 10.7-24 24V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H184zm96 0c-13.3 0-24 10.7-24 24V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H280zM448 56V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H472c-13.3 0-24 10.7-24 24zm-64-8V464c0 8.8 7.2 16 16 16s16-7.2 16-16V48c0-8.8-7.2-16-16-16s-16 7.2-16 16z" />
-                                </svg>
-                            </div>
-                            <div class="spec-content">
-                                <div class="spec-label">Serial Number</div>
-                                <div class="spec-value">
-                                    <span class="badge-spec">@(item.SerialNumber ?? "—")</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if (item.ComputerInfo != null && !string.IsNullOrEmpty(item.ComputerInfo.ServiceTag))
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M0 80V229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7H48C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Service Tag</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.ComputerInfo.ServiceTag</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(item.AssetTag))
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M0 80V229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7H48C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Asset Tag</div>
-                                    <div class="spec-value">
-                                        <span class="badge-tag">@item.AssetTag</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Operating System -->
-                        @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Operating System</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.OperatingSystemInfo.Name</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        @* Storage *@
-                        @if (item.HardDisk != null && item.HardDisk.CapacityGB.HasValue)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path d="M160 48c0-8.8 7.2-16 16-16H400c8.8 0 16 7.2 16 16v16H160V48zM128 96H448v16H128V96zm-32 32H480V48c0-26.5-21.5-48-48-48H176c-26.5 0-48 21.5-48 48V128zM32 192H544c17.7 0 32 14.3 32 32V448c0 35.3-28.7 64-64 64H64C28.7 512 0 483.3 0 448V224c0-17.7 14.3-32 32-32zM384 304a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM192 272c-17.7 0-32 14.3-32 32s14.3 32 32 32H288V272H192zm112 96H192c-17.7 0-32 14.3-32 32s14.3 32 32 32H304V368z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Storage</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.HardDisk.CapacityGB GB</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        @if (item.ExpiryDate.HasValue)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M152 64c0-8.8-7.2-16-16-16s-16 7.2-16 16V96H96V64c0-35.3 28.7-64 64-64h128c35.3 0 64 28.7 64 64V96h-24V64c0-8.8-7.2-16-16-16s-16 7.2-16 16V96H152V64zm-24 96H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V224c0-35.3-28.7-64-64-64H320 128zm72 160H120c-13.3 0-24 10.7-24 24s10.7 24 24 24H200c13.3 0 24-10.7 24-24s-10.7-24-24-24zm56 0H328c13.3 0 24 10.7 24 24s-10.7 24-24 24H256c-13.3 0-24-10.7-24-24s10.7-24 24-24z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Expiry Date</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.ExpiryDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        @if (item.WarrantyExpiryDate.HasValue)
-                        {
+                <div id="card-@item.Id" class="collapse show">
+                    <div class="computer-card-body">
+                        <div class="specs-grid">
+                            <!-- Basic Info -->
                             <div class="spec-item">
                                 <div class="spec-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
                                         height="16">
                                         <path
-                                            d="M466.5 83.7 278 3.5c-9-3.9-19-3.9-28 0L45.5 83.7C27.4 91.6 16 108.7 16 127.8c0 198.5 114.5 335.7 239.8 380.6 7.6 2.7 15.9 2.7 23.6 0C381.5 463.5 496 326.3 496 127.8c0-19.2-11.4-36.2-29.5-44.1zM256 288c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z" />
+                                            d="M24 32C10.7 32 0 42.7 0 56V456c0 13.3 10.7 24 24 24H40c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H24zm88 0c-8.8 0-16 7.2-16 16V464c0 8.8 7.2 16 16 16s16-7.2 16-16V48c0-8.8-7.2-16-16-16zm72 0c-13.3 0-24 10.7-24 24V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H184zm96 0c-13.3 0-24 10.7-24 24V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H280zM448 56V456c0 13.3 10.7 24 24 24h16c13.3 0 24-10.7 24-24V56c0-13.3-10.7-24-24-24H472c-13.3 0-24 10.7-24 24zm-64-8V464c0 8.8 7.2 16 16 16s16-7.2 16-16V48c0-8.8-7.2-16-16-16s-16 7.2-16 16z" />
                                     </svg>
                                 </div>
                                 <div class="spec-content">
-                                    <div class="spec-label">Warranty Expiry</div>
+                                    <div class="spec-label">@Localizer["Serial Number"]</div>
                                     <div class="spec-value">
-                                        <span class="badge-spec">@item.WarrantyExpiryDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                                        <span class="badge-spec">@(item.SerialNumber ?? "—")</span>
                                     </div>
                                 </div>
                             </div>
-                        }
 
-                        @if (item.AcquisitionDate.HasValue)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 120c0-13.3 10.7-24 24-24s24 10.7 24 24V256c0 8-4 15.5-10.7 20l-72 48c-11 7.3-25.9 4.3-33.2-6.7s-4.3-25.9 6.7-33.2l61.3-40.9V120z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Acquisition Date</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.AcquisitionDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        @if (item.Vendor != null)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M0 80C0 53.5 21.5 32 48 32H592c26.5 0 48 21.5 48 48v48H0V80zm0 96H640V432c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176zm128 80c-17.7 0-32 14.3-32 32v96c0 17.7 14.3 32 32 32H352c17.7 0 32-14.3 32-32V288c0-17.7-14.3-32-32-32H128zM416 288v160h48c17.7 0 32-14.3 32-32V288c0-17.7-14.3-32-32-32H416z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Vendor</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.Vendor.VendorName</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Network -->
-                        @if (item.NetworkDetails != null)
-                        {
-                            @if (!string.IsNullOrEmpty(item.NetworkDetails.IPAddress))
+                            @if (item.ComputerInfo != null && !string.IsNullOrEmpty(item.ComputerInfo.ServiceTag))
                             {
                                 <div class="spec-item">
                                     <div class="spec-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16"
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
                                             height="16">
                                             <path
-                                                d="M256 64H384v64H256V64zM240 0c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48h48v32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v32H80c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H240c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H192V288H448v32H400c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H560c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H512V288h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V192h48c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H240zM96 448V384H224v64H96zm320-64H544v64H416V384z" />
+                                                d="M0 80V229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7H48C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
                                         </svg>
                                     </div>
                                     <div class="spec-content">
-                                        <div class="spec-label">IP Address</div>
+                                        <div class="spec-label">@Localizer["Service Tag"]</div>
                                         <div class="spec-value">
-                                            <span class="badge-spec code">@item.NetworkDetails.IPAddress</span>
+                                            <span class="badge-spec">@item.ComputerInfo.ServiceTag</span>
                                         </div>
                                     </div>
                                 </div>
                             }
-                            @if (!string.IsNullOrEmpty(item.NetworkDetails.MACAddress))
+
+                            @if (!string.IsNullOrEmpty(item.AssetTag))
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M0 80V229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L418.7 317.3c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7H48C21.5 32 0 53.5 0 80zm112 32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Asset Tag"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-tag">@item.AssetTag</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Operating System -->
+                            @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Operating System"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.OperatingSystemInfo.Name</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @* Storage *@
+                            @if (item.HardDisk != null && item.HardDisk.CapacityGB.HasValue)
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M160 48c0-8.8 7.2-16 16-16H400c8.8 0 16 7.2 16 16v16H160V48zM128 96H448v16H128V96zm-32 32H480V48c0-26.5-21.5-48-48-48H176c-26.5 0-48 21.5-48 48V128zM32 192H544c17.7 0 32 14.3 32 32V448c0 35.3-28.7 64-64 64H64C28.7 512 0 483.3 0 448V224c0-17.7 14.3-32 32-32zM384 304a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM192 272c-17.7 0-32 14.3-32 32s14.3 32 32 32H288V272H192zm112 96H192c-17.7 0-32 14.3-32 32s14.3 32 32 32H304V368z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Storage"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.HardDisk.CapacityGB GB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (item.ExpiryDate.HasValue)
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M152 64c0-8.8-7.2-16-16-16s-16 7.2-16 16V96H96V64c0-35.3 28.7-64 64-64h128c35.3 0 64 28.7 64 64V96h-24V64c0-8.8-7.2-16-16-16s-16 7.2-16 16V96H152V64zm-24 96H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V224c0-35.3-28.7-64-64-64H320 128zm72 160H120c-13.3 0-24 10.7-24 24s10.7 24 24 24H200c13.3 0 24-10.7 24-24s-10.7-24-24-24zm56 0H328c13.3 0 24 10.7 24 24s-10.7 24-24 24H256c-13.3 0-24-10.7-24-24s10.7-24 24-24z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Expiry Date"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.ExpiryDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (item.WarrantyExpiryDate.HasValue)
                             {
                                 <div class="spec-item">
                                     <div class="spec-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
                                             height="16">
                                             <path
-                                                d="M64 32C28.7 32 0 60.7 0 96v32H512V96c0-35.3-28.7-64-64-64H64zM0 192V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384H512v32c0 17.7-14.3 32-32 32s-32-14.3-32-32V352c0-17.7 14.3-32 32-32s32 14.3 32 32v32h64V192H0zm144 96h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V304c0-8.8 7.2-16 16-16zm-16-48c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V240zm144 48h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V304c0-8.8 7.2-16 16-16zm-16-48c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240z" />
+                                                d="M466.5 83.7 278 3.5c-9-3.9-19-3.9-28 0L45.5 83.7C27.4 91.6 16 108.7 16 127.8c0 198.5 114.5 335.7 239.8 380.6 7.6 2.7 15.9 2.7 23.6 0C381.5 463.5 496 326.3 496 127.8c0-19.2-11.4-36.2-29.5-44.1zM256 288c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z" />
                                         </svg>
                                     </div>
                                     <div class="spec-content">
-                                        <div class="spec-label">MAC Address</div>
+                                        <div class="spec-label">@Localizer["Warranty Expiry Date"]</div>
                                         <div class="spec-value">
-                                            <span class="badge-spec code">@item.NetworkDetails.MACAddress</span>
+                                            <span class="badge-spec">@item.WarrantyExpiryDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
                                         </div>
                                     </div>
                                 </div>
                             }
-                        }
 
-                        <!-- User Info -->
-                        @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.AssociatedTo))
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Associated To</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.AssetState.AssociatedTo</span>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(item.AssetState.Department))
-                                    {
-                                        <div class="spec-note">@item.AssetState.Department</div>
-                                    }
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Location -->
-                        @if (!string.IsNullOrEmpty(item.Location))
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Location</div>
-                                    <div class="spec-value">
-                                        <span class="badge-spec">@item.Location</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        <!-- Purchase Cost -->
-                        @if (item.PurchaseCost > 0)
-                        {
-                            <div class="spec-item">
-                                <div class="spec-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" width="16"
-                                        height="16">
-                                        <path
-                                            d="M160 0c17.7 0 32 14.3 32 32V67.7c1.6 .2 3.1 .4 4.7 .7c.4 .1 .7 .1 1.1 .2l48 8.8c17.4 3.2 28.9 19.9 25.7 37.2s-19.9 28.9-37.2 25.7l-47.5-8.7c-31.3-4.6-58.9-1.5-78.3 6.2s-27.2 18.3-29 28.1c-2 10.7-.5 16.7 1.2 20.4c1.8 3.9 5.5 8.3 12.8 13.2c16.3 10.7 41.3 17.7 73.7 26.3l2.9 .8c28.6 7.6 63.6 16.8 89.6 33.8c14.2 9.3 27.6 21.9 35.9 39.5c8.5 17.9 10.3 37.9 6.4 59.2c-6.9 38-33.1 63.4-65.6 76.7c-13.7 5.6-28.6 9.2-44.4 11V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V445.1c-.4-.1-.9-.1-1.3-.2l-.2 0 0 0c-24.4-3.8-64.5-14.3-91.5-26.3c-16.1-7.2-23.4-26.1-16.2-42.2s26.1-23.4 42.2-16.2c20.9 9.3 55.3 18.5 75.2 21.6c31.9 4.7 58.2 2 76-5.3c16.9-6.9 24.6-16.9 26.8-28.9c1.9-10.6 .4-16.7-1.3-20.4c-1.9-4-5.6-8.4-13-13.3c-16.4-10.7-41.5-17.7-74-26.3l-2.8-.7 0 0C119.4 279.3 84.4 270 58.4 253c-14.2-9.3-27.5-22-35.8-39.6c-8.4-17.9-10.1-37.9-6.1-59.2C23.7 116 52.3 91.2 84.8 78.3c13.3-5.3 27.9-8.9 43.2-11V32c0-17.7 14.3-32 32-32z" />
-                                    </svg>
-                                </div>
-                                <div class="spec-content">
-                                    <div class="spec-label">Purchase Cost</div>
-                                    <div class="spec-value text-success fw-bold">@item.PurchaseCost.ToString("N2") SAR</div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Expandable Details -->
-                    <div class="additional-details mt-3">
-                        <button class="btn-toggle-details" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#details-@item.Id">
-                            <i class="fa-solid fa-chevron-down me-2"></i>View Additional Details
-                        </button>
-
-                        <div class="collapse" id="details-@item.Id">
-                            <div class="details-content">
-                                <div class="details-grid">
-                                    <!-- System Configuration -->
-                                    @if (item.OperatingSystemInfo != null || item.Processor != null || item.MemoryDetails != null)
-                                    {
-                                        <div class="detail-section">
-                                            <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-cog me-2"></i>System Configuration
-                                            </h6>
-                                            <div class="detail-list">
-                                                @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Operating System:</span>
-                                                        <span class="detail-val">@item.OperatingSystemInfo.Name</span>
-                                                    </div>
-                                                }
-                                                @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.Version))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">OS Version:</span>
-                                                        <span class="detail-val">@item.OperatingSystemInfo.Version</span>
-                                                    </div>
-                                                }
-                                                @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.BuildNumber))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Build Number:</span>
-                                                        <span class="detail-val">@item.OperatingSystemInfo.BuildNumber</span>
-                                                    </div>
-                                                }
-                                                @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.ServicePack))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Service Pack:</span>
-                                                        <span class="detail-val">@item.OperatingSystemInfo.ServicePack</span>
-                                                    </div>
-                                                }
-                                                @if (item.OperatingSystemInfo != null && !string.IsNullOrEmpty(item.OperatingSystemInfo.ProductId))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Product ID:</span>
-                                                        <span class="detail-val">@item.OperatingSystemInfo.ProductId</span>
-                                                    </div>
-                                                }
-                                                @if (item.Processor != null && !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Processor:</span>
-                                                        <span class="detail-val">@item.Processor.ProcessorInfo</span>
-                                                    </div>
-                                                }
-                                                @if (item.Processor != null && !string.IsNullOrEmpty(item.Processor.Manufacturer))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">CPU Manufacturer:</span>
-                                                        <span class="detail-val">@item.Processor.Manufacturer</span>
-                                                    </div>
-                                                }
-                                                @if (item.MemoryDetails != null && item.MemoryDetails.RAM.HasValue)
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Memory:</span>
-                                                        <span class="detail-val">@item.MemoryDetails.RAM GB</span>
-                                                    </div>
-                                                }
-                                                @if (item.MemoryDetails != null && item.MemoryDetails.VirtualMemory.HasValue)
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Virtual Memory:</span>
-                                                        <span class="detail-val">@item.MemoryDetails.VirtualMemory GB</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                    }
-
-                                    <!-- Network Details -->
-                                    @if (item.NetworkDetails != null)
-                                    {
-                                        <div class="detail-section">
-                                            <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-wifi me-2"></i>Network Configuration
-                                            </h6>
-                                            <div class="detail-list">
-                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.IPAddress))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">IP Address:</span>
-                                                        <span class="detail-val code">@item.NetworkDetails.IPAddress</span>
-                                                    </div>
-                                                }
-                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.MACAddress))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">MAC Address:</span>
-                                                        <span class="detail-val code">@item.NetworkDetails.MACAddress</span>
-                                                    </div>
-                                                }
-                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.NIC))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">NIC:</span>
-                                                        <span class="detail-val">@item.NetworkDetails.NIC</span>
-                                                    </div>
-                                                }
-                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.Network))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Network:</span>
-                                                        <span class="detail-val">@item.NetworkDetails.Network</span>
-                                                    </div>
-                                                }
-                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DefaultGateway))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Gateway:</span>
-                                                        <span class="detail-val code">@item.NetworkDetails.DefaultGateway</span>
-                                                    </div>
-                                                }
-                                                <div class="detail-item">
-                                                    <span class="detail-key">DHCP:</span>
-                                                    <span class="detail-val">
-                                                        @if (item.NetworkDetails.DHCPEnabled)
-                                                        {
-                                                            <span class="badge bg-success">Enabled</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="badge bg-secondary">Disabled</span>
-                                                        }
-                                                        @if (!string.IsNullOrEmpty(item.NetworkDetails.DHCPServer))
-                                                        {
-                                                            <span class="ms-1">(@(item.NetworkDetails.DHCPServer))</span>
-                                                        }
-                                                    </span>
-                                                </div>
-                                                @if (!string.IsNullOrEmpty(item.NetworkDetails.DNSHostname))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">DNS Hostname:</span>
-                                                        <span class="detail-val">@item.NetworkDetails.DNSHostname</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                    }
-
-                                    <!-- Hardware Details -->
-                                    @if (item.ComputerInfo != null || item.HardDisk != null || item.Keyboard != null || item.Mouse != null || item.Monitor != null)
-                                    {
-                                        <div class="detail-section">
-                                            <h6 class="detail-section-title">
-                                                <i class="fa-solid fa-microchip me-2"></i>Hardware Configuration
-                                            </h6>
-                                            <div class="detail-list">
-                                                @if (item.ComputerInfo != null)
-                                                {
-                                                    @if (!string.IsNullOrEmpty(item.ComputerInfo.Manufacturer))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Manufacturer:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.Manufacturer</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.ComputerInfo.ServiceTag))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Service Tag:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.ServiceTag</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.ComputerInfo.Domain))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Domain:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.Domain</span>
-                                                        </div>
-                                                    }
-                                                    @if (item.ComputerInfo.BiosDate.HasValue)
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">BIOS Date:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.BiosDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.ComputerInfo.SMBiosVersion))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">SMBIOS Version:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.SMBiosVersion</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.ComputerInfo.BiosVersion))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">BIOS Version:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.BiosVersion</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.ComputerInfo.BiosManufacturer))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">BIOS Manufacturer:</span>
-                                                            <span class="detail-val">@item.ComputerInfo.BiosManufacturer</span>
-                                                        </div>
-                                                    }
-                                                }
-                                                @if (item.Processor != null && !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">CPU Cores:</span>
-                                                        <span class="detail-val">@(item.Processor.NumberOfCores ?? 0) cores @(item.Processor.ClockSpeedMHz ?? 0) MHz</span>
-                                                    </div>
-                                                }
-                                                @if (item.HardDisk != null)
-                                                {
-                                                    @if (!string.IsNullOrEmpty(item.HardDisk.Model))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Disk Model:</span>
-                                                            <span class="detail-val">@item.HardDisk.Model</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.HardDisk.SerialNumber))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Disk Serial:</span>
-                                                            <span class="detail-val">@item.HardDisk.SerialNumber</span>
-                                                        </div>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.HardDisk.Manufacturer))
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Disk Manufacturer:</span>
-                                                            <span class="detail-val">@item.HardDisk.Manufacturer</span>
-                                                        </div>
-                                                    }
-                                                    @if (item.HardDisk.CapacityGB.HasValue)
-                                                    {
-                                                        <div class="detail-item">
-                                                            <span class="detail-key">Storage:</span>
-                                                            <span class="detail-val">@item.HardDisk.CapacityGB GB</span>
-                                                        </div>
-                                                    }
-                                                }
-                                                @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.KeyboardType))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Keyboard:</span>
-                                                        <span class="detail-val">@item.Keyboard.KeyboardType</span>
-                                                    </div>
-                                                }
-                                                @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.Manufacturer))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Keyboard Manufacturer:</span>
-                                                        <span class="detail-val">@item.Keyboard.Manufacturer</span>
-                                                    </div>
-                                                }
-                                                @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.SerialNumber))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Keyboard Serial:</span>
-                                                        <span class="detail-val">@item.Keyboard.SerialNumber</span>
-                                                    </div>
-                                                }
-                                                @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.MouseType))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Mouse:</span>
-                                                        <span class="detail-val">@item.Mouse.MouseType (@(item.Mouse.MouseButtons ?? 0) buttons)</span>
-                                                    </div>
-                                                }
-                                                @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.SerialNumber))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Mouse Serial:</span>
-                                                        <span class="detail-val">@item.Mouse.SerialNumber</span>
-                                                    </div>
-                                                }
-                                                @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.Manufacturer))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Mouse Manufacturer:</span>
-                                                        <span class="detail-val">@item.Mouse.Manufacturer</span>
-                                                    </div>
-                                                }
-                                                @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.MonitorType))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Monitor:</span>
-                                                        <span class="detail-val">@item.Monitor.MonitorType @(!string.IsNullOrEmpty(item.Monitor.MaxResolution) ? $"({item.Monitor.MaxResolution})" : "")</span>
-                                                    </div>
-                                                }
-                                                @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.SerialNumber))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Monitor Serial:</span>
-                                                        <span class="detail-val">@item.Monitor.SerialNumber</span>
-                                                    </div>
-                                                }
-                                                @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.Manufacturer))
-                                                {
-                                                    <div class="detail-item">
-                                                        <span class="detail-key">Monitor Manufacturer:</span>
-                                                        <span class="detail-val">@item.Monitor.Manufacturer</span>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                    }
-
-                                    <!-- Additional Info -->
-                                    <div class="detail-section">
-                                        <h6 class="detail-section-title">
-                                            <i class="fa-solid fa-info-circle me-2"></i>Additional Information
-                                        </h6>
-                                        <div class="detail-list">
-                                            <div class="detail-item">
-                                                <span class="detail-key">Created:</span>
-                                                <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</span>
-                                            </div>
-                                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.Site))
-                                            {
-                                                <div class="detail-item">
-                                                    <span class="detail-key">Site:</span>
-                                                    <span class="detail-val">@item.AssetState.Site</span>
-                                                </div>
-                                            }
-                                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.StateComments))
-                                            {
-                                                <div class="detail-item">
-                                                    <span class="detail-key">Comments:</span>
-                                                    <span class="detail-val">@item.AssetState.StateComments</span>
-                                                </div>
-                                            }
-                                            @if (item.Vendor != null)
-                                            {
-                                                <div class="detail-item">
-                                                    <span class="detail-key">Vendor:</span>
-                                                    <span class="detail-val">@item.Vendor.VendorName</span>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="computer-card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="computer-meta">
-                            <i class="fa-solid fa-clock me-1"></i>
-                            <span>Added @item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
-                        </div>
-                        <div class="computer-buttons">
-                            <a class="btn-action btn-edit" asp-action="EditServer" asp-route-id="@item.Id" title="Edit">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
-                                    height="16">
-                                    <path
-                                        d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z" />
-                                </svg>
-                            </a>
-                            @if (User.IsInRole("Admin") || User.IsInRole("Support") || User.IsInRole("IT"))
+                            @if (item.AcquisitionDate.HasValue)
                             {
-                                <button type="button" class="btn-action btn-delete" onclick="confirmDelete(@item.Id, '@item.Name')"
-                                    title="Delete">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 120c0-13.3 10.7-24 24-24s24 10.7 24 24V256c0 8-4 15.5-10.7 20l-72 48c-11 7.3-25.9 4.3-33.2-6.7s-4.3-25.9 6.7-33.2l61.3-40.9V120z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Acquisition Date"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.AcquisitionDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (item.Vendor != null)
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M0 80C0 53.5 21.5 32 48 32H592c26.5 0 48 21.5 48 48v48H0V80zm0 96H640V432c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176zm128 80c-17.7 0-32 14.3-32 32v96c0 17.7 14.3 32 32 32H352c17.7 0 32-14.3 32-32V288c0-17.7-14.3-32-32-32H128zM416 288v160h48c17.7 0 32-14.3 32-32V288c0-17.7-14.3-32-32-32H416z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Vendor"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.Vendor.VendorName</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Network -->
+                            @if (item.NetworkDetails != null)
+                            {
+                                @if (!string.IsNullOrEmpty(item.NetworkDetails.IPAddress))
+                                {
+                                    <div class="spec-item">
+                                        <div class="spec-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" width="16"
+                                                height="16">
+                                                <path
+                                                    d="M256 64H384v64H256V64zM240 0c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48h48v32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96v32H80c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H240c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H192V288H448v32H400c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48H560c26.5 0 48-21.5 48-48V368c0-26.5-21.5-48-48-48H512V288h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H352V192h48c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H240zM96 448V384H224v64H96zm320-64H544v64H416V384z" />
+                                            </svg>
+                                        </div>
+                                        <div class="spec-content">
+                                            <div class="spec-label">@Localizer["IP Address"]</div>
+                                            <div class="spec-value">
+                                                <span class="badge-spec code">@item.NetworkDetails.IPAddress</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(item.NetworkDetails.MACAddress))
+                                {
+                                    <div class="spec-item">
+                                        <div class="spec-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
+                                                height="16">
+                                                <path
+                                                    d="M64 32C28.7 32 0 60.7 0 96v32H512V96c0-35.3-28.7-64-64-64H64zM0 192V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384H512v32c0 17.7-14.3 32-32 32s-32-14.3-32-32V352c0-17.7 14.3-32 32-32s32 14.3 32 32v32h64V192H0zm144 96h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V304c0-8.8 7.2-16 16-16zm-16-48c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H144c-8.8 0-16-7.2-16-16V240zm144 48h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V304c0-8.8 7.2-16 16-16zm-16-48c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240z" />
+                                            </svg>
+                                        </div>
+                                        <div class="spec-content">
+                                            <div class="spec-label">@Localizer["MAC Address"]</div>
+                                            <div class="spec-value">
+                                                <span class="badge-spec code">@item.NetworkDetails.MACAddress</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            <!-- User Info -->
+                            @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.AssociatedTo))
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Associated To"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.AssetState.AssociatedTo</span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(item.AssetState.Department))
+                                        {
+                                            <div class="spec-note">@item.AssetState.Department</div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Location -->
+                            @if (!string.IsNullOrEmpty(item.Location))
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Location"]</div>
+                                        <div class="spec-value">
+                                            <span class="badge-spec">@item.Location</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Purchase Cost -->
+                            @if (item.PurchaseCost > 0)
+                            {
+                                <div class="spec-item">
+                                    <div class="spec-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M160 0c17.7 0 32 14.3 32 32V67.7c1.6 .2 3.1 .4 4.7 .7c.4 .1 .7 .1 1.1 .2l48 8.8c17.4 3.2 28.9 19.9 25.7 37.2s-19.9 28.9-37.2 25.7l-47.5-8.7c-31.3-4.6-58.9-1.5-78.3 6.2s-27.2 18.3-29 28.1c-2 10.7-.5 16.7 1.2 20.4c1.8 3.9 5.5 8.3 12.8 13.2c16.3 10.7 41.3 17.7 73.7 26.3l2.9 .8c28.6 7.6 63.6 16.8 89.6 33.8c14.2 9.3 27.6 21.9 35.9 39.5c8.5 17.9 10.3 37.9 6.4 59.2c-6.9 38-33.1 63.4-65.6 76.7c-13.7 5.6-28.6 9.2-44.4 11V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V445.1c-.4-.1-.9-.1-1.3-.2l-.2 0 0 0c-24.4-3.8-64.5-14.3-91.5-26.3c-16.1-7.2-23.4-26.1-16.2-42.2s26.1-23.4 42.2-16.2c20.9 9.3 55.3 18.5 75.2 21.6c31.9 4.7 58.2 2 76-5.3c16.9-6.9 24.6-16.9 26.8-28.9c1.9-10.6 .4-16.7-1.3-20.4c-1.9-4-5.6-8.4-13-13.3c-16.4-10.7-41.5-17.7-74-26.3l-2.8-.7 0 0C119.4 279.3 84.4 270 58.4 253c-14.2-9.3-27.5-22-35.8-39.6c-8.4-17.9-10.1-37.9-6.1-59.2C23.7 116 52.3 91.2 84.8 78.3c13.3-5.3 27.9-8.9 43.2-11V32c0-17.7 14.3-32 32-32z" />
+                                        </svg>
+                                    </div>
+                                    <div class="spec-content">
+                                        <div class="spec-label">@Localizer["Purchase Cost"]</div>
+                                        <div class="spec-value text-success fw-bold">@item.PurchaseCost.ToString("N2") SAR</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Expandable Details -->
+                        <div class="additional-details mt-3">
+                            <button class="btn-toggle-details" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#details-@item.Id">
+                                <i class="fa-solid fa-chevron-down me-2"></i>@Localizer["View Additional Details"]
+                            </button>
+
+                            <div class="collapse" id="details-@item.Id">
+                                <div class="details-content">
+                                    <div class="details-grid">
+                                        <!-- System Configuration -->
+                                        @if (item.OperatingSystemInfo != null || item.Processor != null || item.MemoryDetails !=
+                                                                        null)
+                                        {
+                                            <div class="detail-section">
+                                                <h6 class="detail-section-title">
+                                                    <i class="fa-solid fa-cog me-2"></i>@Localizer["System Configuration"]
+                                                </h6>
+                                                <div class="detail-list">
+                                                    @if (item.OperatingSystemInfo != null &&
+                                                                                            !string.IsNullOrEmpty(item.OperatingSystemInfo.Name))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Operating System"]</span>
+                                                            <span class="detail-val">@item.OperatingSystemInfo.Name</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.OperatingSystemInfo != null &&
+                                                                                            !string.IsNullOrEmpty(item.OperatingSystemInfo.Version))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["OS Version"]</span>
+                                                            <span class="detail-val">@item.OperatingSystemInfo.Version</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.OperatingSystemInfo != null &&
+                                                                                            !string.IsNullOrEmpty(item.OperatingSystemInfo.BuildNumber))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Build Number"]</span>
+                                                            <span class="detail-val">@item.OperatingSystemInfo.BuildNumber</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.OperatingSystemInfo != null &&
+                                                                                            !string.IsNullOrEmpty(item.OperatingSystemInfo.ServicePack))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Service Pack"]</span>
+                                                            <span class="detail-val">@item.OperatingSystemInfo.ServicePack</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.OperatingSystemInfo != null &&
+                                                                                            !string.IsNullOrEmpty(item.OperatingSystemInfo.ProductId))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Product ID"]</span>
+                                                            <span class="detail-val">@item.OperatingSystemInfo.ProductId</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Processor != null &&
+                                                                                            !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Processor"]</span>
+                                                            <span class="detail-val">@item.Processor.ProcessorInfo</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Processor != null &&
+                                                                                            !string.IsNullOrEmpty(item.Processor.Manufacturer))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["CPU Manufacturer"]</span>
+                                                            <span class="detail-val">@item.Processor.Manufacturer</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.MemoryDetails != null && item.MemoryDetails.RAM.HasValue)
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Memory"]</span>
+                                                            <span class="detail-val">@item.MemoryDetails.RAM GB</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.MemoryDetails != null && item.MemoryDetails.VirtualMemory.HasValue)
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Virtual Memory"]</span>
+                                                            <span class="detail-val">@item.MemoryDetails.VirtualMemory GB</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <!-- Network Details -->
+                                        @if (item.NetworkDetails != null)
+                                        {
+                                            <div class="detail-section">
+                                                <h6 class="detail-section-title">
+                                                    <i class="fa-solid fa-wifi me-2"></i>@Localizer["Network Details"]
+                                                </h6>
+                                                <div class="detail-list">
+                                                    @if (!string.IsNullOrEmpty(item.NetworkDetails.IPAddress))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["IP Address"]</span>
+                                                            <span class="detail-val code">@item.NetworkDetails.IPAddress</span>
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(item.NetworkDetails.MACAddress))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["MAC Address"]</span>
+                                                            <span class="detail-val code">@item.NetworkDetails.MACAddress</span>
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(item.NetworkDetails.NIC))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["NIC"]</span>
+                                                            <span class="detail-val">@item.NetworkDetails.NIC</span>
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(item.NetworkDetails.Network))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Network"]</span>
+                                                            <span class="detail-val">@item.NetworkDetails.Network</span>
+                                                        </div>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(item.NetworkDetails.DefaultGateway))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Gateway"]</span>
+                                                            <span class="detail-val code">@item.NetworkDetails.DefaultGateway</span>
+                                                        </div>
+                                                    }
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">@Localizer["DHCP Server"]</span>
+                                                        <span class="detail-val">
+                                                            @if (item.NetworkDetails.DHCPEnabled)
+                                                            {
+                                                                <span class="badge bg-success">@Localizer["Enabled"]</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-secondary">@Localizer["Disabled"]</span>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(item.NetworkDetails.DHCPServer))
+                                                            {
+                                                                <span class="ms-1">(@(item.NetworkDetails.DHCPServer))</span>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                    @if (!string.IsNullOrEmpty(item.NetworkDetails.DNSHostname))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["DNS Hostname"]</span>
+                                                            <span class="detail-val">@item.NetworkDetails.DNSHostname</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <!-- Hardware Details -->
+                                        @if (item.ComputerInfo != null || item.HardDisk != null || item.Keyboard != null ||
+                                                                        item.Mouse != null || item.Monitor != null)
+                                        {
+                                            <div class="detail-section">
+                                                <h6 class="detail-section-title">
+                                                    <i class="fa-solid fa-microchip me-2"></i>@Localizer["Hardware Configuration"]
+                                                </h6>
+                                                <div class="detail-list">
+                                                    @if (item.ComputerInfo != null)
+                                                    {
+                                                        @if (!string.IsNullOrEmpty(item.ComputerInfo.Manufacturer))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Manufacturer"]</span>
+                                                                <span class="detail-val">@item.ComputerInfo.Manufacturer</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.ComputerInfo.ServiceTag))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Service Tag"]</span>
+                                                                <span class="detail-val">@item.ComputerInfo.ServiceTag</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.ComputerInfo.Domain))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Domain"]</span>
+                                                                <span class="detail-val">@item.ComputerInfo.Domain</span>
+                                                            </div>
+                                                        }
+                                                        @if (item.ComputerInfo.BiosDate.HasValue)
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["BIOS Date"]</span>
+                                                                <span
+                                                                    class="detail-val">@item.ComputerInfo.BiosDate.Value.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.ComputerInfo.SMBiosVersion))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["SMBios Version"]</span>
+                                                                <span class="detail-val">@item.ComputerInfo.SMBiosVersion</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.ComputerInfo.BiosVersion))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["BIOS Version"]</span>
+                                                                <span class="detail-val">@item.ComputerInfo.BiosVersion</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.ComputerInfo.BiosManufacturer))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["BIOS Manufacturer"]</span>
+                                                                <span class="detail-val">@item.ComputerInfo.BiosManufacturer</span>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    @if (item.Processor != null &&
+                                                                                            !string.IsNullOrEmpty(item.Processor.ProcessorInfo))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["CPU Cores"]</span>
+                                                            <span class="detail-val">@(item.Processor.NumberOfCores ?? 0) cores
+                                                                @(item.Processor.ClockSpeedMHz ?? 0) MHz</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.HardDisk != null)
+                                                    {
+                                                        @if (!string.IsNullOrEmpty(item.HardDisk.Model))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Disk Model"]</span>
+                                                                <span class="detail-val">@item.HardDisk.Model</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.HardDisk.SerialNumber))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Disk Serial"]</span>
+                                                                <span class="detail-val">@item.HardDisk.SerialNumber</span>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(item.HardDisk.Manufacturer))
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Disk Manufacturer"]</span>
+                                                                <span class="detail-val">@item.HardDisk.Manufacturer</span>
+                                                            </div>
+                                                        }
+                                                        @if (item.HardDisk.CapacityGB.HasValue)
+                                                        {
+                                                            <div class="detail-item">
+                                                                <span class="detail-key">@Localizer["Storage"]:</span>
+                                                                <span class="detail-val">@item.HardDisk.CapacityGB GB</span>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.KeyboardType))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Keyboard"]:</span>
+                                                            <span class="detail-val">@item.Keyboard.KeyboardType</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.Manufacturer))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Keyboard Manufacturer"]:</span>
+                                                            <span class="detail-val">@item.Keyboard.Manufacturer</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Keyboard != null && !string.IsNullOrEmpty(item.Keyboard.SerialNumber))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Keyboard Serial"]:</span>
+                                                            <span class="detail-val">@item.Keyboard.SerialNumber</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.MouseType))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Mouse"]:</span>
+                                                            <span class="detail-val">@item.Mouse.MouseType (@(item.Mouse.MouseButtons ??
+                                                                                                                0)
+                                                                buttons)</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.SerialNumber))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Mouse Serial"]:</span>
+                                                            <span class="detail-val">@item.Mouse.SerialNumber</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Mouse != null && !string.IsNullOrEmpty(item.Mouse.Manufacturer))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Mouse Manufacturer"]:</span>
+                                                            <span class="detail-val">@item.Mouse.Manufacturer</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.MonitorType))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Monitor"]:</span>
+                                                            <span class="detail-val">@item.Monitor.MonitorType
+                                                                @(!string.IsNullOrEmpty(item.Monitor.MaxResolution) ?
+                                                                                                                $"({item.Monitor.MaxResolution})" : "")</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.SerialNumber))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Monitor Serial"]:</span>
+                                                            <span class="detail-val">@item.Monitor.SerialNumber</span>
+                                                        </div>
+                                                    }
+                                                    @if (item.Monitor != null && !string.IsNullOrEmpty(item.Monitor.Manufacturer))
+                                                    {
+                                                        <div class="detail-item">
+                                                            <span class="detail-key">@Localizer["Monitor Manufacturer"]:</span>
+                                                            <span class="detail-val">@item.Monitor.Manufacturer</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <!-- Additional Info -->
+                                        <div class="detail-section">
+                                            <h6 class="detail-section-title">
+                                                <i class="fa-solid fa-info-circle me-2"></i>@Localizer["Additional Information"]
+                                            </h6>
+                                            <div class="detail-list">
+                                                <div class="detail-item">
+                                                    <span class="detail-key">@Localizer["Created"]:</span>
+                                                    <span class="detail-val">@item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</span>
+                                                </div>
+                                                @if (item.AssetState != null && !string.IsNullOrEmpty(item.AssetState.Site))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">@Localizer["Site"]:</span>
+                                                        <span class="detail-val">@item.AssetState.Site</span>
+                                                    </div>
+                                                }
+                                                @if (item.AssetState != null &&
+                                                                                        !string.IsNullOrEmpty(item.AssetState.StateComments))
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">@Localizer["Comments"]:</span>
+                                                        <span class="detail-val">@item.AssetState.StateComments</span>
+                                                    </div>
+                                                }
+                                                @if (item.Vendor != null)
+                                                {
+                                                    <div class="detail-item">
+                                                        <span class="detail-key">@Localizer["Vendor"]:</span>
+                                                        <span class="detail-val">@item.Vendor.VendorName</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="computer-card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="computer-meta">
+                                <i class="fa-solid fa-clock me-1"></i>
+                                <span>@Localizer["Added"] @item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</span>
+                            </div>
+                            <div class="computer-buttons">
+                                <a class="btn-action btn-edit" asp-action="EditServer" asp-route-id="@item.Id" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" width="16"
                                         height="16">
                                         <path
-                                            d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" />
+                                            d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z" />
                                     </svg>
-                                </button>
-                            }
+                                </a>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Support") || User.IsInRole("IT"))
+                                {
+                                    <button type="button" class="btn-action btn-delete"
+                                        onclick="confirmDelete(@item.Id, '@item.Name')" title="Delete">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" width="16"
+                                            height="16">
+                                            <path
+                                                d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" />
+                                        </svg>
+                                    </button>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -811,24 +858,24 @@ else
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <h5 class="modal-title" id="deleteModalLabel">@Localizer["Confirm Delete"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete <strong id="serverName"></strong>?
+                @Localizer["Are you sure you want to delete"] <strong id="serverName"></strong>?
                 <div class="alert alert-warning mt-3 mb-0">
                     <i class="fa-solid fa-exclamation-triangle me-2"></i>
-                    All related information for this server will be permanently deleted and cannot be recovered.
+                    @Localizer["All related information for this server will be permanently deleted and cannot be recovered."]
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fa-solid fa-times me-1"></i>
-                    Cancel
+                    @Localizer["Cancel"]
                 </button>
                 <button type="button" class="btn btn-danger" onclick="submitDelete()">
                     <i class="fa-solid fa-trash me-1"></i>
-                    Delete
+                    @Localizer["Delete"]
                 </button>
             </div>
         </div>
@@ -963,6 +1010,12 @@ else
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
         gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* Compact grid reduces card width */
+    .computers-grid.compact {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     }
 
     @@media (max-width: 768px) {
@@ -985,6 +1038,12 @@ else
         box-shadow: var(--card-shadow-hover);
         transform: translateY(-4px);
         border-color: #3b82f6;
+    }
+
+    /* Toggle details button in header */
+    .toggle-details {
+        padding: 4px 8px;
+        border-radius: 8px;
     }
 
     /* Card Header */
@@ -1372,5 +1431,47 @@ else
 
     .computer-card:nth-child(5) {
         animation-delay: 0.25s;
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .computer-icon {
+        margin-right: 0;
+        margin-left: 1rem;
+    }
+
+    [dir="rtl"] .spec-item {
+        border-left: none;
+        border-right: 3px solid #3b82f6;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    [dir="rtl"] .spec-item:hover {
+        border-left: none;
+        border-right-color: #2563eb;
+    }
+
+    [dir="rtl"] .spec-icon {
+        margin-right: 0;
+        margin-left: 0.75rem;
+    }
+
+    [dir="rtl"] .computer-buttons {
+        flex-direction: row-reverse;
+    }
+
+    [dir="rtl"] .computer-meta {
+        flex-direction: row-reverse;
+    }
+
+    /* RTL Icon margins */
+    [dir="rtl"] .fa-chevron-down.me-2,
+    [dir="rtl"] .fa-cog.me-2,
+    [dir="rtl"] .fa-wifi.me-2,
+    [dir="rtl"] .fa-microchip.me-2,
+    [dir="rtl"] .fa-info-circle.me-2,
+    [dir="rtl"] .fa-clock.me-1 {
+        margin-right: 0;
+        margin-left: 0.5rem;
     }
 </style>

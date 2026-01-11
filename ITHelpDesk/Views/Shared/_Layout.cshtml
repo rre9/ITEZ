@@ -61,11 +61,11 @@
                 </button>
                 <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
+                        @* <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="fa-solid fa-house"></i>@Localizer["Home"]
                             </a>
-                        </li>
+                        </li> *@
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">

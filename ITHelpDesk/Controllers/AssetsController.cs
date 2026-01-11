@@ -573,12 +573,22 @@ public class AssetsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteAccessPoint(int id)
     {
-        var accessPoint = await _context.AccessPoints.FindAsync(id);
+        var accessPoint = await _context.AccessPoints
+            .Include(a => a.AssetState)
+            .Include(a => a.NetworkDetails)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
         if (accessPoint == null)
             return NotFound();
 
         try
         {
+            if (accessPoint.NetworkDetails != null)
+                _context.NetworkDetails.Remove(accessPoint.NetworkDetails);
+
+            if (accessPoint.AssetState != null)
+                _context.AssetStates.Remove(accessPoint.AssetState);
+
             _context.AccessPoints.Remove(accessPoint);
             await _context.SaveChangesAsync();
 
@@ -629,28 +639,47 @@ public class AssetsController : Controller
             using var package = new OfficeOpenXml.ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Routers");
 
-            // Add Headers
+            // Add Headers (aligned with Printers export for parity)
             worksheet.Cells[1, 1].Value = "ID";
-            worksheet.Cells[1, 2].Value = "Name";
-            worksheet.Cells[1, 3].Value = "Serial Number";
-            worksheet.Cells[1, 4].Value = "Asset Tag";
-            worksheet.Cells[1, 5].Value = "Product";
-            worksheet.Cells[1, 6].Value = "Vendor";
-            worksheet.Cells[1, 7].Value = "Location";
-            worksheet.Cells[1, 8].Value = "IP Address";
-            worksheet.Cells[1, 9].Value = "MAC Address";
-            worksheet.Cells[1, 10].Value = "Default Gateway";
-            worksheet.Cells[1, 11].Value = "DHCP Enabled";
+            worksheet.Cells[1, 2].Value = "Serial Number";
+            worksheet.Cells[1, 3].Value = "Asset Number";
+            worksheet.Cells[1, 4].Value = "Product";
+            worksheet.Cells[1, 5].Value = "Vendor";
+            worksheet.Cells[1, 6].Value = "IP Address";
+            worksheet.Cells[1, 7].Value = "MAC Address";
+            worksheet.Cells[1, 8].Value = "Default Gateway";
+            worksheet.Cells[1, 9].Value = "Network";
+            worksheet.Cells[1, 10].Value = "DNS Hostname";
+            worksheet.Cells[1, 11].Value = "DHCP Server";
             worksheet.Cells[1, 12].Value = "Status";
             worksheet.Cells[1, 13].Value = "Associated To";
             worksheet.Cells[1, 14].Value = "Site";
             worksheet.Cells[1, 15].Value = "Department";
-            worksheet.Cells[1, 16].Value = "Purchase Cost";
-            worksheet.Cells[1, 17].Value = "Acquisition Date";
-            worksheet.Cells[1, 18].Value = "Created Date";
+            worksheet.Cells[1, 16].Value = "User ID";
+            worksheet.Cells[1, 17].Value = "State Comments";
+            worksheet.Cells[1, 18].Value = "Name";
+            worksheet.Cells[1, 19].Value = "Location";
+            worksheet.Cells[1, 20].Value = "Purchase Cost";
+            worksheet.Cells[1, 21].Value = "Acquisition Date";
+            worksheet.Cells[1, 22].Value = "Expiry Date";
+            worksheet.Cells[1, 23].Value = "Warranty Expiry Date";
+            worksheet.Cells[1, 24].Value = "NIC";
+            worksheet.Cells[1, 25].Value = "DHCP Enabled";
+            worksheet.Cells[1, 26].Value = "Product Type";
+            worksheet.Cells[1, 27].Value = "Manufacturer";
+            worksheet.Cells[1, 28].Value = "Part No";
+            worksheet.Cells[1, 29].Value = "Product Cost";
+            worksheet.Cells[1, 30].Value = "Product Description";
+            worksheet.Cells[1, 31].Value = "Vendor Currency";
+            worksheet.Cells[1, 32].Value = "Vendor Phone";
+            worksheet.Cells[1, 33].Value = "Vendor Email";
+            worksheet.Cells[1, 34].Value = "Vendor City";
+            worksheet.Cells[1, 35].Value = "Vendor Country";
+            worksheet.Cells[1, 36].Value = "Created Date";
+            worksheet.Cells[1, 37].Value = "Updated Date";
 
             // Style Headers
-            using (var range = worksheet.Cells[1, 1, 1, 18])
+            using (var range = worksheet.Cells[1, 1, 1, 37])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -664,23 +693,42 @@ public class AssetsController : Controller
             foreach (var router in routers)
             {
                 worksheet.Cells[row, 1].Value = router.Id;
-                worksheet.Cells[row, 2].Value = router.Name;
-                worksheet.Cells[row, 3].Value = router.SerialNumber;
-                worksheet.Cells[row, 4].Value = router.AssetTag;
-                worksheet.Cells[row, 5].Value = router.Product?.ProductName;
-                worksheet.Cells[row, 6].Value = router.Vendor?.VendorName;
-                worksheet.Cells[row, 7].Value = router.Location;
-                worksheet.Cells[row, 8].Value = router.NetworkDetails?.IPAddress;
-                worksheet.Cells[row, 9].Value = router.NetworkDetails?.MACAddress;
-                worksheet.Cells[row, 10].Value = router.NetworkDetails?.DefaultGateway;
-                worksheet.Cells[row, 11].Value = router.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 2].Value = router.SerialNumber;
+                worksheet.Cells[row, 3].Value = router.AssetTag;
+                worksheet.Cells[row, 4].Value = router.Product?.ProductName;
+                worksheet.Cells[row, 5].Value = router.Vendor?.VendorName;
+                worksheet.Cells[row, 6].Value = router.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 7].Value = router.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 8].Value = router.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 9].Value = router.NetworkDetails?.Network;
+                worksheet.Cells[row, 10].Value = router.NetworkDetails?.DNSHostname;
+                worksheet.Cells[row, 11].Value = router.NetworkDetails?.DHCPServer;
                 worksheet.Cells[row, 12].Value = router.AssetState?.Status.ToString();
                 worksheet.Cells[row, 13].Value = router.AssetState?.AssociatedTo;
                 worksheet.Cells[row, 14].Value = router.AssetState?.Site;
                 worksheet.Cells[row, 15].Value = router.AssetState?.Department;
-                worksheet.Cells[row, 16].Value = router.PurchaseCost;
-                worksheet.Cells[row, 17].Value = router.AcquisitionDate?.ToString("yyyy-MM-dd");
-                worksheet.Cells[row, 18].Value = router.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 16].Value = router.AssetState?.UserId;
+                worksheet.Cells[row, 17].Value = router.AssetState?.StateComments;
+                worksheet.Cells[row, 18].Value = router.Name;
+                worksheet.Cells[row, 19].Value = router.Location;
+                worksheet.Cells[row, 20].Value = router.PurchaseCost;
+                worksheet.Cells[row, 21].Value = router.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 22].Value = router.ExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 23].Value = router.WarrantyExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 24].Value = router.NetworkDetails?.NIC;
+                worksheet.Cells[row, 25].Value = router.NetworkDetails?.DHCPEnabled;
+                worksheet.Cells[row, 26].Value = router.Product?.ProductType;
+                worksheet.Cells[row, 27].Value = router.Product?.Manufacturer;
+                worksheet.Cells[row, 28].Value = router.Product?.PartNo;
+                worksheet.Cells[row, 29].Value = router.Product?.Cost;
+                worksheet.Cells[row, 30].Value = router.Product?.Description;
+                worksheet.Cells[row, 31].Value = router.Vendor?.Currency;
+                worksheet.Cells[row, 32].Value = router.Vendor?.PhoneNo;
+                worksheet.Cells[row, 33].Value = router.Vendor?.Email;
+                worksheet.Cells[row, 34].Value = router.Vendor?.City;
+                worksheet.Cells[row, 35].Value = router.Vendor?.Country;
+                worksheet.Cells[row, 36].Value = router.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 37].Value = router.UpdatedAt?.ToString("yyyy-MM-dd HH:mm");
                 row++;
             }
 
@@ -989,28 +1037,47 @@ public class AssetsController : Controller
             using var package = new OfficeOpenXml.ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Switches");
 
-            // Add Headers
+            // Add Headers (aligned with Routers/Printers export for parity)
             worksheet.Cells[1, 1].Value = "ID";
-            worksheet.Cells[1, 2].Value = "Name";
-            worksheet.Cells[1, 3].Value = "Serial Number";
-            worksheet.Cells[1, 4].Value = "Asset Tag";
-            worksheet.Cells[1, 5].Value = "Product";
-            worksheet.Cells[1, 6].Value = "Vendor";
-            worksheet.Cells[1, 7].Value = "Location";
-            worksheet.Cells[1, 8].Value = "IP Address";
-            worksheet.Cells[1, 9].Value = "MAC Address";
-            worksheet.Cells[1, 10].Value = "Default Gateway";
-            worksheet.Cells[1, 11].Value = "DHCP Enabled";
+            worksheet.Cells[1, 2].Value = "Serial Number";
+            worksheet.Cells[1, 3].Value = "Asset Number";
+            worksheet.Cells[1, 4].Value = "Product";
+            worksheet.Cells[1, 5].Value = "Vendor";
+            worksheet.Cells[1, 6].Value = "IP Address";
+            worksheet.Cells[1, 7].Value = "MAC Address";
+            worksheet.Cells[1, 8].Value = "Default Gateway";
+            worksheet.Cells[1, 9].Value = "Network";
+            worksheet.Cells[1, 10].Value = "DNS Hostname";
+            worksheet.Cells[1, 11].Value = "DHCP Server";
             worksheet.Cells[1, 12].Value = "Status";
             worksheet.Cells[1, 13].Value = "Associated To";
             worksheet.Cells[1, 14].Value = "Site";
             worksheet.Cells[1, 15].Value = "Department";
-            worksheet.Cells[1, 16].Value = "Purchase Cost";
-            worksheet.Cells[1, 17].Value = "Acquisition Date";
-            worksheet.Cells[1, 18].Value = "Created Date";
+            worksheet.Cells[1, 16].Value = "User ID";
+            worksheet.Cells[1, 17].Value = "State Comments";
+            worksheet.Cells[1, 18].Value = "Name";
+            worksheet.Cells[1, 19].Value = "Location";
+            worksheet.Cells[1, 20].Value = "Purchase Cost";
+            worksheet.Cells[1, 21].Value = "Acquisition Date";
+            worksheet.Cells[1, 22].Value = "Expiry Date";
+            worksheet.Cells[1, 23].Value = "Warranty Expiry Date";
+            worksheet.Cells[1, 24].Value = "NIC";
+            worksheet.Cells[1, 25].Value = "DHCP Enabled";
+            worksheet.Cells[1, 26].Value = "Product Type";
+            worksheet.Cells[1, 27].Value = "Manufacturer";
+            worksheet.Cells[1, 28].Value = "Part No";
+            worksheet.Cells[1, 29].Value = "Product Cost";
+            worksheet.Cells[1, 30].Value = "Product Description";
+            worksheet.Cells[1, 31].Value = "Vendor Currency";
+            worksheet.Cells[1, 32].Value = "Vendor Phone";
+            worksheet.Cells[1, 33].Value = "Vendor Email";
+            worksheet.Cells[1, 34].Value = "Vendor City";
+            worksheet.Cells[1, 35].Value = "Vendor Country";
+            worksheet.Cells[1, 36].Value = "Created Date";
+            worksheet.Cells[1, 37].Value = "Updated Date";
 
             // Style Headers
-            using (var range = worksheet.Cells[1, 1, 1, 18])
+            using (var range = worksheet.Cells[1, 1, 1, 37])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -1024,23 +1091,42 @@ public class AssetsController : Controller
             foreach (var switchItem in switches)
             {
                 worksheet.Cells[row, 1].Value = switchItem.Id;
-                worksheet.Cells[row, 2].Value = switchItem.Name;
-                worksheet.Cells[row, 3].Value = switchItem.SerialNumber;
-                worksheet.Cells[row, 4].Value = switchItem.AssetTag;
-                worksheet.Cells[row, 5].Value = switchItem.Product?.ProductName;
-                worksheet.Cells[row, 6].Value = switchItem.Vendor?.VendorName;
-                worksheet.Cells[row, 7].Value = switchItem.Location;
-                worksheet.Cells[row, 8].Value = switchItem.NetworkDetails?.IPAddress;
-                worksheet.Cells[row, 9].Value = switchItem.NetworkDetails?.MACAddress;
-                worksheet.Cells[row, 10].Value = switchItem.NetworkDetails?.DefaultGateway;
-                worksheet.Cells[row, 11].Value = switchItem.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 2].Value = switchItem.SerialNumber;
+                worksheet.Cells[row, 3].Value = switchItem.AssetTag;
+                worksheet.Cells[row, 4].Value = switchItem.Product?.ProductName;
+                worksheet.Cells[row, 5].Value = switchItem.Vendor?.VendorName;
+                worksheet.Cells[row, 6].Value = switchItem.NetworkDetails?.IPAddress;
+                worksheet.Cells[row, 7].Value = switchItem.NetworkDetails?.MACAddress;
+                worksheet.Cells[row, 8].Value = switchItem.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 9].Value = switchItem.NetworkDetails?.Network;
+                worksheet.Cells[row, 10].Value = switchItem.NetworkDetails?.DNSHostname;
+                worksheet.Cells[row, 11].Value = switchItem.NetworkDetails?.DHCPServer;
                 worksheet.Cells[row, 12].Value = switchItem.AssetState?.Status.ToString();
                 worksheet.Cells[row, 13].Value = switchItem.AssetState?.AssociatedTo;
                 worksheet.Cells[row, 14].Value = switchItem.AssetState?.Site;
                 worksheet.Cells[row, 15].Value = switchItem.AssetState?.Department;
-                worksheet.Cells[row, 16].Value = switchItem.PurchaseCost;
-                worksheet.Cells[row, 17].Value = switchItem.AcquisitionDate?.ToString("yyyy-MM-dd");
-                worksheet.Cells[row, 18].Value = switchItem.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 16].Value = switchItem.AssetState?.UserId;
+                worksheet.Cells[row, 17].Value = switchItem.AssetState?.StateComments;
+                worksheet.Cells[row, 18].Value = switchItem.Name;
+                worksheet.Cells[row, 19].Value = switchItem.Location;
+                worksheet.Cells[row, 20].Value = switchItem.PurchaseCost;
+                worksheet.Cells[row, 21].Value = switchItem.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 22].Value = switchItem.ExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 23].Value = switchItem.WarrantyExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 24].Value = switchItem.NetworkDetails?.NIC;
+                worksheet.Cells[row, 25].Value = switchItem.NetworkDetails?.DHCPEnabled;
+                worksheet.Cells[row, 26].Value = switchItem.Product?.ProductType;
+                worksheet.Cells[row, 27].Value = switchItem.Product?.Manufacturer;
+                worksheet.Cells[row, 28].Value = switchItem.Product?.PartNo;
+                worksheet.Cells[row, 29].Value = switchItem.Product?.Cost;
+                worksheet.Cells[row, 30].Value = switchItem.Product?.Description;
+                worksheet.Cells[row, 31].Value = switchItem.Vendor?.Currency;
+                worksheet.Cells[row, 32].Value = switchItem.Vendor?.PhoneNo;
+                worksheet.Cells[row, 33].Value = switchItem.Vendor?.Email;
+                worksheet.Cells[row, 34].Value = switchItem.Vendor?.City;
+                worksheet.Cells[row, 35].Value = switchItem.Vendor?.Country;
+                worksheet.Cells[row, 36].Value = switchItem.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 37].Value = switchItem.UpdatedAt?.ToString("yyyy-MM-dd HH:mm");
                 row++;
             }
 
@@ -1489,13 +1575,13 @@ public class AssetsController : Controller
             worksheet.Cells[1, 3].Value = "Asset Number";
             worksheet.Cells[1, 4].Value = "Product";
             worksheet.Cells[1, 5].Value = "Vendor";
-            worksheet.Cells[1, 6].Value = "Computer Type";
-            worksheet.Cells[1, 7].Value = "Hostname";
+            worksheet.Cells[1, 6].Value = "Computer Type"; // ComputerInfo.Manufacturer
+            worksheet.Cells[1, 7].Value = "Hostname"; // ComputerInfo.Domain
             worksheet.Cells[1, 8].Value = "OS";
             worksheet.Cells[1, 9].Value = "OS Version";
             worksheet.Cells[1, 10].Value = "RAM (GB)";
-            worksheet.Cells[1, 11].Value = "Processor";
-            worksheet.Cells[1, 12].Value = "Hard Disk";
+            worksheet.Cells[1, 11].Value = "Processor"; // Processor.ProcessorInfo
+            worksheet.Cells[1, 12].Value = "Hard Disk"; // Model + CapacityGB
             worksheet.Cells[1, 13].Value = "IP Address";
             worksheet.Cells[1, 14].Value = "MAC Address";
             worksheet.Cells[1, 15].Value = "Status";
@@ -1503,9 +1589,48 @@ public class AssetsController : Controller
             worksheet.Cells[1, 17].Value = "Site";
             worksheet.Cells[1, 18].Value = "Department";
             worksheet.Cells[1, 19].Value = "Created Date";
+            // Additional headers to include all form fields
+            worksheet.Cells[1, 20].Value = "Name";
+            worksheet.Cells[1, 21].Value = "Location";
+            worksheet.Cells[1, 22].Value = "Purchase Cost";
+            worksheet.Cells[1, 23].Value = "Acquisition Date";
+            worksheet.Cells[1, 24].Value = "Warranty Expiry";
+            worksheet.Cells[1, 25].Value = "Service Tag";
+            worksheet.Cells[1, 26].Value = "BIOS Date";
+            worksheet.Cells[1, 27].Value = "SMBIOS Version";
+            worksheet.Cells[1, 28].Value = "BIOS Version";
+            worksheet.Cells[1, 29].Value = "BIOS Manufacturer";
+            worksheet.Cells[1, 30].Value = "OS Build Number";
+            worksheet.Cells[1, 31].Value = "OS Service Pack";
+            worksheet.Cells[1, 32].Value = "OS Product Id";
+            worksheet.Cells[1, 33].Value = "Virtual Memory (GB)";
+            worksheet.Cells[1, 34].Value = "Processor Manufacturer";
+            worksheet.Cells[1, 35].Value = "Clock Speed (MHz)";
+            worksheet.Cells[1, 36].Value = "Cores";
+            worksheet.Cells[1, 37].Value = "Disk Serial Number";
+            worksheet.Cells[1, 38].Value = "Disk Manufacturer";
+            worksheet.Cells[1, 39].Value = "NIC";
+            worksheet.Cells[1, 40].Value = "Network";
+            worksheet.Cells[1, 41].Value = "Default Gateway";
+            worksheet.Cells[1, 42].Value = "DHCP Enabled";
+            worksheet.Cells[1, 43].Value = "DHCP Server";
+            worksheet.Cells[1, 44].Value = "DNS Hostname";
+            worksheet.Cells[1, 45].Value = "Keyboard Type";
+            worksheet.Cells[1, 46].Value = "Keyboard Manufacturer";
+            worksheet.Cells[1, 47].Value = "Keyboard Serial";
+            worksheet.Cells[1, 48].Value = "Mouse Type";
+            worksheet.Cells[1, 49].Value = "Mouse Serial";
+            worksheet.Cells[1, 50].Value = "Mouse Buttons";
+            worksheet.Cells[1, 51].Value = "Mouse Manufacturer";
+            worksheet.Cells[1, 52].Value = "Monitor Type";
+            worksheet.Cells[1, 53].Value = "Monitor Serial";
+            worksheet.Cells[1, 54].Value = "Monitor Manufacturer";
+            worksheet.Cells[1, 55].Value = "Monitor Max Resolution";
+            worksheet.Cells[1, 56].Value = "State Comments";
+            worksheet.Cells[1, 57].Value = "State UserId";
 
             // Style Headers
-            using (var range = worksheet.Cells[1, 1, 1, 19])
+            using (var range = worksheet.Cells[1, 1, 1, 57])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -1539,6 +1664,44 @@ public class AssetsController : Controller
                 worksheet.Cells[row, 17].Value = computer.AssetState?.Site;
                 worksheet.Cells[row, 18].Value = computer.AssetState?.Department;
                 worksheet.Cells[row, 19].Value = computer.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 20].Value = computer.Name;
+                worksheet.Cells[row, 21].Value = computer.Location;
+                worksheet.Cells[row, 22].Value = computer.PurchaseCost;
+                worksheet.Cells[row, 23].Value = computer.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 24].Value = computer.WarrantyExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 25].Value = computer.ComputerInfo?.ServiceTag;
+                worksheet.Cells[row, 26].Value = computer.ComputerInfo?.BiosDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 27].Value = computer.ComputerInfo?.SMBiosVersion;
+                worksheet.Cells[row, 28].Value = computer.ComputerInfo?.BiosVersion;
+                worksheet.Cells[row, 29].Value = computer.ComputerInfo?.BiosManufacturer;
+                worksheet.Cells[row, 30].Value = computer.OperatingSystemInfo?.BuildNumber;
+                worksheet.Cells[row, 31].Value = computer.OperatingSystemInfo?.ServicePack;
+                worksheet.Cells[row, 32].Value = computer.OperatingSystemInfo?.ProductId;
+                worksheet.Cells[row, 33].Value = computer.MemoryDetails?.VirtualMemory;
+                worksheet.Cells[row, 34].Value = computer.Processor?.Manufacturer;
+                worksheet.Cells[row, 35].Value = computer.Processor?.ClockSpeedMHz;
+                worksheet.Cells[row, 36].Value = computer.Processor?.NumberOfCores;
+                worksheet.Cells[row, 37].Value = computer.HardDisk?.SerialNumber;
+                worksheet.Cells[row, 38].Value = computer.HardDisk?.Manufacturer;
+                worksheet.Cells[row, 39].Value = computer.NetworkDetails?.NIC;
+                worksheet.Cells[row, 40].Value = computer.NetworkDetails?.Network;
+                worksheet.Cells[row, 41].Value = computer.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 42].Value = computer.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 43].Value = computer.NetworkDetails?.DHCPServer;
+                worksheet.Cells[row, 44].Value = computer.NetworkDetails?.DNSHostname;
+                worksheet.Cells[row, 45].Value = computer.Keyboard?.KeyboardType;
+                worksheet.Cells[row, 46].Value = computer.Keyboard?.Manufacturer;
+                worksheet.Cells[row, 47].Value = computer.Keyboard?.SerialNumber;
+                worksheet.Cells[row, 48].Value = computer.Mouse?.MouseType;
+                worksheet.Cells[row, 49].Value = computer.Mouse?.SerialNumber;
+                worksheet.Cells[row, 50].Value = computer.Mouse?.MouseButtons;
+                worksheet.Cells[row, 51].Value = computer.Mouse?.Manufacturer;
+                worksheet.Cells[row, 52].Value = computer.Monitor?.MonitorType;
+                worksheet.Cells[row, 53].Value = computer.Monitor?.SerialNumber;
+                worksheet.Cells[row, 54].Value = computer.Monitor?.Manufacturer;
+                worksheet.Cells[row, 55].Value = computer.Monitor?.MaxResolution;
+                worksheet.Cells[row, 56].Value = computer.AssetState?.StateComments;
+                worksheet.Cells[row, 57].Value = computer.AssetState?.UserId;
                 row++;
             }
 
@@ -2176,19 +2339,19 @@ public class AssetsController : Controller
             using var package = new OfficeOpenXml.ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Servers");
 
-            // Add Headers
+            // Add Headers (match Computers export for consistency)
             worksheet.Cells[1, 1].Value = "ID";
             worksheet.Cells[1, 2].Value = "Serial Number";
             worksheet.Cells[1, 3].Value = "Asset Number";
             worksheet.Cells[1, 4].Value = "Product";
             worksheet.Cells[1, 5].Value = "Vendor";
-            worksheet.Cells[1, 6].Value = "Computer Type";
-            worksheet.Cells[1, 7].Value = "Hostname";
+            worksheet.Cells[1, 6].Value = "Computer Type"; // ComputerInfo.Manufacturer
+            worksheet.Cells[1, 7].Value = "Hostname"; // ComputerInfo.Domain
             worksheet.Cells[1, 8].Value = "OS";
             worksheet.Cells[1, 9].Value = "OS Version";
             worksheet.Cells[1, 10].Value = "RAM (GB)";
-            worksheet.Cells[1, 11].Value = "Processor";
-            worksheet.Cells[1, 12].Value = "Hard Disk";
+            worksheet.Cells[1, 11].Value = "Processor"; // Processor.ProcessorInfo
+            worksheet.Cells[1, 12].Value = "Hard Disk"; // Model + CapacityGB
             worksheet.Cells[1, 13].Value = "IP Address";
             worksheet.Cells[1, 14].Value = "MAC Address";
             worksheet.Cells[1, 15].Value = "Status";
@@ -2196,9 +2359,48 @@ public class AssetsController : Controller
             worksheet.Cells[1, 17].Value = "Site";
             worksheet.Cells[1, 18].Value = "Department";
             worksheet.Cells[1, 19].Value = "Created Date";
+            // Additional headers to include all form fields
+            worksheet.Cells[1, 20].Value = "Name";
+            worksheet.Cells[1, 21].Value = "Location";
+            worksheet.Cells[1, 22].Value = "Purchase Cost";
+            worksheet.Cells[1, 23].Value = "Acquisition Date";
+            worksheet.Cells[1, 24].Value = "Warranty Expiry";
+            worksheet.Cells[1, 25].Value = "Service Tag";
+            worksheet.Cells[1, 26].Value = "BIOS Date";
+            worksheet.Cells[1, 27].Value = "SMBIOS Version";
+            worksheet.Cells[1, 28].Value = "BIOS Version";
+            worksheet.Cells[1, 29].Value = "BIOS Manufacturer";
+            worksheet.Cells[1, 30].Value = "OS Build Number";
+            worksheet.Cells[1, 31].Value = "OS Service Pack";
+            worksheet.Cells[1, 32].Value = "OS Product Id";
+            worksheet.Cells[1, 33].Value = "Virtual Memory (GB)";
+            worksheet.Cells[1, 34].Value = "Processor Manufacturer";
+            worksheet.Cells[1, 35].Value = "Clock Speed (MHz)";
+            worksheet.Cells[1, 36].Value = "Cores";
+            worksheet.Cells[1, 37].Value = "Disk Serial Number";
+            worksheet.Cells[1, 38].Value = "Disk Manufacturer";
+            worksheet.Cells[1, 39].Value = "NIC";
+            worksheet.Cells[1, 40].Value = "Network";
+            worksheet.Cells[1, 41].Value = "Default Gateway";
+            worksheet.Cells[1, 42].Value = "DHCP Enabled";
+            worksheet.Cells[1, 43].Value = "DHCP Server";
+            worksheet.Cells[1, 44].Value = "DNS Hostname";
+            worksheet.Cells[1, 45].Value = "Keyboard Type";
+            worksheet.Cells[1, 46].Value = "Keyboard Manufacturer";
+            worksheet.Cells[1, 47].Value = "Keyboard Serial";
+            worksheet.Cells[1, 48].Value = "Mouse Type";
+            worksheet.Cells[1, 49].Value = "Mouse Serial";
+            worksheet.Cells[1, 50].Value = "Mouse Buttons";
+            worksheet.Cells[1, 51].Value = "Mouse Manufacturer";
+            worksheet.Cells[1, 52].Value = "Monitor Type";
+            worksheet.Cells[1, 53].Value = "Monitor Serial";
+            worksheet.Cells[1, 54].Value = "Monitor Manufacturer";
+            worksheet.Cells[1, 55].Value = "Monitor Max Resolution";
+            worksheet.Cells[1, 56].Value = "State Comments";
+            worksheet.Cells[1, 57].Value = "State UserId";
 
             // Style Headers
-            using (var range = worksheet.Cells[1, 1, 1, 19])
+            using (var range = worksheet.Cells[1, 1, 1, 57])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -2232,6 +2434,44 @@ public class AssetsController : Controller
                 worksheet.Cells[row, 17].Value = server.AssetState?.Site;
                 worksheet.Cells[row, 18].Value = server.AssetState?.Department;
                 worksheet.Cells[row, 19].Value = server.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 20].Value = server.Name;
+                worksheet.Cells[row, 21].Value = server.Location;
+                worksheet.Cells[row, 22].Value = server.PurchaseCost;
+                worksheet.Cells[row, 23].Value = server.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 24].Value = server.WarrantyExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 25].Value = server.ComputerInfo?.ServiceTag;
+                worksheet.Cells[row, 26].Value = server.ComputerInfo?.BiosDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 27].Value = server.ComputerInfo?.SMBiosVersion;
+                worksheet.Cells[row, 28].Value = server.ComputerInfo?.BiosVersion;
+                worksheet.Cells[row, 29].Value = server.ComputerInfo?.BiosManufacturer;
+                worksheet.Cells[row, 30].Value = server.OperatingSystemInfo?.BuildNumber;
+                worksheet.Cells[row, 31].Value = server.OperatingSystemInfo?.ServicePack;
+                worksheet.Cells[row, 32].Value = server.OperatingSystemInfo?.ProductId;
+                worksheet.Cells[row, 33].Value = server.MemoryDetails?.VirtualMemory;
+                worksheet.Cells[row, 34].Value = server.Processor?.Manufacturer;
+                worksheet.Cells[row, 35].Value = server.Processor?.ClockSpeedMHz;
+                worksheet.Cells[row, 36].Value = server.Processor?.NumberOfCores;
+                worksheet.Cells[row, 37].Value = server.HardDisk?.SerialNumber;
+                worksheet.Cells[row, 38].Value = server.HardDisk?.Manufacturer;
+                worksheet.Cells[row, 39].Value = server.NetworkDetails?.NIC;
+                worksheet.Cells[row, 40].Value = server.NetworkDetails?.Network;
+                worksheet.Cells[row, 41].Value = server.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 42].Value = server.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 43].Value = server.NetworkDetails?.DHCPServer;
+                worksheet.Cells[row, 44].Value = server.NetworkDetails?.DNSHostname;
+                worksheet.Cells[row, 45].Value = server.Keyboard?.KeyboardType;
+                worksheet.Cells[row, 46].Value = server.Keyboard?.Manufacturer;
+                worksheet.Cells[row, 47].Value = server.Keyboard?.SerialNumber;
+                worksheet.Cells[row, 48].Value = server.Mouse?.MouseType;
+                worksheet.Cells[row, 49].Value = server.Mouse?.SerialNumber;
+                worksheet.Cells[row, 50].Value = server.Mouse?.MouseButtons;
+                worksheet.Cells[row, 51].Value = server.Mouse?.Manufacturer;
+                worksheet.Cells[row, 52].Value = server.Monitor?.MonitorType;
+                worksheet.Cells[row, 53].Value = server.Monitor?.SerialNumber;
+                worksheet.Cells[row, 54].Value = server.Monitor?.Manufacturer;
+                worksheet.Cells[row, 55].Value = server.Monitor?.MaxResolution;
+                worksheet.Cells[row, 56].Value = server.AssetState?.StateComments;
+                worksheet.Cells[row, 57].Value = server.AssetState?.UserId;
                 row++;
             }
 
@@ -2270,9 +2510,9 @@ public class AssetsController : Controller
     public async Task<IActionResult> CreateServer(ServerCreateViewModel model)
     {
         // Check only required fields
-        if (string.IsNullOrEmpty(model.Name) || model.ProductId == 0 || 
+        if (string.IsNullOrEmpty(model.Name) || model.ProductId == 0 ||
             string.IsNullOrEmpty(model.IPAddress) || string.IsNullOrEmpty(model.MACAddress) ||
-            model.ExpiryDate == null || model.AcquisitionDate == null || 
+            model.ExpiryDate == null || model.AcquisitionDate == null ||
             model.WarrantyExpiryDate == null || model.VendorId == null ||
             model.PurchaseCost == null)
         {
@@ -2917,7 +3157,7 @@ public class AssetsController : Controller
             using var package = new OfficeOpenXml.ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Mobile Devices");
 
-            // Add Headers
+            // Add Headers (match Computers/Servers for consistency - 36 columns)
             worksheet.Cells[1, 1].Value = "ID";
             worksheet.Cells[1, 2].Value = "Serial Number";
             worksheet.Cells[1, 3].Value = "Asset Number";
@@ -2936,9 +3176,28 @@ public class AssetsController : Controller
             worksheet.Cells[1, 16].Value = "Site";
             worksheet.Cells[1, 17].Value = "Department";
             worksheet.Cells[1, 18].Value = "Created Date";
+            // Additional headers
+            worksheet.Cells[1, 19].Value = "Name";
+            worksheet.Cells[1, 20].Value = "Location";
+            worksheet.Cells[1, 21].Value = "Purchase Cost";
+            worksheet.Cells[1, 22].Value = "Acquisition Date";
+            worksheet.Cells[1, 23].Value = "Warranty Expiry";
+            worksheet.Cells[1, 24].Value = "OS Build Number";
+            worksheet.Cells[1, 25].Value = "OS Service Pack";
+            worksheet.Cells[1, 26].Value = "OS Product Id";
+            worksheet.Cells[1, 27].Value = "Available Capacity (GB)";
+            worksheet.Cells[1, 28].Value = "Modem Firmware Version";
+            worksheet.Cells[1, 29].Value = "NIC";
+            worksheet.Cells[1, 30].Value = "Network";
+            worksheet.Cells[1, 31].Value = "Default Gateway";
+            worksheet.Cells[1, 32].Value = "DHCP Enabled";
+            worksheet.Cells[1, 33].Value = "DHCP Server";
+            worksheet.Cells[1, 34].Value = "DNS Hostname";
+            worksheet.Cells[1, 35].Value = "State Comments";
+            worksheet.Cells[1, 36].Value = "State UserId";
 
             // Style Headers
-            using (var range = worksheet.Cells[1, 1, 1, 18])
+            using (var range = worksheet.Cells[1, 1, 1, 36])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -2969,6 +3228,24 @@ public class AssetsController : Controller
                 worksheet.Cells[row, 16].Value = mobile.AssetState?.Site;
                 worksheet.Cells[row, 17].Value = mobile.AssetState?.Department;
                 worksheet.Cells[row, 18].Value = mobile.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 19].Value = mobile.Name;
+                worksheet.Cells[row, 20].Value = mobile.Location;
+                worksheet.Cells[row, 21].Value = mobile.PurchaseCost;
+                worksheet.Cells[row, 22].Value = mobile.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 23].Value = mobile.WarrantyExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 24].Value = mobile.OperatingSystemInfo?.BuildNumber;
+                worksheet.Cells[row, 25].Value = mobile.OperatingSystemInfo?.ServicePack;
+                worksheet.Cells[row, 26].Value = mobile.OperatingSystemInfo?.ProductId;
+                worksheet.Cells[row, 27].Value = mobile.MobileDetails?.AvailableCapacityGB;
+                worksheet.Cells[row, 28].Value = mobile.MobileDetails?.ModemFirmwareVersion;
+                worksheet.Cells[row, 29].Value = mobile.NetworkDetails?.NIC;
+                worksheet.Cells[row, 30].Value = mobile.NetworkDetails?.Network;
+                worksheet.Cells[row, 31].Value = mobile.NetworkDetails?.DefaultGateway;
+                worksheet.Cells[row, 32].Value = mobile.NetworkDetails?.DHCPEnabled == true ? "Yes" : "No";
+                worksheet.Cells[row, 33].Value = mobile.NetworkDetails?.DHCPServer;
+                worksheet.Cells[row, 34].Value = mobile.NetworkDetails?.DNSHostname;
+                worksheet.Cells[row, 35].Value = mobile.AssetState?.StateComments;
+                worksheet.Cells[row, 36].Value = mobile.AssetState?.UserId;
                 row++;
             }
 
@@ -3458,10 +3735,31 @@ public class AssetsController : Controller
             worksheet.Cells[1, 13].Value = "Associated To";
             worksheet.Cells[1, 14].Value = "Site";
             worksheet.Cells[1, 15].Value = "Department";
-            worksheet.Cells[1, 16].Value = "Created Date";
+            worksheet.Cells[1, 16].Value = "User ID";
+            worksheet.Cells[1, 17].Value = "State Comments";
+            worksheet.Cells[1, 18].Value = "Name";
+            worksheet.Cells[1, 19].Value = "Location";
+            worksheet.Cells[1, 20].Value = "Purchase Cost";
+            worksheet.Cells[1, 21].Value = "Acquisition Date";
+            worksheet.Cells[1, 22].Value = "Expiry Date";
+            worksheet.Cells[1, 23].Value = "Warranty Expiry Date";
+            worksheet.Cells[1, 24].Value = "NIC";
+            worksheet.Cells[1, 25].Value = "DHCP Enabled";
+            worksheet.Cells[1, 26].Value = "Product Type";
+            worksheet.Cells[1, 27].Value = "Manufacturer";
+            worksheet.Cells[1, 28].Value = "Part No";
+            worksheet.Cells[1, 29].Value = "Product Cost";
+            worksheet.Cells[1, 30].Value = "Product Description";
+            worksheet.Cells[1, 31].Value = "Vendor Currency";
+            worksheet.Cells[1, 32].Value = "Vendor Phone";
+            worksheet.Cells[1, 33].Value = "Vendor Email";
+            worksheet.Cells[1, 34].Value = "Vendor City";
+            worksheet.Cells[1, 35].Value = "Vendor Country";
+            worksheet.Cells[1, 36].Value = "Created Date";
+            worksheet.Cells[1, 37].Value = "Updated Date";
 
             // Style Headers
-            using (var range = worksheet.Cells[1, 1, 1, 16])
+            using (var range = worksheet.Cells[1, 1, 1, 37])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -3489,7 +3787,28 @@ public class AssetsController : Controller
                 worksheet.Cells[row, 13].Value = printer.AssetState?.AssociatedTo;
                 worksheet.Cells[row, 14].Value = printer.AssetState?.Site;
                 worksheet.Cells[row, 15].Value = printer.AssetState?.Department;
-                worksheet.Cells[row, 16].Value = printer.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 16].Value = printer.AssetState?.UserId;
+                worksheet.Cells[row, 17].Value = printer.AssetState?.StateComments;
+                worksheet.Cells[row, 18].Value = printer.Name;
+                worksheet.Cells[row, 19].Value = printer.Location;
+                worksheet.Cells[row, 20].Value = printer.PurchaseCost;
+                worksheet.Cells[row, 21].Value = printer.AcquisitionDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 22].Value = printer.ExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 23].Value = printer.WarrantyExpiryDate?.ToString("yyyy-MM-dd");
+                worksheet.Cells[row, 24].Value = printer.NetworkDetails?.NIC;
+                worksheet.Cells[row, 25].Value = printer.NetworkDetails?.DHCPEnabled;
+                worksheet.Cells[row, 26].Value = printer.Product?.ProductType;
+                worksheet.Cells[row, 27].Value = printer.Product?.Manufacturer;
+                worksheet.Cells[row, 28].Value = printer.Product?.PartNo;
+                worksheet.Cells[row, 29].Value = printer.Product?.Cost;
+                worksheet.Cells[row, 30].Value = printer.Product?.Description;
+                worksheet.Cells[row, 31].Value = printer.Vendor?.Currency;
+                worksheet.Cells[row, 32].Value = printer.Vendor?.PhoneNo;
+                worksheet.Cells[row, 33].Value = printer.Vendor?.Email;
+                worksheet.Cells[row, 34].Value = printer.Vendor?.City;
+                worksheet.Cells[row, 35].Value = printer.Vendor?.Country;
+                worksheet.Cells[row, 36].Value = printer.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+                worksheet.Cells[row, 37].Value = printer.UpdatedAt?.ToString("yyyy-MM-dd HH:mm");
                 row++;
             }
 
