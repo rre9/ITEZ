@@ -18,6 +18,7 @@
         TicketStatus.InProgress => "bg-info text-dark",
         TicketStatus.Resolved => "bg-success",
         TicketStatus.Rejected => "bg-secondary",
+        TicketStatus.Closed => "bg-dark",
         _ => "bg-light text-dark"
     };
 
@@ -48,10 +49,12 @@
 
 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
     <div>
-        <h1 class="display-6 fw-semibold text-primary mb-1">
+        <h1 class="display-6 fw-bold text-primary mb-2">
             <i class="fa-solid fa-users me-2"></i>@Localizer["TeamRequests"]
         </h1>
-        <p class="text-secondary mb-0">@Localizer["TeamRequestsDescription"]</p>
+        <p class="text-muted mb-0">
+            <i class="fa-solid fa-info-circle me-1"></i>@Localizer["TeamRequestsDescription"]
+        </p>
     </div>
     @{
         var pendingCount = Model.AccessRequests.Count(ar => ar.ManagerApprovalStatus == ApprovalStatus.Pending)
@@ -67,9 +70,14 @@
 </div>
 
 <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">
+            <i class="fa-solid fa-list-check me-2 text-primary"></i>@Localizer["TeamRequests"]
+        </h5>
+    </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped align-middle mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th scope="col">@Localizer["TicketNumber"]</th>
@@ -86,10 +94,12 @@
                                         !Model.ServiceRequests.Any())
                     {
                         <tr>
-                            <td colspan="7" class="py-5 text-center text-secondary">
-                                <i class="fa-solid fa-inbox fa-3x mb-3 text-muted"></i>
-                                <div class="fw-semibold">@Localizer["NoTeamRequestsFound"]</div>
-                                <p class="mb-0">@Localizer["NoTeamRequestsFoundDescription"]</p>
+                            <td colspan="7" class="py-5 text-center">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-inbox fa-4x mb-4 text-muted opacity-50"></i>
+                                    <h5 class="fw-semibold text-dark mb-2">@Localizer["NoTeamRequestsFound"]</h5>
+                                    <p class="text-muted mb-0">@Localizer["NoTeamRequestsFoundDescription"]</p>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -159,42 +169,48 @@
                                             <span class="badge bg-secondary">@Localizer["NA"]</span>
                                         }
                                     </td>
-                                    <td>@serviceRequest.RequestDate.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
-                                    <td class="text-nowrap text-end">
-                                        <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets"
-                                            asp-action="ApproveServiceRequest" asp-route-id="@serviceRequest.TicketId">
-                                            <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
-                                        </a>
-                                        <a class="btn btn-outline-primary btn-sm" asp-action="Details"
-                                            asp-route-id="@serviceRequest.TicketId">
-                                            <i class="fa-solid fa-eye me-1"></i>@Localizer["View"]
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
+                                    <td>@serviceRequest.RequestDate.ToLocalTime().ToString("g",
+                                                                    System.Globalization.CultureInfo.CurrentUICulture)</td>
+                        <td class="text-nowrap text-end">
+                            <a class="btn btn-primary btn-sm me-2" asp-controller="Tickets"
+                                asp-action="ApproveServiceRequest" asp-route-id="@serviceRequest.TicketId">
+                                <i class="fa-solid fa-gavel me-1"></i>@Localizer["Review"]
+                            </a>
+                            <a class="btn btn-outline-primary btn-sm" asp-action="Details"
+                                asp-route-id="@serviceRequest.TicketId">
+                                <i class="fa-solid fa-eye me-1"></i>@Localizer["View"]
+                            </a>
+                        </td>
+                    </tr>
+                                        }
                             else if (item is Ticket ticket)
                             {
                                 var ticketNumber = $"HD-{ticket.Id:D6}";
-                                var isManagerApproved = ticket.Description != null && ticket.Description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
+                                var isManagerApproved = ticket.Description != null &&
+                                ticket.Description.Contains("ManagerApprovalStatus=Approved", StringComparison.OrdinalIgnoreCase);
                                 var managerStatus = isManagerApproved ? "Approved" : "Pending";
                                 var managerStatusBadge = isManagerApproved ? "bg-success" : "bg-warning text-dark";
-                                
+
                                 // Check if current user is the one assigned to this ticket (can review)
-                                var canReview = ticket.AssignedToId == ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                                
+                                var canReview = ticket.AssignedToId ==
+                                ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
                                 <tr>
                                     <td class="fw-semibold text-secondary">@ticketNumber</td>
                                     <td>@(ticket.Title.Replace("System Change Request:", "").Trim())</td>
                                     <td>@ticket.Department</td>
                                     <td>
-                                        <span class="badge rounded-pill @managerStatusBadge">@(isManagerApproved ? Localizer["ApprovalStatusApproved"] : Localizer["Pending"])</span>
+                                        <span class="badge rounded-pill @managerStatusBadge">@(isManagerApproved ?
+                                                                            Localizer["ApprovalStatusApproved"] : Localizer["Pending"])</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary">@LocalizeStatus(ticket.Status)</span>
+                                        <span
+                                            class="badge rounded-pill @TicketStatusBadge(ticket.Status)">@LocalizeStatus(ticket.Status)</span>
                                     </td>
-                                    <td>@ticket.CreatedAt.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentUICulture)</td>
-                                    <td class="text-nowrap text-end">
-                                        @if (canReview)
+                                    <td>@ticket.CreatedAt.ToLocalTime().ToString("g",
+                                                                    System.Globalization.CultureInfo.CurrentUICulture)</td>
+                        <td class="text-nowrap text-end">
+                            @if (canReview)
                                         {
                                             @if (User.IsInRole("Security"))
                                             {

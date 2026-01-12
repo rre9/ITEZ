@@ -2,7 +2,7 @@
 @using ITHelpDesk.Models
 
 @{
-    ViewData["Title"] = "Create System Change Request";
+    ViewData["Title"] = Localizer["CreateSystemChangeRequest"];
 }
 
 <div class="row justify-content-center">
@@ -14,12 +14,12 @@
                     class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
                     <div>
                         <h1 class="h3 fw-semibold text-primary mb-1">
-                            <i class="fa-solid fa-key me-2"></i>System Change Request
+                            <i class="fa-solid fa-key me-2"></i>@Localizer["SystemChangeRequestTitle"]
                         </h1>
-                        <p class="text-secondary mb-0">Submit a request for system or application access.</p>
+                        <p class="text-secondary mb-0">@Localizer["SystemChangeRequestSubtitle"]</p>
                     </div>
                     <a asp-action="SelectRequestType" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-arrow-left-long me-2"></i>Back to Request Types
+                        <i class="fa-solid fa-arrow-left-long me-2"></i>@Localizer["BackToRequestTypes"]
                     </a>
                 </div>
                 <form asp-controller="SystemChangeRequests" asp-action="Create" method="post"
@@ -32,7 +32,7 @@
                     @* <h5>Applicant</h5> *@
                     <div class="mb-5">
                         <h5 class="fw-semibold text-dark mb-3 pb-2 border-bottom">
-                            <i class="fa-solid fa-user me-2 text-primary"></i>Applicant Information
+                            <i class="fa-solid fa-user me-2 text-primary"></i>@Localizer["ApplicantInformation"]
                         </h5>
 
                         <form action=""></form>
@@ -40,25 +40,25 @@
                             <div class="row g-3 mb-3">
 
                                 <div class="col-md-6">
-                                    <label asp-for="RequesterName" class="form-label fw-semibold"></label>
+                                    <label asp-for="RequesterName" class="form-label fw-semibold">@Localizer["RequesterName"]</label>
                                     <input asp-for="RequesterName" class="form-control" required />
                                     <span asp-validation-for="RequesterName" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label asp-for="ChangeRequestNumber" class="form-label fw-semibold"></label>
+                                    <label asp-for="ChangeRequestNumber" class="form-label fw-semibold">@Localizer["ChangeRequestNumber"]</label>
                                     <input asp-for="ChangeRequestNumber" class="form-control" required />
                                     <span asp-validation-for="ChangeRequestNumber" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label asp-for="Title" class="form-label fw-semibold"></label>
+                                    <label asp-for="Title" class="form-label fw-semibold">@Localizer["Title"]</label>
                                     <input asp-for="Title" class="form-control" required />
                                     <span asp-validation-for="Title" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                                    <label asp-for="PhoneNumber" class="form-label fw-semibold">@Localizer["PhoneNumber"]</label>
                                     <input asp-for="PhoneNumber" class="form-control" type="tel" inputmode="numeric"
                                         pattern="^05[0-9]{8}$" maxlength="10" placeholder="05xxxxxxxx"
                                         autocomplete="tel" required />
@@ -68,62 +68,63 @@
 
 
                                 <div class="col-12">
-                                    <label asp-for="ChangeDescription" class="form-label fw-semibold"></label>
+                                    <label asp-for="ChangeDescription" class="form-label fw-semibold">@Localizer["ChangeDescription"]</label>
                                     <textarea asp-for="ChangeDescription" class="form-control" rows="4"
-                                        placeholder="Explain why you need this access and how it relates to your job responsibilities..."
+                                        placeholder="@Localizer["ExplainChangeDescription"]"
                                         required></textarea>
                                     <span asp-validation-for="ChangeDescription" class="text-danger small"></span>
                                 </div>
 
                                 <div class="col-12">
-                                    <label asp-for="ChangeReason" class="form-label fw-semibold"></label>
+                                    <label asp-for="ChangeReason" class="form-label fw-semibold">@Localizer["ChangeReason"]</label>
                                     <textarea asp-for="ChangeReason" class="form-control" rows="4"
-                                        placeholder="Explain the reason for this change..." required></textarea>
+                                        placeholder="@Localizer["ExplainChangeReason"]" required></textarea>
                                     <span asp-validation-for="ChangeReason" class="text-danger small"></span>
                                 </div>
                             </div>
 
                             <hr />
-                            <h5>Impact Assessment</h5>
+                            <h5>@Localizer["ImpactAssessment"]</h5>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-4">
-                                    <label asp-for="ChangeType" class="form-label">Change Type</label>
+                                    <label asp-for="ChangeType" class="form-label">@Localizer["ChangeType"]</label>
                                     <select asp-for="ChangeType" class="form-select" required>
-                                        <option value="">-- Select Change Type --</option>
-                                        <option value="1">تغيير علا التطبيقات</option>
-                                        <option value="2">تغيير على المكونات الماديه</option>
-                                        <option value="3">تغيير شبكي</option>
-                                        <option value="4">تغيير على انظمة التشغيل</option>
+                                        <option value="">@Localizer["SelectChangeType"]</option>
+                                        <option value="1">@Localizer["ChangeTypeApplications"]</option>
+                                        <option value="2">@Localizer["ChangeTypeHardware"]</option>
+                                        <option value="3">@Localizer["ChangeTypeNetwork"]</option>
+                                        <option value="4">@Localizer["ChangeTypeOS"]</option>
+                                        <option value="5">@Localizer["ChangeTypeDatabase"]</option>
+                                        <option value="6">@Localizer["ChangeTypeProcedures"]</option>
+                                        <option value="7">@Localizer["ChangeTypeSecurity"]</option>
+                                        <option value="8">@Localizer["ChangeTypeOthers"]</option>
+  
                                     </select>
                                     <span asp-validation-for="ChangeType" class="text-danger small"></span>
                                 </div>
                                 <div class="col-md-4">
-                                    <label asp-for="ChangePriority" class="form-label">Priority</label>
+                                    <label asp-for="ChangePriority" class="form-label">@Localizer["ChangePriority"]</label>
                                     <select asp-for="ChangePriority" class="form-select" required>
-                                        <option value="">-- Select Priority --</option>
-                                        <option value="1">طارئ</option>
-                                        <option value="2">عالي</option>
-                                        <option value="3">متوسط</option>
-                                        <option value="4">منخفض</option>
-                                        <option value="5">تغيير على قواعد البيانات</option>
-                                        <option value="6">تغيير في الاجراءات</option>
-                                        <option value="7">تغيير في امن المعلومات</option>
-                                        <option value="8">تغييرات اخرى</option>
+                                        <option value="">@Localizer["SelectPriority"]</option>
+                                        <option value="1">@Localizer["PriorityEmergency"]</option>
+                                        <option value="2">@Localizer["PriorityHigh"]</option>
+                                        <option value="3">@Localizer["PriorityMedium"]</option>
+                                        <option value="4">@Localizer["PriorityLow"]</option>
                                     </select>
                                     <span asp-validation-for="ChangePriority" class="text-danger small"></span>
                                 </div>
                                 <div class="col-md-4">
-                                    <label asp-for="ChangeImpact" class="form-label">Impact</label>
+                                    <label asp-for="ChangeImpact" class="form-label">@Localizer["ChangeImpact"]</label>
                                     <select asp-for="ChangeImpact" class="form-select" required>
-                                        <option value="">-- Select Impact --</option>
-                                        <option value="1">منخفض</option>
-                                        <option value="2">متوسط</option>
-                                        <option value="3">عالي</option>
+                                        <option value="">@Localizer["SelectImpact"]</option>
+                                        <option value="1">@Localizer["ImpactLow"]</option>
+                                        <option value="2">@Localizer["ImpactMedium"]</option>
+                                        <option value="3">@Localizer["ImpactHigh"]</option>
                                     </select>
                                     <span asp-validation-for="ChangeImpact" class="text-danger small"></span>
                                 </div>
                                 <div class="col-12">
-                                    <label asp-for="AffectedAssets" class="form-label">Affected Assets</label>
+                                    <label asp-for="AffectedAssets" class="form-label">@Localizer["AffectedAssets"]</label>
                                     <textarea asp-for="AffectedAssets" class="form-control" rows="3"
                                         required></textarea>
                                     <span asp-validation-for="AffectedAssets" class="text-danger small"></span>
@@ -131,29 +132,29 @@
                             </div>
 
                             <hr />
-                            <h5>Execution Plans</h5>
+                            <h5>@Localizer["ExecutionPlans"]</h5>
                             <div class="mb-3">
-                                <label asp-for="ImplementationPlan" class="form-label">Implementation Plan</label>
+                                <label asp-for="ImplementationPlan" class="form-label">@Localizer["ImplementationPlan"]</label>
                                 <textarea asp-for="ImplementationPlan" class="form-control" rows="5"
                                     required></textarea>
                                 <span asp-validation-for="ImplementationPlan" class="text-danger small"></span>
                             </div>
                             <div class="mb-3">
-                                <label asp-for="BackoutPlan" class="form-label">Backout Plan</label>
+                                <label asp-for="BackoutPlan" class="form-label">@Localizer["BackoutPlan"]</label>
                                 <textarea asp-for="BackoutPlan" class="form-control" rows="4" required></textarea>
                                 <span asp-validation-for="BackoutPlan" class="text-danger small"></span>
                             </div>
 
                             <hr />
-                            <h5>Implementer</h5>
+                            <h5>@Localizer["Implementer"]</h5>
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label asp-for="ImplementerName" class="form-label">Implementer Name</label>
+                                    <label asp-for="ImplementerName" class="form-label">@Localizer["ImplementerName"]</label>
                                     <input asp-for="ImplementerName" class="form-control" required />
                                     <span asp-validation-for="ImplementerName" class="text-danger small"></span>
                                 </div>
                                 <div class="col-md-6">
-                                    <label asp-for="ExecutionDate" class="form-label">Execution Date</label>
+                                    <label asp-for="ExecutionDate" class="form-label">@Localizer["ExecutionDate"]</label>
                                     <input asp-for="ExecutionDate" class="form-control" type="date" required />
                                     <span asp-validation-for="ExecutionDate" class="text-danger small"></span>
                                 </div>
@@ -162,8 +163,8 @@
                             @* <hr /> *@
                             <div class="d-flex justify-content-end">
                                 <a asp-controller="Tickets" asp-action="SelectRequestType"
-                                    class="btn btn-outline-secondary me-2">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Submit Request</button>
+                                    class="btn btn-outline-secondary me-2">@Localizer["Cancel"]</a>
+                                <button type="submit" class="btn btn-primary">@Localizer["SubmitRequest"]</button>
                             </div>
                 </form>
             </div>
